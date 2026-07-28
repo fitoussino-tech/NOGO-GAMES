@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOGO GAMES — Bored? Good.</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #080c20;
+    --card: #10142e;
+    --card-deep: #05081a;
+    --line: #1e2447;
+    --fg: #f4f6ff;
+    --rose: #ff5ea8;
+    --amber: #ffc857;
+    --accent: #8b98ff;
+    --grey: #7c86b0;
+    --px-font: 'Press Start 2P', 'Courier New', monospace;
+    --body-font: 'Space Grotesk', system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--body-font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events: none; z-index: 999;
+  }
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 30px;
+    background: var(--card-deep);
+    flex-wrap: wrap; gap: 12px;
+  }
+  .logo { font-family: var(--px-font); font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 1px; color: var(--fg); }
+  .logo span { color: var(--rose); }
+  .nav-right { display: flex; align-items: center; gap: 22px; }
+  .nav-link { color: var(--grey); text-decoration: none; font-size: 15px; cursor: pointer; }
+  .nav-link:hover { color: var(--fg); }
+  .nav-account { color: var(--accent); }
+  .nav-btn {
+    font-family: var(--px-font); font-size: 10px;
+    background: var(--amber); color: var(--card-deep);
+    border: none; border-radius: 8px; padding: 13px 18px; cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+  }
+  .nav-btn:hover { filter: brightness(1.1); }
+
+  .hero {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 60px 20px 46px;
+  }
+  .badge {
+    font-family: var(--px-font); font-size: 10px;
+    color: var(--grey); border: 1px solid var(--line); border-radius: 999px;
+    padding: 12px 22px; letter-spacing: 3px; margin-bottom: 46px;
+  }
+  .badge .star { color: var(--accent); }
+  .slogan { font-family: var(--px-font); font-weight: 700; font-size: clamp(28px, 6vw, 52px); line-height: 1.35; margin-bottom: 30px; color: var(--fg); }
+  .slogan .dim { color: var(--amber); }
+
+  .cta-row { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; margin: 36px 0 60px; }
+  .big-card {
+    width: 300px; min-height: 260px;
+    background: var(--card); border: 2px solid var(--line); border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+    padding: 30px 22px; cursor: pointer; text-align: center;
+  }
+  .big-card:hover { border-color: var(--fg); }
+  .big-card.primary { border-color: var(--rose); box-shadow: 0 0 18px rgba(255, 94, 168, 0.2); }
+  .big-card.primary:hover { box-shadow: 0 0 26px rgba(255, 94, 168, 0.35); }
+  .big-card.secondary { border-color: var(--amber); box-shadow: 0 0 18px rgba(255, 200, 87, 0.2); }
+  .big-card.secondary:hover { box-shadow: 0 0 26px rgba(255, 200, 87, 0.35); }
+  .big-card .icon { font-size: 28px; color: var(--fg); letter-spacing: 8px; }
+  .big-card .title { font-family: var(--px-font); font-size: 12px; line-height: 1.8; }
+  .big-card.primary .title { color: var(--rose); }
+  .big-card.secondary .title { color: var(--amber); }
+  .tag-free {
+    font-family: var(--px-font); font-size: 9px;
+    background: var(--rose); color: var(--card-deep);
+    border-radius: 6px; padding: 7px 11px;
+  }
+  .tag-members {
+    font-family: var(--px-font); font-size: 9px;
+    color: var(--amber); border: 1px solid var(--amber);
+    border-radius: 6px; padding: 7px 11px;
+  }
+  .big-card .meta { color: var(--grey); font-size: 14px; }
+
+  .countdown-label { font-size: 14px; letter-spacing: 5px; color: var(--grey); margin-bottom: 20px; }
+  .countdown-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .count-box {
+    background: var(--card-deep); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px; min-width: 88px;
+  }
+  .count-box .num { font-family: var(--px-font); font-size: 22px; color: var(--accent); }
+  .count-box .unit { font-size: 12px; letter-spacing: 2px; color: var(--grey); margin-top: 9px; }
+
+  .page { flex: 1; padding: 54px 30px; max-width: 1000px; margin: 0 auto; width: 100%; }
+  .page h1 { font-family: var(--px-font); font-size: 20px; margin-bottom: 14px; color: var(--fg); }
+  .page .desc { color: var(--grey); font-size: 16px; margin-bottom: 40px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 20px; }
+  .card {
+    background: var(--card); border: 2px solid var(--line); border-radius: 14px;
+    padding: 24px 15px; text-align: center; cursor: pointer;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card .thumb { font-size: 30px; margin-bottom: 12px; }
+  .card .name { font-family: var(--px-font); font-size: 10px; line-height: 1.7; margin-bottom: 8px; color: var(--fg); }
+  .card .week { font-size: 13px; color: var(--grey); }
+  .card.free { border-color: var(--rose); box-shadow: 0 0 14px rgba(255, 94, 168, 0.15); }
+  .card .tag {
+    display: inline-block; font-family: var(--px-font); font-size: 8px;
+    margin-top: 12px; padding: 6px 10px; border-radius: 6px;
+    background: var(--rose); color: var(--card-deep);
+  }
+  .vault-empty {
+    grid-column: 1 / -1; text-align: center; padding: 54px 20px;
+    border: 2px dashed var(--line); border-radius: 14px; color: var(--grey); font-size: 15px;
+  }
+  .vault-empty .big { font-family: var(--px-font); font-size: 12px; line-height: 2; margin-bottom: 10px; color: var(--fg); }
+
+  .game-full {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    background: var(--card-deep); overflow: hidden;
+  }
+  .game-full iframe { width: 100%; height: 100%; border: none; display: block; flex: 1; }
+
+  .sub-box {
+    max-width: 460px; margin: 0 auto; background: var(--card);
+    border: 2px solid var(--line); border-radius: 16px;
+    padding: 40px 32px; text-align: center;
+  }
+  .price { font-family: var(--px-font); font-size: 30px; margin: 24px 0 8px; color: var(--amber); }
+  .price small { font-size: 12px; color: var(--grey); }
+  .perks { list-style: none; margin: 28px 0; text-align: left; }
+  .perks li { font-size: 15px; color: var(--grey); line-height: 2.2; }
+  .perks li::before { content: '> '; color: var(--accent); font-family: var(--px-font); font-size: 11px; }
+  .btn {
+    font-family: var(--px-font); font-size: 11px; cursor: pointer;
+    padding: 17px 24px; line-height: 1.6; border-radius: 10px;
+    background: var(--amber); color: var(--card-deep);
+    border: 2px solid var(--amber);
+  }
+  .btn:hover { background: transparent; color: var(--amber); }
+
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(5, 10, 40, 0.85);
+    z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border: 2px solid var(--accent); border-radius: 16px;
+    padding: 40px 32px; max-width: 420px; width: 100%; text-align: center;
+    box-shadow: 0 0 24px rgba(139, 152, 255, 0.25);
+  }
+  .modal .lock-icon { font-size: 34px; margin-bottom: 18px; }
+  .modal h2 { font-family: var(--px-font); font-size: 12px; line-height: 1.9; margin-bottom: 15px; color: var(--fg); }
+  .modal p { font-size: 14px; color: var(--grey); line-height: 1.8; margin-bottom: 26px; }
+  .modal .btn { width: 100%; margin-bottom: 15px; }
+  .modal .close { font-size: 14px; color: var(--grey); cursor: pointer; background: none; border: none; font-family: var(--body-font); }
+  .modal .close:hover { color: var(--fg); }
+
+  .auth-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
+  .auth-tab {
+    font-family: var(--px-font); font-size: 9px; padding: 10px 13px;
+    cursor: pointer; color: var(--grey); border: none; background: none;
+    border-bottom: 2px solid transparent;
+  }
+  .auth-tab.active { color: var(--fg); border-color: var(--amber); }
+  .auth-input {
+    width: 100%; padding: 12px 14px; margin-bottom: 13px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--card-deep); color: var(--fg);
+    font-family: var(--body-font); font-size: 15px; outline: none;
+  }
+  .auth-input:focus { border-color: var(--accent); }
+  .auth-msg { font-size: 13px; color: var(--rose); min-height: 20px; margin-bottom: 8px; }
+
+  footer {
+    background: var(--card-deep);
+    padding: 20px 30px; text-align: center;
+    color: var(--grey); font-size: 13px;
+  }
+
+  #dino-wrap {
+    position: fixed; bottom: 66px; right: 28px;
+    width: 68px; z-index: 500; cursor: pointer;
+    user-select: none;
+  }
+  #dino-wrap svg { width: 100%; height: auto; display: block; }
+  #dino-wrap.jump { animation: dino-jump 0.75s cubic-bezier(0.3, 0, 0.4, 1); }
+  @keyframes dino-jump {
+    0% { transform: translateY(0); }
+    40% { transform: translateY(-50px); }
+    100% { transform: translateY(0); }
+  }
+  #dino-bubble {
+    position: absolute; top: -33px; left: 50%; transform: translateX(-50%);
+    font-family: var(--px-font); font-size: 9px;
+    background: var(--amber); color: var(--card-deep);
+    padding: 7px 10px; border-radius: 6px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  }
+  #dino-bubble::after {
+    content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--amber);
+  }
+  #dino-wrap.talk #dino-bubble { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screen-home">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('vault')">Previous games</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+      <button class="nav-btn" onclick="go('subscribe')">SUBSCRIBE</button>
+    </div>
+  </header>
+  <div class="hero">
+    <div class="badge"><span class="star">★</span> NEW GAME EVERY MONDAY <span class="star">★</span></div>
+    <div class="slogan">BORED?<br><span class="dim">GOOD.</span></div>
+    <div class="cta-row">
+      <div class="big-card primary" onclick="go('game')">
+        <div class="icon">▶</div>
+        <div class="title">PLAY THIS WEEK'S GAME</div>
+        <span class="tag-free">FREE</span>
+      </div>
+      <div class="big-card secondary" onclick="go('vault')">
+        <div class="icon">◼ ◼ ◼</div>
+        <div class="title">PLAY PREVIOUS GAMES</div>
+        <span class="tag-members">MEMBERS</span>
+        <div class="meta">vault opens next Monday</div>
+      </div>
+    </div>
+    <div class="countdown-label">NEXT GAME DROPS IN</div>
+    <div class="countdown-row">
+      <div class="count-box"><div class="num" id="cd-d">--</div><div class="unit">DAYS</div></div>
+      <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
+      <div class="count-box"><div class="num" id="cd-m">--</div><div class="unit">MIN</div></div>
+      <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
+    </div>
+  </div>
+  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+</div>
+
+<div class="screen" id="screen-vault">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+      <button class="nav-btn" onclick="go('subscribe')">SUBSCRIBE</button>
+    </div>
+  </header>
+  <div class="page">
+    <h1>THE VAULT</h1>
+    <div class="desc">Every game from previous weeks. This week's game is free — the rest is for members.</div>
+    <div class="grid">
+      <div class="card free" onclick="go('game')">
+        <div class="thumb">👾</div>
+        <div class="name">PIXEL PANIC</div>
+        <div class="week">Week 1</div>
+        <span class="tag">FREE</span>
+      </div>
+      <div class="vault-empty">
+        <div class="big">THE VAULT IS EMPTY… FOR NOW</div>
+        This is week 1. Every Monday, the previous game moves in here.<br>Come back next week.
+      </div>
+    </div>
+  </div>
+  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+</div>
+
+<div class="screen" id="screen-game">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link" onclick="go('vault')">Previous games</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+      <button class="nav-btn" onclick="go('subscribe')">SUBSCRIBE</button>
+    </div>
+  </header>
+  <div class="game-full" id="game-frame"></div>
+</div>
+
+<div class="screen" id="screen-subscribe">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link" onclick="go('vault')">Previous games</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+    </div>
+  </header>
+  <div class="page">
+    <div class="sub-box">
+      <h1>UNLOCK THE VAULT</h1>
+      <div class="price">$2.99<small> / month</small></div>
+      <div style="font-size:13px;color:var(--grey);">(placeholder price — TBD)</div>
+      <ul class="perks">
+        <li>Access every past game</li>
+        <li>New game every Monday, forever</li>
+        <li>No ads, no install, plays in your browser</li>
+        <li>Cancel anytime, one click</li>
+      </ul>
+      <button class="btn" onclick="subscribeClick()">SUBSCRIBE</button>
+    </div>
+  </div>
+  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+</div>
+
+<div class="modal-overlay" id="paywall">
+  <div class="modal">
+    <div class="lock-icon">🔒</div>
+    <h2>THIS GAME IS IN<br>THE VAULT</h2>
+    <p>Past weeks' games are for members only. This week's game is always free.</p>
+    <button class="btn" onclick="closePaywall(); go('subscribe')">UNLOCK — $2.99/MONTH</button>
+    <button class="close" onclick="closePaywall()">no thanks, back to being bored</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <div id="auth-forms">
+      <h2>JOIN NOGO GAMES</h2>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="setAuthTab('login')">LOG IN</button>
+        <button class="auth-tab" id="tab-signup" onclick="setAuthTab('signup')">SIGN UP</button>
+      </div>
+      <input class="auth-input" id="auth-firstname" type="text" placeholder="first name" style="display:none;">
+      <input class="auth-input" id="auth-lastname" type="text" placeholder="last name" style="display:none;">
+      <input class="auth-input" id="auth-email" type="email" placeholder="email">
+      <input class="auth-input" id="auth-password" type="password" placeholder="password (6+ characters)">
+      <div id="auth-captcha-row" style="display:none;">
+        <div style="font-size:13px;color:var(--grey);text-align:left;margin-bottom:8px;">Anti-robot check: <span id="captcha-question" style="color:var(--fg);"></span></div>
+        <input class="auth-input" id="auth-captcha" type="text" inputmode="numeric" placeholder="answer">
+      </div>
+      <div class="auth-msg" id="auth-msg"></div>
+      <button class="btn" id="auth-submit" onclick="submitAuth()">LOG IN</button>
+      <button class="close" onclick="closeAccount()">close</button>
+    </div>
+    <div id="account-view" style="display:none;">
+      <h2>YOUR ACCOUNT</h2>
+      <p id="account-name" style="margin-bottom:2px;color:var(--fg);font-weight:500;"></p>
+      <p id="account-email" style="margin-bottom:6px;color:var(--grey);font-size:14px;"></p>
+      <div style="font-family:var(--px-font);font-size:26px;color:var(--amber);margin:18px 0 6px;" id="account-points">0</div>
+      <div style="font-size:13px;color:var(--grey);letter-spacing:2px;margin-bottom:18px;">TOTAL POINTS</div>
+      <button class="btn" style="background:transparent;color:var(--grey);border-color:var(--line);" onclick="logout()">LOG OUT</button>
+      <button class="close" onclick="closeAccount()">close</button>
+    </div>
+  </div>
+</div>
+
+<div id="dino-wrap" title="rawr">
+  <div id="dino-bubble">RAWR!</div>
+  <svg id="dino-svg" viewBox="0 0 22 22" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<template id="game-tpl">
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#05081a; color:#f4f6ff; font-family:'Courier New',monospace; font-weight:bold;
+    height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; overflow:hidden; user-select:none; }
+  #hud { font-size:15px; color:#7c86b0; letter-spacing:2px; }
+  #hud span { color:#ffc857; }
+  #arena { position:relative; width:min(90vw,540px); height:min(56vh,290px); border:2px solid #1e2447; border-radius:12px; }
+  #target { position:absolute; font-size:32px; cursor:pointer; transition:top 0.08s,left 0.08s; }
+  #msg { font-size:13px; color:#7c86b0; text-align:center; line-height:1.9; letter-spacing:1px; }
+</style>
+</head>
+<body>
+  <div id="hud">SCORE <span id="score">0</span> — TIME <span id="time">30</span></div>
+  <div id="arena"><div id="target">👾</div></div>
+  <div id="msg">Click the invader. 30 seconds.</div>
+<script>
+  let score = 0, time = 30, running = true;
+  const target = document.getElementById('target');
+  const arena = document.getElementById('arena');
+  function move() {
+    target.style.left = Math.random() * (arena.clientWidth - 40) + 'px';
+    target.style.top = Math.random() * (arena.clientHeight - 40) + 'px';
+  }
+  target.addEventListener('click', () => {
+    if (!running) return;
+    score++;
+    document.getElementById('score').textContent = score;
+    move();
+  });
+  const timer = setInterval(() => {
+    if (--time <= 0) {
+      running = false; clearInterval(timer);
+      document.getElementById('msg').innerHTML = 'GAME OVER — FINAL SCORE ' + score + '<br>refresh to retry';
+      target.style.display = 'none';
+      try { parent.postMessage({ type: 'nogo-score', points: score }, '*'); } catch (e) {}
+    }
+    document.getElementById('time').textContent = time;
+  }, 1000);
+  move();
+</script>
+</body>
+</html>
+</template>
+
+<script>
+  function go(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.getElementById('dino-wrap').style.display = name === 'game' ? 'none' : 'block';
+    window.scrollTo(0, 0);
+  }
+  function openPaywall() { document.getElementById('paywall').classList.add('open'); }
+  function closePaywall() { document.getElementById('paywall').classList.remove('open'); }
+  function openAccount() { document.getElementById('auth-modal').classList.add('open'); refreshAccountUI(); }
+  function closeAccount() { document.getElementById('auth-modal').classList.remove('open'); }
+
+  let loggedUser = null;
+  let authMode = 'login';
+  let captchaAnswer = null;
+  function newCaptcha() {
+    const a = 2 + Math.floor(Math.random() * 8);
+    const b = 2 + Math.floor(Math.random() * 8);
+    captchaAnswer = a + b;
+    document.getElementById('captcha-question').textContent = a + ' + ' + b + ' = ?';
+    document.getElementById('auth-captcha').value = '';
+  }
+  function setAuthTab(mode) {
+    authMode = mode;
+    document.getElementById('tab-login').classList.toggle('active', mode === 'login');
+    document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
+    document.getElementById('auth-submit').textContent = mode === 'login' ? 'LOG IN' : 'CREATE ACCOUNT';
+    document.getElementById('auth-msg').textContent = '';
+    const signup = mode === 'signup';
+    document.getElementById('auth-firstname').style.display = signup ? 'block' : 'none';
+    document.getElementById('auth-lastname').style.display = signup ? 'block' : 'none';
+    document.getElementById('auth-captcha-row').style.display = signup ? 'block' : 'none';
+    if (signup) newCaptcha();
+  }
+  function submitAuth() {
+    const msg = document.getElementById('auth-msg');
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!email || password.length < 6) { msg.textContent = 'Valid email + password of 6+ characters required.'; return; }
+    if (authMode === 'signup') {
+      const fn = document.getElementById('auth-firstname').value.trim();
+      const ln = document.getElementById('auth-lastname').value.trim();
+      if (!fn || !ln) { msg.textContent = 'First name and last name required.'; return; }
+      if (parseInt(document.getElementById('auth-captcha').value, 10) !== captchaAnswer) {
+        msg.textContent = 'Wrong anti-robot answer, try again.'; newCaptcha(); return;
+      }
+      loggedUser = { name: fn + ' ' + ln, email: email };
+    } else {
+      loggedUser = { name: 'Player', email: email };
+    }
+    msg.textContent = '';
+    refreshAccountUI();
+    closeAccount();
+  }
+  function logout() { loggedUser = null; points = 0; refreshAccountUI(); closeAccount(); }
+  function refreshAccountUI() {
+    const logged = !!loggedUser;
+    document.querySelectorAll('.nav-account').forEach(el => {
+      el.textContent = logged ? ('★ ' + points + ' pts') : 'Log in';
+    });
+    document.getElementById('auth-forms').style.display = logged ? 'none' : 'block';
+    document.getElementById('account-view').style.display = logged ? 'block' : 'none';
+    if (logged) {
+      document.getElementById('account-name').textContent = loggedUser.name;
+      document.getElementById('account-email').textContent = loggedUser.email;
+      document.getElementById('account-points').textContent = points;
+    }
+  }
+  function subscribeClick() {
+    alert('Preview — le paiement Stripe sera branché plus tard.');
+  }
+
+  // demo game in the frame (embedded so it runs in the preview)
+  const tpl = document.getElementById('game-tpl');
+  const iframe = document.createElement('iframe');
+  iframe.srcdoc = tpl.innerHTML;
+  document.getElementById('game-frame').appendChild(iframe);
+
+  // points (local for the preview) — only counted when logged in
+  let points = 0;
+  window.addEventListener('message', (e) => {
+    if (!e.data || e.data.type !== 'nogo-score') return;
+    if (!loggedUser) return;
+    points += Math.max(0, Math.floor(Number(e.data.points) || 0));
+    refreshAccountUI();
+  });
+
+  function nextMonday() {
+    const now = new Date();
+    const d = new Date(now);
+    d.setDate(now.getDate() + ((8 - now.getDay()) % 7 || 7));
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  const target = nextMonday();
+  const p = n => String(n).padStart(2, '0');
+  function tick() {
+    let diff = Math.max(0, target - new Date());
+    document.getElementById('cd-d').textContent = Math.floor(diff / 86400000);
+    document.getElementById('cd-h').textContent = p(Math.floor(diff / 3600000) % 24);
+    document.getElementById('cd-m').textContent = p(Math.floor(diff / 60000) % 60);
+    document.getElementById('cd-s').textContent = p(Math.floor(diff / 1000) % 60);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  const DINO_BODY = [
+    "............XXXXXXXX..",
+    "............XoXXXXXX..",
+    "............XXXXXXXX..",
+    "............XXXXXXXX..",
+    "............XXXX......",
+    "............XXXXXXX...",
+    "............XXXX......",
+    "X...........XXXX......",
+    "X..........XXXXX......",
+    "XX........XXXXXXXXX...",
+    "XXX......XXXXXXXX.....",
+    "XXXX....XXXXXXXXX.....",
+    "XXXXX..XXXXXXXXX......",
+    "XXXXXXXXXXXXXXXX......",
+    ".XXXXXXXXXXXXXXX......",
+    "..XXXXXXXXXXXXX.......",
+    "...XXXXXXXXXXX........",
+    "....XXXXXXXXX........."
+  ];
+  const DINO_LEGS_A = [
+    ".....XXX..XXX.........",
+    ".....XXX...XX.........",
+    "...........X..........",
+    "...........XX........."
+  ];
+  const DINO_LEGS_B = [
+    ".....XXX..XXX.........",
+    ".....XX...XXX.........",
+    ".....X................",
+    ".....XX..............."
+  ];
+  const dinoSvg = document.getElementById('dino-svg');
+  const dinoWrap = document.getElementById('dino-wrap');
+  let eyeOpen = true;
+  function drawDino(legsFrame) {
+    const rows = DINO_BODY.concat(legsFrame);
+    let s = '';
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        const c = row[x];
+        if (c === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#e8eaf6"/>`;
+        if (c === 'o') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${eyeOpen ? '#080c20' : '#e8eaf6'}"/>`;
+      }
+    });
+    dinoSvg.innerHTML = s;
+  }
+  let legFlip = false;
+  drawDino(DINO_LEGS_A);
+  setInterval(() => { legFlip = !legFlip; drawDino(legFlip ? DINO_LEGS_B : DINO_LEGS_A); }, 160);
+  setInterval(() => { eyeOpen = false; setTimeout(() => { eyeOpen = true; }, 150); }, 3400);
+  function dinoJump(shout) {
+    if (dinoWrap.classList.contains('jump')) return;
+    dinoWrap.classList.add('jump');
+    if (shout) dinoWrap.classList.add('talk');
+    setTimeout(() => {
+      dinoWrap.classList.remove('jump');
+      setTimeout(() => dinoWrap.classList.remove('talk'), 400);
+    }, 750);
+  }
+  dinoWrap.addEventListener('click', () => dinoJump(true));
+  (function autoJump() {
+    setTimeout(() => { dinoJump(false); autoJump(); }, 6000 + Math.random() * 8000);
+  })();
+</script>
+</body>
+</html>
