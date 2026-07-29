@@ -1,6 +1,14 @@
-window.CURRENT_GAME = {
-  path:  'games/word-ladder.html',  // which file to load
-  title: 'WORD LADDER',                      // name shown on the site
-  emoji: '',                                // icon
-  week:  1                                    // week number
-};
+// =====================================================================
+//  YOUR GAMES  —  this is the only file you manage.
+//  • Add a game: add one line to the list below.
+//  • CURRENT_INDEX picks THIS WEEK'S free game
+//      0 = first line, 1 = second line, 2 = third line, ...
+//  • Every OTHER game in the list automatically shows in the vault
+//    as a "previous game".
+// =====================================================================
+window.GAMES = [
+  { title: 'WORD LADDER',    emoji: '', path: 'games/word-ladder.html' },
+  { title: 'SUMO SIMULATOR', emoji: '', path: 'games/sumo-simulator.html' }
+];
+
+window.CURRENT_INDEX = 0;   // 0 = Word Ladder is this week's free game
