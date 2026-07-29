@@ -12,4 +12,4 @@ window.GAMES = [
   { title: 'tradergame.html', emoji: '', path: 'games/tradergame.html'}
 ];
 
-window.CURRENT_INDEX = 0;   // 0 = Word Ladder is this week's free game
+window.CURRENT_INDEX = 1;   // 0 = Word Ladder is this week's free game
