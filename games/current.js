@@ -9,6 +9,7 @@
 window.GAMES = [
   { title: 'WORD LADDER',    emoji: '', path: 'games/word-ladder.html' },
   { title: 'SUMO SIMULATOR', emoji: '', path: 'games/sumo-simulator.html'}, 
-  { title: 'TRADER SIMULATOR', emoji: '', path: 'games/tradergame.html'} 
+  { title: 'TRADER SIMULATOR', emoji: '', path: 'games/tradergame.html'},
+  { title: 'MOO.F.O', emoji: '🛸', path: 'games/moofo.html'} 
 ];
-window.CURRENT_INDEX = 0;   // 0 = Word Ladder is this week's free game
+window.CURRENT_INDEX = 3;   // 0 = Word Ladder is this week's free game
