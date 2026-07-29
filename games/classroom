@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find ~/Desktop ~/Downloads -maxdepth 3 -iname \"*how*to*\" -o -iname \"*logo*\" 2>/dev/null | grep -v -i insead)",
+      "Bash(find /private/tmp/claude-501 -maxdepth 6 -iname \"*.png\" -o -iname \"*.jpg\" -o -iname \"*.jpeg\" 2>/dev/null | grep -v scratchpad | head -30; echo \"---\"; ls -la \"/private/tmp/claude-501/-Users-noamfitoussi-Desktop/56a7a2bd-5fef-4877-af05-935fc3e69729/scratchpad\" 2>/dev/null)",
+      "Bash(mkdir -p ~/Desktop/how-to-website/.claude)",
+      "Bash(lsof -nP -iTCP:4599)",
+      "Bash(timeout 3 python3 -m http.server 4600 --directory trader-game)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(python3 -m http.server 4601 --directory trader-game)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:4601/index.html)",
+      "Read(//tmp/**)",
+      "Bash(kill %1)",
+      "Read(//usr/share/dict/**)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/build.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/paths.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/inject.py)",
+      "Bash(python3 -c ' *)",
+      "Bash(sed -i '' 's/enio kiev/enio kiev john york paul mark rome cuba nile ymca faq/' buildfinal.py)",
+      "Bash(python3 buildfinal.py)",
+      "Bash(mkdir -p games/week-01-word-ladder)",
+      "Bash(cp word-ladder.html games/week-01-word-ladder/index.html)",
+      "Bash(rm -f word-ladder.html)",
+      "Bash(mv games/week-01-word-ladder/index.html games/week-01-word-ladder.html)",
+      "Bash(rmdir games/week-01-word-ladder)",
+      "Bash([ -f \"$FILE\" ])",
+      "Bash(open -R /Users/noamfitoussi/Desktop/nogo-games/games/week-01-word-ladder.html)",
+      "Bash(open -R /Users/noamfitoussi/Desktop/UPLOAD-THIS-word-ladder.html)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/inspect.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/theme.py)",
+      "Bash(sed -i '' 's/paul mark noah adam/paul mark noah adam john york june july karl/' finalbank.py)",
+      "Bash(python3 finalbank.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/diag.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/diag2.py)",
+      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/sweep.py)",
+      "Bash(python3 final2.py)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -n 'titleScreen\\\\|enterMenu\\\\|keydown\\\\|result=\\\\$' /Users/noamfitoussi/Desktop/sumo-showdown.html)"
+    ]
+  }
+}
