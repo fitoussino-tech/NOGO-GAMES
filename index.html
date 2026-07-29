@@ -114,7 +114,7 @@
   }
   .card:hover { border-color: var(--accent); }
   .card .thumb { font-size: 30px; margin-bottom: 12px; }
-  .card .name { font-family: var(--px-font); font-size: 15px; line-height: 1.7; margin-bottom: 8px; color: var(--fg); }
+  .card .name { font-family: var(--px-font); font-size: 10px; line-height: 1.7; margin-bottom: 8px; color: var(--fg); }
   .card .week { font-size: 13px; color: var(--grey); }
   .card.free { border-color: var(--rose); box-shadow: 0 0 14px rgba(255, 94, 168, 0.15); }
   .card .tag {
@@ -343,12 +343,14 @@
   <div id="dino-bubble">RAWR!</div>
   <svg id="dino-svg" viewBox="0 0 22 22" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
-<!-- Which game is live this week is set in games/current.js — you never edit this skeleton. -->
+<!-- All games are set in games/current.js — you never edit this skeleton. -->
 <script src="games/current.js"></script>
 <script>
-  // Everything game-specific lives in games/current.js (window.CURRENT_GAME).
+  // All games live in games/current.js (window.GAMES + window.CURRENT_INDEX).
   // This skeleton stays generic — it never names a specific game.
-  const CURRENT_GAME = window.CURRENT_GAME || {};
+  const GAMES = window.GAMES || [];
+  const CURRENT_INDEX = (typeof window.CURRENT_INDEX === 'number') ? window.CURRENT_INDEX : 0;
+  const CURRENT_GAME = GAMES[CURRENT_INDEX] || {};
 
   function go(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -357,30 +359,53 @@
     if (name === 'vault') renderVault();
     window.scrollTo(0, 0);
   }
-  function playCurrent() {
+  function loadGame(game) {
+    if (!game || !game.path) return;
     const frame = document.getElementById('game-frame');
     frame.innerHTML = '';
     const iframe = document.createElement('iframe');
-    iframe.src = CURRENT_GAME.path;
-    iframe.title = CURRENT_GAME.title || 'Game';
+    iframe.src = game.path;
+    iframe.title = game.title || 'Game';
     frame.appendChild(iframe);
     go('game');
   }
-  // Build the vault's "this week" card from current.js — no game name is hard-coded here.
+  function playCurrent() { loadGame(CURRENT_GAME); }
+  function playIndex(i) { loadGame(GAMES[i]); }
+
+  // The vault lists every game EXCEPT this week's — built from the list in current.js.
   function renderVault() {
-    const card =
-      '<div class="card free" onclick="playCurrent()">' +
-        '<div class="thumb">' + (CURRENT_GAME.emoji || '🎮') + '</div>' +
-        '<div class="name">' + (CURRENT_GAME.title || "THIS WEEK'S GAME") + '</div>' +
-        '<div class="week">' + (CURRENT_GAME.week ? 'Week ' + CURRENT_GAME.week : '') + '</div>' +
-        '<span class="tag">FREE</span>' +
-      '</div>';
-    const empty =
-      '<div class="vault-empty">' +
-        '<div class="big">THE VAULT IS EMPTY… FOR NOW</div>' +
-        'Every Monday, the previous game moves in here.<br>Come back next week.' +
-      '</div>';
-    document.getElementById('vault-grid').innerHTML = card + empty;
+    let html = '';
+    // this week's game — free, shown first
+    if (CURRENT_GAME.path) {
+      html +=
+        '<div class="card free" onclick="playIndex(' + CURRENT_INDEX + ')">' +
+          '<div class="thumb">' + (CURRENT_GAME.emoji || '') + '</div>' +
+          '<div class="name">' + (CURRENT_GAME.title || "THIS WEEK'S GAME") + '</div>' +
+          '<div class="week">This week</div>' +
+          '<span class="tag">FREE</span>' +
+        '</div>';
+    }
+    // every other game in the list = a previous game in the vault
+    let previous = 0;
+    GAMES.forEach(function (g, i) {
+      if (i === CURRENT_INDEX || !g || !g.path) return;
+      previous++;
+      html +=
+        '<div class="card" onclick="playIndex(' + i + ')">' +
+          '<div class="thumb">' + (g.emoji || '') + '</div>' +
+          '<div class="name">' + (g.title || 'GAME') + '</div>' +
+          '<div class="week">Previous game</div>' +
+          '<span class="tag" style="background:var(--amber);">PLAY</span>' +
+        '</div>';
+    });
+    if (previous === 0) {
+      html +=
+        '<div class="vault-empty">' +
+          '<div class="big">THE VAULT IS EMPTY… FOR NOW</div>' +
+          'Every Monday, the previous game moves in here.<br>Come back next week.' +
+        '</div>';
+    }
+    document.getElementById('vault-grid').innerHTML = html;
   }
   function openPaywall() { document.getElementById('paywall').classList.add('open'); }
   function closePaywall() { document.getElementById('paywall').classList.remove('open'); }
