@@ -7,12 +7,13 @@
 //    as a "previous game".
 // =====================================================================
 window.GAMES = [
-  { title: 'WORD LADDER',    emoji: '', path: 'games/word-ladder.html' },
-  { title: 'SUMO SIMULATOR', emoji: '', path: 'games/sumo-simulator.html'}, 
-  { title: 'TRADER SIMULATOR', emoji: '', path: 'games/tradergame.html'},
+  { title: 'WORD LADDER',    emoji: '🪜', path: 'games/word-ladder.html' },
+  { title: 'SUMO SIMULATOR', emoji: '👹', path: 'games/sumo-simulator.html'}, 
+  { title: 'TRADER SIMULATOR', emoji: '📈', path: 'games/tradergame.html'},
   { title: 'MOO.F.O', emoji: '🛸', path: 'games/moofo.html'}, 
   { title: 'HOSED', emoji: '🚒', path: 'games/hosed.html'},
   { title: 'CLASSROOM', emoji: '🧑‍🦯', path: 'games/classroom.html'},
-   { title: 'SCALPEL', emoji: '😷', path: 'games/scalpel.html'} 
+   { title: 'SCALPEL', emoji: '😷', path: 'games/scalpel.html'},
+  { title: 'LIFE SIMULATOR', emoji: '👶', path: 'games/scalpel.html'} 
 ];
 window.CURRENT_INDEX = 3;   // 0 = Word Ladder is this week's free game
