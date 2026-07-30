@@ -47,8 +47,8 @@ b{font-weight:800;}
 #app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
 #stage{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;}
 
-/* ---------- Wood panel helper look ---------- */
-.pill,.tool,.panel,.mini-btn,.brief-list li,.row,.shop-card{
+/* ---------- Indigo chip look (HUD + toolbar only) ---------- */
+.pill,.tool,.mini-btn{
   background:linear-gradient(180deg,var(--wood) 0%,var(--wood-d) 100%);
   border:2px solid var(--wood-dd);
   box-shadow:inset 0 2px 0 rgba(255,255,255,.18), inset 0 -3px 0 rgba(0,0,0,.18);
@@ -263,7 +263,7 @@ b{font-weight:800;}
 
 /* ---------- Papers / whisper ---------- */
 .fx{position:absolute;z-index:4;pointer-events:none;will-change:transform;}
-.paper{width:20px;height:14px;margin:-7px 0 0 -10px;border-radius:2px;background:#fbf3e0;border:1px solid #d8c8a6;box-shadow:0 2px 4px rgba(0,0,0,.2);
+.fx.paper{width:20px;height:14px;margin:-7px 0 0 -10px;border-radius:2px;background:#fbf3e0;border:1px solid #d8c8a6;box-shadow:0 2px 4px rgba(0,0,0,.2);
   background-image:linear-gradient(#c9b98f 1px,transparent 1px);background-size:100% 4px;background-position:0 4px;}
 .plane{width:24px;height:16px;margin:-8px 0 0 -12px;background:#fbf6ea;clip-path:polygon(100% 50%,0 0,35% 50%,0 100%);filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
 /* whisper speech-waves — nested ")" arcs radiating outward from a mouth dot */
@@ -285,70 +285,82 @@ b{font-weight:800;}
 #toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--red);border:2px solid var(--red-d);color:#fff;font-weight:800;padding:8px 18px;border-radius:14px;opacity:0;transition:.2s;pointer-events:none;box-shadow:var(--shadow);}
 #toast.show{opacity:1;}
 
-/* ---------- Toolbar ---------- */
+/* ---------- Toolbar (icon buttons) ---------- */
 #toolbar{display:flex;gap:10px;padding:10px 12px;z-index:5;}
-.tool{position:relative;flex:1;overflow:hidden;border-radius:16px;color:var(--cream);padding:10px 8px 12px;cursor:pointer;text-align:center;transition:transform .08s;}
+.tool{position:relative;flex:1;display:flex;align-items:center;gap:10px;border-radius:16px;color:var(--cream);padding:9px 10px 11px 12px;cursor:pointer;text-align:left;transition:transform .08s;}
 .tool:hover{transform:translateY(-2px);}
 .tool:active{transform:translateY(1px);}
-.tool .t-name{display:block;font-weight:800;font-size:15px;}
-.tool .t-sub{display:block;font-size:10px;opacity:.75;font-weight:700;}
+.tool .t-ico{width:40px;height:40px;flex:none;background:#fff;border-radius:12px;padding:5px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),0 2px 0 rgba(0,0,0,.15);}
+.tool .t-ico svg{width:100%;height:100%;display:block;}
+.tool .t-txt{display:flex;flex-direction:column;min-width:0;}
+.tool .t-name{font-weight:800;font-size:15px;line-height:1.05;}
+.tool .t-sub{font-size:10px;opacity:.75;font-weight:700;}
 .tool .t-key{position:absolute;top:5px;right:8px;font-size:10px;opacity:.6;border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:0 4px;}
-.tool.active{border-color:var(--yellow);box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 0 0 3px rgba(255,207,77,.35);}
-.tool .t-cd{position:absolute;left:0;bottom:0;height:4px;width:0%;background:var(--yellow);}
-.tool .t-lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(40,25,10,.72);font-weight:800;font-size:12px;letter-spacing:.1em;}
-.tool.locked{cursor:not-allowed;}
-.tool.locked .t-lock{display:flex;}
+.tool.active{border-color:var(--yellow);box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 0 0 3px rgba(255,207,77,.4);}
+.tool.active .t-ico{box-shadow:inset 0 -3px 0 rgba(0,0,0,.12),0 0 0 3px var(--yellow);}
+.tool .t-count{position:absolute;right:8px;bottom:7px;font-weight:900;font-size:15px;color:var(--yellow);text-shadow:0 1px 0 rgba(0,0,0,.3);}
+.tool.locked{cursor:not-allowed;opacity:.32;filter:grayscale(1);}
 .tool.empty{opacity:.45;}
 .tool.empty .t-count{color:#ffb3a0;}
-.tool .t-count{position:absolute;top:5px;left:9px;font-weight:900;font-size:14px;color:var(--yellow);text-shadow:0 1px 0 rgba(0,0,0,.3);}
 
-/* brief-screen objective + inventory */
-.brief-objective{font-weight:800;font-size:15px;margin:6px 0 10px;color:var(--cream);}
+/* brief-screen objective + inventory + new-tool intro */
+.brief-objective{font-weight:800;font-size:15px;margin:6px 0 10px;color:var(--ink);}
 .brief-inv{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 20px;}
-.inv-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.22);border:1px solid var(--wood-dd);border-radius:11px;padding:6px 11px;font-weight:700;font-size:13px;}
-.inv-ic{width:26px;height:26px;background:rgba(255,255,255,.92);border-radius:7px;padding:2px;flex:none;}
+.inv-item{display:flex;align-items:center;gap:6px;background:rgba(90,70,40,.08);border:1.5px solid rgba(90,70,40,.18);border-radius:11px;padding:6px 11px;font-weight:700;font-size:13px;color:var(--ink);}
+.inv-ic{width:26px;height:26px;background:#fff;border:1.5px solid rgba(90,70,40,.18);border-radius:7px;padding:2px;flex:none;}
 .inv-ic svg{width:100%;height:100%;display:block;}
-.inv-item b{color:var(--yellow);font-size:15px;}
-.tool .t-charges{position:absolute;top:6px;left:8px;display:none;gap:3px;}
-.tool .t-charges b{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.22);}
-.tool .t-charges b.on{background:var(--yellow);box-shadow:0 0 4px rgba(255,207,77,.6);}
+.inv-item b{color:var(--orange-d);font-size:15px;}
+.brief-new{display:grid;gap:8px;margin:4px 0 12px;}
+.new-tool{display:flex;align-items:center;gap:10px;text-align:left;background:#fff8e2;border:2px dashed var(--orange);border-radius:13px;padding:9px 12px;animation:pop .35s cubic-bezier(.2,1.5,.4,1);}
+.new-tool .inv-ic{width:34px;height:34px;}
+.new-tool .nt-txt{display:flex;flex-direction:column;gap:1px;}
+.new-tool b{font-size:13px;color:var(--orange-d);letter-spacing:.03em;}
+.new-tool i{font-style:normal;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.3;}
 
 /* ---------- Overlays ---------- */
 .overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,16,46,.72);backdrop-filter:blur(6px);z-index:30;padding:18px;}
 .overlay.show{display:flex;animation:fade .25s;}
 @keyframes fade{from{opacity:0;}to{opacity:1;}}
-.panel{width:min(520px,94vw);max-height:92vh;overflow-y:auto;border-radius:22px;padding:26px;text-align:center;color:var(--cream);animation:pop .3s cubic-bezier(.2,1.4,.4,1);}
+.panel{width:min(520px,94vw);max-height:92vh;overflow-y:auto;border-radius:26px;padding:26px;text-align:center;color:var(--ink);
+  background:linear-gradient(180deg,#fdf6e6,#f7ecd4);border:3px solid #e2d3b3;
+  box-shadow:var(--shadow), inset 0 3px 0 rgba(255,255,255,.8);animation:pop .3s cubic-bezier(.2,1.4,.4,1);}
 .panel.wide{width:min(720px,96vw);}
 @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:none;opacity:1;}}
-.logo{font-size:52px;font-weight:900;line-height:.95;letter-spacing:.02em;color:var(--cream);text-shadow:0 4px 0 var(--wood-dd);}
-.logo span{display:block;color:var(--yellow);text-shadow:0 4px 0 #b58a1e;}
-.tag{margin:14px 0;font-size:15px;font-weight:600;opacity:.92;}
-/* level select */
-.lvl-select-cap{font-size:12px;font-weight:900;letter-spacing:.16em;color:var(--yellow);margin:14px 0 10px;}
-.lvl-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 14px;}
-.lvl-tile{width:108px;min-height:96px;border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--cream);
-  background:linear-gradient(180deg,var(--wood),var(--wood-d));border:2px solid var(--wood-dd);box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -3px 0 rgba(0,0,0,.18);transition:transform .08s;}
-.lvl-tile:hover{transform:translateY(-2px);}
-.lvl-tile:active{transform:translateY(1px);}
-.lvl-num{font-size:26px;font-weight:900;line-height:1;}
-.lvl-title{font-size:11px;font-weight:700;opacity:.85;text-align:center;line-height:1.12;}
-.lvl-badge{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--yellow);}
-.lvl-tile.cleared{border-color:var(--green-d);}
-.lvl-tile.cleared .lvl-badge{color:var(--good);}
-.lvl-tile.locked{opacity:.5;cursor:not-allowed;filter:grayscale(.5);}
-.lvl-tile.locked:hover{transform:none;}
-.lvl-lock{width:15px;height:12px;border-radius:2px;background:var(--cream);position:relative;margin-top:3px;opacity:.7;}
-.lvl-lock::before{content:"";position:absolute;left:3.5px;top:-6px;width:8px;height:8px;border:2px solid var(--cream);border-bottom:none;border-radius:5px 5px 0 0;}
 
-.how{list-style:none;text-align:left;display:grid;gap:8px;margin:16px 0 20px;}
-.how li{background:rgba(0,0,0,.2);border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;}
-.how li::before{content:"›";color:var(--yellow);font-weight:900;margin-right:8px;}
+/* title hero: mascot + chunky logo + gliding paper plane */
+.title-hero{position:relative;display:flex;align-items:center;justify-content:center;gap:20px;padding:8px 0 2px;}
+.mascot{position:relative;width:64px;height:72px;transform:scale(1.45);transform-origin:bottom center;margin:0 14px 4px 0;}
+.mascot .char{animation:idle 2.6s ease-in-out infinite;}
+.mascot .card{opacity:1;transform:scale(1) rotate(-6deg);box-shadow:0 0 0 2px var(--yellow);}
+.logo{font-size:54px;font-weight:900;line-height:.95;letter-spacing:.02em;color:var(--ink);text-shadow:0 4px 0 rgba(90,70,40,.22);text-align:left;}
+.logo span{display:block;color:#f0a53c;text-shadow:0 4px 0 #c8842a;}
+.hero-plane{position:absolute;top:6px;right:4%;width:34px;height:22px;background:#fff;clip-path:polygon(100% 50%,0 0,35% 50%,0 100%);
+  filter:drop-shadow(0 3px 2px rgba(90,70,40,.25));animation:glide 5s ease-in-out infinite;}
+@keyframes glide{0%,100%{transform:translate(0,0) rotate(-14deg);}25%{transform:translate(-26px,14px) rotate(-24deg);}50%{transform:translate(-52px,2px) rotate(-6deg);}75%{transform:translate(-22px,-8px) rotate(-18deg);}}
+.tag{margin:12px auto 4px;font-size:15px;font-weight:600;color:#7a6a52;max-width:520px;}
+
+/* level select */
+.lvl-select-cap{font-size:12px;font-weight:900;letter-spacing:.16em;color:var(--orange-d);margin:16px 0 10px;}
+.lvl-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 14px;}
+.lvl-tile{width:110px;min-height:100px;border-radius:16px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--ink);
+  background:#fff;border:2.5px solid #e2d3b3;box-shadow:0 4px 0 #e2d3b3;transition:transform .08s;}
+.lvl-tile:hover{transform:translateY(-3px);border-color:var(--orange);}
+.lvl-tile:active{transform:translateY(1px);}
+.lvl-num{font-size:27px;font-weight:900;line-height:1;}
+.lvl-title{font-size:10.5px;font-weight:700;color:#8a7a5e;text-align:center;line-height:1.15;}
+.lvl-badge{font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--orange-d);}
+.lvl-tile.cleared{border-color:var(--mint-d);box-shadow:0 4px 0 #bfe8da;}
+.lvl-tile.cleared .lvl-badge{color:var(--mint-d);}
+.lvl-tile.locked{cursor:not-allowed;background:#efe6d2;box-shadow:0 4px 0 #ddd0b4;opacity:.65;}
+.lvl-tile.locked:hover{transform:none;border-color:#e2d3b3;}
+.lvl-tile.locked .lvl-num{color:#b3a586;}
+.lvl-lock{width:15px;height:12px;border-radius:2px;background:#b3a586;position:relative;margin-top:3px;}
+.lvl-lock::before{content:"";position:absolute;left:3.5px;top:-6px;width:8px;height:8px;border:2px solid #b3a586;border-bottom:none;border-radius:5px 5px 0 0;}
+
 h2{font-size:26px;font-weight:900;margin-bottom:12px;}
-.cap{font-size:13px;font-weight:900;letter-spacing:.15em;color:var(--yellow);}
-.brief-list{list-style:none;text-align:left;display:grid;gap:8px;margin:14px 0;}
-.brief-list li{border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;}
-.brief-list li.new::before{content:"NEW ";color:var(--yellow);font-weight:900;font-size:11px;}
-.brief-stat{display:flex;justify-content:space-around;margin:14px 0 20px;font-size:14px;font-weight:600;}
+.cap{display:inline-block;font-size:12px;font-weight:900;letter-spacing:.15em;color:#fff;background:linear-gradient(180deg,#ff8a76,var(--red));border-radius:20px;padding:5px 16px;box-shadow:0 3px 0 var(--red-d);margin-bottom:8px;}
+.brief-list{list-style:none;text-align:left;display:grid;gap:8px;margin:12px 0;}
+.brief-list li{border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;background:rgba(90,70,40,.07);border:1.5px solid rgba(90,70,40,.12);}
 
 .btn{font-family:inherit;font-weight:800;cursor:pointer;border:none;border-radius:14px;padding:13px 22px;color:#08312a;font-size:16px;
   background:linear-gradient(180deg,#63efc9,var(--mint));box-shadow:0 5px 0 var(--mint-d);transition:transform .07s,box-shadow .07s;}
@@ -362,38 +374,40 @@ h2{font-size:26px;font-weight:900;margin-bottom:12px;}
 .panel.narrow{width:min(360px,92vw);}
 .btn.coral{background:linear-gradient(180deg,#ff9a8f,var(--red));box-shadow:0 5px 0 var(--red-d);color:#fff;}
 .btn.coral:active{box-shadow:0 1px 0 var(--red-d);}
-.btn.link{background:none;box-shadow:none;color:var(--cream);opacity:.72;font-size:13px;font-weight:700;text-decoration:underline;margin-top:10px;padding:6px;}
+.btn.link{background:none;box-shadow:none;color:#8a7a5e;opacity:.9;font-size:13px;font-weight:700;text-decoration:underline;margin-top:10px;padding:6px;}
 .btn.link:active{transform:none;}
 
-/* results */
-.grade{font-size:60px;font-weight:900;width:112px;height:112px;line-height:112px;margin:6px auto 14px;border-radius:28px;color:#5b3e0f;
-  background:radial-gradient(circle at 32% 26%,#fff0c4,var(--yellow));box-shadow:var(--shadow);animation:pop .4s cubic-bezier(.2,1.6,.4,1);}
-.grade.fail{background:radial-gradient(circle at 32% 26%,#ffc2b8,var(--red));color:#5a1c14;}
-#resultTitle.fail{color:#ffd0c8;}
-.rows{display:grid;gap:8px;margin:6px 0 20px;}
-.row{border-radius:12px;padding:11px 16px;display:flex;justify-content:space-between;font-size:15px;font-weight:700;}
-.row.coin b{color:var(--yellow);}
-.coin.big-coin{background:linear-gradient(180deg,#e0a53c,#b97e22);border:2px solid #8a5c15;border-radius:14px;padding:6px 16px;font-size:20px;font-weight:900;color:#4a3410;}
+/* ---------- Results: a corrected exam paper ---------- */
+.panel.paper{
+  background:
+    linear-gradient(90deg, transparent 0 44px, rgba(224,90,72,.5) 44px 46px, transparent 46px),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(90,120,180,.18) 27px 28px),
+    linear-gradient(180deg,#fefbf1,#faf3df);
+  border:2.5px solid #e6dcc2;border-radius:8px 22px 22px 8px;
+  font-family:inherit;position:relative;overflow:visible;
+}
+.paper-clip{position:absolute;top:-15px;left:50%;margin-left:-26px;width:52px;height:26px;border-radius:12px 12px 4px 4px;
+  background:linear-gradient(180deg,#c3cdd8,#96a3b2);border:2px solid #7c8896;box-shadow:0 3px 6px rgba(0,0,0,.25);}
+.paper-head .p-name{display:block;font-size:12px;font-weight:700;color:#8a7a5e;letter-spacing:.06em;margin:6px 0 2px;}
+.panel.paper h2{font-size:24px;color:var(--ink);}
+#resultTitle.fail{color:var(--red-d);}
+/* the grade: circled in red pen */
+.grade{font-size:64px;font-weight:900;width:110px;height:110px;line-height:104px;margin:2px auto 10px;border-radius:50%;
+  color:#d3402e;background:none;border:5px solid #d3402e;transform:rotate(-7deg);
+  font-family:"Bradley Hand","Segoe Print","Comic Sans MS",cursive;
+  box-shadow:none;animation:penPop .45s cubic-bezier(.2,1.6,.4,1);}
+.grade.fail{color:#d3402e;border-color:#d3402e;background:none;}
+@keyframes penPop{from{transform:rotate(-30deg) scale(.4);opacity:0;}to{transform:rotate(-7deg) scale(1);opacity:1;}}
+.rows{display:grid;gap:2px;margin:4px 0 14px;}
+.row{padding:8px 6px 8px 52px;display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--ink);border-bottom:1.5px dashed rgba(90,70,40,.2);}
+.row b{color:#d3402e;font-family:"Bradley Hand","Segoe Print","Comic Sans MS",cursive;font-size:17px;}
+/* red rubber stamp */
+.stamp{position:absolute;right:26px;top:104px;padding:6px 14px;border:3.5px solid var(--mint-d);border-radius:8px;color:var(--mint-d);
+  font-size:20px;font-weight:900;letter-spacing:.12em;transform:rotate(9deg);opacity:.9;
+  mask-image:radial-gradient(circle at 30% 40%, black 60%, rgba(0,0,0,.55));}
+.stamp.fail{border-color:#d3402e;color:#d3402e;transform:rotate(-8deg);}
 
-/* shop — simple leveled tiles */
-.shop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.shop-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:18px;}
-.shop-card{width:132px;border-radius:16px;padding:12px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
-.shop-card .sc-icon{width:46px;height:46px;background:rgba(255,255,255,.9);border-radius:12px;padding:4px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1);}
-.shop-card .sc-icon svg{width:100%;height:100%;display:block;}
-.sc-name{font-weight:800;font-size:13px;}
-.sc-dots{display:flex;gap:3px;}
-.sc-dots i{width:9px;height:6px;border-radius:2px;background:rgba(0,0,0,.3);}
-.sc-dots i.on{background:var(--yellow);}
-.sc-buy{margin-top:2px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;font-weight:800;font-size:14px;border:none;border-radius:11px;padding:6px 15px;cursor:pointer;color:#fff;
-  background:linear-gradient(180deg,#e0684a,#c0472f);box-shadow:0 3px 0 #93341f;}
-.coin-dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe694,#e0a53c);border:1px solid #b97e22;box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);}
-.shop-card.broke{opacity:.5;}
-.shop-card.broke .sc-buy{background:#6f4620;box-shadow:0 3px 0 #4a2f16;cursor:default;}
-.shop-card.maxed .sc-buy{background:linear-gradient(180deg,#63c368,#3f9d54);box-shadow:0 3px 0 #2f7a40;}
-.sc-buy:disabled{cursor:default;}
-
-@media (max-width:620px){.hud-mid{display:none;}.shop-grid{grid-template-columns:1fr;}.logo{font-size:42px;}}
+@media (max-width:620px){.hud-mid{display:none;}.logo{font-size:42px;}.mascot{display:none;}.stamp{position:static;display:inline-block;margin-bottom:8px;}}
 </style>
 </head>
 <body>
@@ -448,32 +462,28 @@ h2{font-size:26px;font-weight:900;margin-bottom:12px;}
     <!-- ===== Toolbar ===== -->
     <footer id="toolbar">
       <button class="tool" data-method="whisper">
-        <span class="t-name">Whisper</span>
-        <span class="t-sub">fast · noisy</span>
+        <span class="t-ico"></span>
+        <span class="t-txt"><span class="t-name">Whisper</span><span class="t-sub">fast · noisy</span></span>
         <span class="t-key">1</span>
         <span class="t-count"></span>
-        <span class="t-lock">—</span>
       </button>
       <button class="tool" data-method="note">
-        <span class="t-name">Pass Note</span>
-        <span class="t-sub">slow · quiet</span>
+        <span class="t-ico"></span>
+        <span class="t-txt"><span class="t-name">Pass Note</span><span class="t-sub">slow · quiet</span></span>
         <span class="t-key">2</span>
         <span class="t-count"></span>
-        <span class="t-lock">—</span>
       </button>
       <button class="tool" data-method="airplane">
-        <span class="t-name">Paper Plane</span>
-        <span class="t-sub">far · risky</span>
+        <span class="t-ico"></span>
+        <span class="t-txt"><span class="t-name">Paper Plane</span><span class="t-sub">far · can miss</span></span>
         <span class="t-key">3</span>
         <span class="t-count"></span>
-        <span class="t-lock">—</span>
       </button>
       <button class="tool" data-method="distraction">
-        <span class="t-name">Distraction</span>
-        <span class="t-sub">divert gaze</span>
+        <span class="t-ico"></span>
+        <span class="t-txt"><span class="t-name">Distraction</span><span class="t-sub">divert gaze</span></span>
         <span class="t-key">4</span>
         <span class="t-count"></span>
-        <span class="t-lock">—</span>
       </button>
     </footer>
   </div>
@@ -481,7 +491,23 @@ h2{font-size:26px;font-weight:900;margin-bottom:12px;}
   <!-- ===== Overlays ===== -->
   <div class="overlay show" id="titleScreen">
     <div class="panel wide">
-      <div class="logo">CHEAT<span>SHEET</span></div>
+      <div class="title-hero">
+        <div class="mascot">
+          <div class="char" data-hair="2" style="--shirt:#ff9db0;--hair:#6b4423;--skin:#f2c9a0">
+            <div class="arm l"></div><div class="arm r"></div>
+            <div class="body"></div>
+            <div class="card"></div>
+            <div class="head">
+              <div class="hair"></div>
+              <div class="eye l"></div><div class="eye r"></div>
+              <div class="cheek l"></div><div class="cheek r"></div>
+              <div class="mouth"></div>
+            </div>
+          </div>
+        </div>
+        <div class="logo">CHEAT<span>SHEET</span></div>
+        <div class="hero-plane"></div>
+      </div>
       <p class="tag">Spread the answers so everyone passes. Dodge the teacher's red cone — get caught and you're out.</p>
       <div class="lvl-select-cap">SELECT A LEVEL</div>
       <div class="lvl-grid" id="levelGrid"></div>
@@ -494,6 +520,7 @@ h2{font-size:26px;font-weight:900;margin-bottom:12px;}
       <div class="cap" id="briefDay">LEVEL 1</div>
       <h2 id="briefTitle"></h2>
       <ul class="brief-list" id="briefList"></ul>
+      <div class="brief-new" id="briefNew"></div>
       <div class="brief-objective" id="briefObjective"></div>
       <div class="brief-inv" id="briefInv"></div>
       <button class="btn big" id="beginBtn">Begin exam</button>
@@ -501,14 +528,19 @@ h2{font-size:26px;font-weight:900;margin-bottom:12px;}
   </div>
 
   <div class="overlay" id="resultScreen">
-    <div class="panel">
-      <h2 id="resultTitle">LEVEL CLEARED</h2>
+    <div class="panel paper">
+      <div class="paper-clip"></div>
+      <div class="paper-head">
+        <span class="p-name">Class 4B — exam report</span>
+        <h2 id="resultTitle">LEVEL CLEARED</h2>
+      </div>
       <div class="grade" id="gradeBadge">A</div>
       <div class="rows">
         <div class="row"><span>Students passed</span><b id="rPassed">0 / 24</b></div>
         <div class="row"><span>Pass rate</span><b id="rRate">0%</b></div>
-        <div class="row"><span>Caught</span><b id="rCaught">0</b></div>
+        <div class="row"><span>Caught cheating</span><b id="rCaught">0</b></div>
       </div>
+      <div class="stamp" id="resultStamp">CLEARED</div>
       <button class="btn big" id="resultBtn">Next level →</button>
       <button class="btn link" id="homeBtn">level select</button>
     </div>
@@ -554,10 +586,14 @@ const CONFIG = {
    note: slow & quiet.  whisper: fast but noisy (raises suspicion &
    turns the nearest teacher toward the sound).  airplane: long range. */
 CONFIG.METHODS = {
-  whisper:  { name: 'Whisper', time: 0.55, range: 205, cone: true, hear: 150, risk: 1.2, noise: 9 },
-  note:     { name: 'Pass Note', time: 2.6, range: 150, cone: true, hear: 0, risk: 0.9, noise: 0 },
-  airplane: { name: 'Paper Plane', fold: 1.4, speed: 470, range: 2000, cone: true, hear: 0, risk: 2.4, accuracy: 0.86, noise: 0 },
-  distraction: { name: 'Distraction', duration: 3.6 },
+  whisper:  { name: 'Whisper', time: 0.55, range: 205, cone: true, hear: 150, risk: 1.2, noise: 9,
+    desc: 'Fast — but the noise raises the teacher\'s suspicion. Max the meter and the exam is over.' },
+  note:     { name: 'Pass Note', time: 2.6, range: 150, cone: true, hear: 0, risk: 0.9, noise: 0,
+    desc: 'Slow but silent and reliable. Only reaches a nearby desk.' },
+  airplane: { name: 'Paper Plane', fold: 1.4, speed: 470, range: 2000, cone: true, hear: 0, risk: 2.4, accuracy: 0.86, noise: 0,
+    desc: 'Flies anywhere in the room — but it can miss its target, and it\'s easy to spot in the air.' },
+  distraction: { name: 'Distraction', duration: 4.5,
+    desc: 'Click anywhere to yank the teacher\'s gaze there for a few seconds. Cheat freely behind their back.' },
 };
 
 /* C is the minimum passing grade and sits exactly on CLEAR_RATE (80%). */
@@ -581,22 +617,27 @@ CONFIG.METHODS_IC = IC;
    clusters force paper planes. cheats seed only the first cluster.
    inv: how many of each tool you get this level.
    ============================================================ */
+/* patrols: one entry per teacher.
+   'front'  — sweeps the front, cone pointing down (full width)
+   'frontL' / 'frontR' — same, but covering one half each
+   'back'   — sweeps the BACK wall, cone pointing up at the class
+   'roam'   — walks a slow loop around the whole classroom          */
 CONFIG.LEVELS = [
   { title: 'Notes only.',
-    notes: ['Pass notes desk-to-desk. Slow, but silent.', 'Spread the answers to the whole cluster before the bell.'],
-    time: 130, maxCaught: 3, teachers: 1, cheats: 1,
+    notes: ['Pass notes desk-to-desk while the teacher\'s cone sweeps by.', 'Spread the answers to the whole cluster before the bell.'],
+    time: 130, maxCaught: 3, patrols: ['front'], cheats: 1,
     clusters: [{ cx: 500, cy: 420, cols: 4, rows: 3 }],
     inv: { note: 26 } },
 
   { title: 'Reach across the room.',
     notes: ['A paper plane is the ONLY way to reach the far group.', 'Notes inside a cluster, a plane to bridge the gap.'],
-    time: 130, maxCaught: 3, teachers: 1, cheats: 1,
+    time: 130, maxCaught: 3, patrols: ['front'], cheats: 1,
     clusters: [{ cx: 268, cy: 420, cols: 3, rows: 3 }, { cx: 762, cy: 420, cols: 2, rows: 3 }],
-    inv: { note: 14, airplane: 2 } },
+    inv: { note: 14, airplane: 3 } },
 
   { title: 'Whisper — but keep it down.',
-    notes: ['Whispers are fast, but the NOISE raises suspicion and turns the teacher.', 'Two teachers patrol. Plan your routes.'],
-    time: 130, maxCaught: 4, teachers: 2, cheats: 1,
+    notes: ['TWO teachers now split the room between them.', 'Whispers are quick, but every one pushes the suspicion meter up.'],
+    time: 130, maxCaught: 4, patrols: ['frontL', 'frontR'], cheats: 1,
     clusters: [{ cx: 250, cy: 400, cols: 3, rows: 2 }, { cx: 760, cy: 300, cols: 2, rows: 2 }, { cx: 760, cy: 545, cols: 2, rows: 2 }],
     inv: { whisper: 8, note: 8, airplane: 3 } },
 
@@ -604,22 +645,33 @@ CONFIG.LEVELS = [
     notes: ['Only whispers, and barely any time. You must move fast.',
       'But every whisper is LOUD: suspicion climbs quickly and cools slowly.',
       'Race, then pause to let the meter drop. Hit 100% and the exam is over.'],
-    time: 62, maxCaught: 3, teachers: 1, cheats: 1,
-    noiseMult: 2.0,        // whispers are twice as loud here
-    decayMult: 0.5,        // …and the meter cools half as fast
+    time: 62, maxCaught: 3, patrols: ['front'], cheats: 1,
+    noiseMult: 2.0, decayMult: 0.5,
     clusters: [{ cx: 500, cy: 420, cols: 4, rows: 3 }],
     inv: { whisper: 24 } },
 
   { title: 'Split room.',
     notes: ['A partition blocks whispers and notes — planes fly over it.', 'Two teachers, both halves watched.'],
-    time: 135, maxCaught: 4, teachers: 2, divider: true, cheats: 1,
+    time: 135, maxCaught: 4, patrols: ['frontL', 'frontR'], divider: true, cheats: 1,
     clusters: [{ cx: 260, cy: 360, cols: 2, rows: 2 }, { cx: 260, cy: 560, cols: 2, rows: 2 }, { cx: 740, cy: 360, cols: 2, rows: 2 }, { cx: 740, cy: 560, cols: 2, rows: 2 }],
-    inv: { whisper: 6, note: 6, airplane: 4, distraction: 1 } },
+    inv: { whisper: 6, note: 6, airplane: 5, distraction: 1 } },
+
+  { title: 'Eyes in the back.',
+    notes: ['A second invigilator watches from BEHIND the class, cone pointing forward.', 'Caught between two sweeps — use Distractions to open safe windows.'],
+    time: 130, maxCaught: 4, patrols: ['front', 'back'], cheats: 1,
+    clusters: [{ cx: 350, cy: 420, cols: 3, rows: 3 }, { cx: 720, cy: 420, cols: 2, rows: 3 }],
+    inv: { note: 12, airplane: 3, distraction: 3 } },
+
+  { title: 'The wanderer.',
+    notes: ['This teacher doesn\'t stand at the front — he circles the WHOLE class.', 'Track his loop, whisper behind his back, distract him when cornered.'],
+    time: 120, maxCaught: 3, patrols: ['roam'], cheats: 1,
+    clusters: [{ cx: 385, cy: 410, cols: 2, rows: 2 }, { cx: 630, cy: 410, cols: 2, rows: 2 }, { cx: 505, cy: 555, cols: 3, rows: 1 }],
+    inv: { whisper: 10, note: 8, distraction: 2 } },
 
   { title: 'The full ring.',
-    notes: ['Everything you\'ve got, and everything they\'ve got.', 'Two teachers, a nerd, and a camera.'],
-    time: 140, maxCaught: 4, teachers: 2, nerd: 1, camera: 1, cheats: 1,
-    clusters: [{ cx: 240, cy: 360, cols: 2, rows: 3 }, { cx: 760, cy: 360, cols: 2, rows: 3 }, { cx: 500, cy: 560, cols: 3, rows: 1 }],
+    notes: ['A wanderer AND a front sweep, plus a nerd and a camera.', 'Everything you\'ve learned, all at once.'],
+    time: 140, maxCaught: 4, patrols: ['roam', 'front'], nerd: 1, camera: 1, cheats: 1,
+    clusters: [{ cx: 240, cy: 380, cols: 2, rows: 3 }, { cx: 760, cy: 380, cols: 2, rows: 3 }, { cx: 500, cy: 570, cols: 3, rows: 1 }],
     inv: { whisper: 10, note: 10, airplane: 4, distraction: 2 } },
 ];
 
@@ -639,8 +691,10 @@ CONFIG.levelFor = function (n) {
   return {
     title: `Endless — round ${n}.`,
     notes: ['Everything at once, and less to work with.'],
-    time: 140, maxCaught: Math.max(2, 4 - Math.floor(over / 2)), teachers: 2, nerd: 1, camera: 1, divider: over % 2 === 1, cheats: 1,
-    clusters: [{ cx: 240, cy: 360, cols: 2, rows: 3 }, { cx: 760, cy: 360, cols: 2, rows: 3 }, { cx: 500, cy: 560, cols: 3, rows: 1 }],
+    time: 140, maxCaught: Math.max(2, 4 - Math.floor(over / 2)),
+    patrols: over % 2 === 1 ? ['roam', 'back'] : ['roam', 'front'],
+    nerd: 1, camera: 1, divider: over % 2 === 1, cheats: 1,
+    clusters: [{ cx: 240, cy: 380, cols: 2, rows: 3 }, { cx: 760, cy: 380, cols: 2, rows: 3 }, { cx: 500, cy: 570, cols: 3, rows: 1 }],
     inv: { whisper: 8, note: 8, airplane: 3, distraction: 1 },
   };
 };
@@ -979,21 +1033,25 @@ class Student {
 /*  TEACHER                                                    */
 /* ---------------------------------------------------------- */
 class Teacher {
-  constructor(dayCfg, waypoints, home, layer) {
-    this.home = home;
+  constructor(dayCfg, mode, layer) {
+    this.mode = mode || 'front';
     this.cfg = dayCfg.teacher;
     this.range = CONFIG.CONE_RANGE;   // infinite — spans the whole room
     this.angle = Math.min(this.cfg.angle, 0.46);
 
-    // Predictable horizontal sweep in front of the class, cone pointing down.
+    // Predictable patrols. 'front'/'back' sweep a wall; 'roam' walks a loop.
     const W = CONFIG.W;
-    if (home.x < W / 2 - 50) { this.xMin = 110; this.xMax = W / 2 - 30; }        // left half
-    else if (home.x > W / 2 + 50) { this.xMin = W / 2 + 30; this.xMax = 890; }   // right half
-    else { this.xMin = 120; this.xMax = 880; }                                   // full width
-    this.y = 205;
-    this.x = this.xMin;
-    this.dir = 1;
-    this.facing = Math.PI / 2;         // straight down into the desks
+    if (this.mode === 'frontL') { this.xMin = 110; this.xMax = W / 2 - 30; }
+    else if (this.mode === 'frontR') { this.xMin = W / 2 + 30; this.xMax = 890; }
+    else { this.xMin = 120; this.xMax = 880; }
+    if (this.mode === 'back') { this.y = 645; this.baseFacing = -Math.PI / 2; }  // stands behind, looks up
+    else { this.y = 205; this.baseFacing = Math.PI / 2; }                        // stands in front, looks down
+    this.x = this.mode === 'frontR' ? this.xMax : this.xMin;
+    this.dir = this.mode === 'frontR' ? -1 : 1;
+    // roam: fixed rectangular loop around the classroom
+    this.loop = [{ x: 140, y: 210 }, { x: 860, y: 210 }, { x: 860, y: 615 }, { x: 140, y: 615 }];
+    this.loopI = 0;
+    this.facing = this.baseFacing;
     this.pauseUntil = 0;
     this.distractUntil = 0; this.step = 0; this._alert = 0;
     this._phase = U.rand(0, U.TAU);
@@ -1045,8 +1103,23 @@ class Teacher {
       this.render(game); return;
     }
 
+    if (this.mode === 'roam') {
+      // Walk a fixed rectangular loop, cone facing the direction of travel.
+      const t = this.loop[this.loopI];
+      const dx = t.x - this.x, dy = t.y - this.y, d = Math.hypot(dx, dy);
+      if (d < 4) { this.loopI = (this.loopI + 1) % this.loop.length; this.pauseUntil = game.time + c.pause; }
+      else if (game.time >= this.pauseUntil) {
+        this.step += dt * 7;
+        this.x += dx / d * c.speed * dt;
+        this.y += dy / d * c.speed * dt;
+      }
+      const travel = Math.atan2(dy, dx);
+      this.facing = U.approachAngle(this.facing, travel + Math.sin(game.time * 0.7 + this._phase) * 0.4, dt * 2.6);
+      this.render(game); return;
+    }
+
     // Steady, predictable sweep + a scanning head-turn so the cone swings.
-    this.facing = U.approachAngle(this.facing, Math.PI / 2 + Math.sin(game.time * 0.7 + this._phase) * 0.5, dt * 3.4);
+    this.facing = U.approachAngle(this.facing, this.baseFacing + Math.sin(game.time * 0.7 + this._phase) * 0.5, dt * 3.4);
     if (game.time < this.pauseUntil) { this.render(game); return; }
 
     this.step += dt * 7;
@@ -1192,17 +1265,12 @@ class Game {
     this.divider = null;
     if (cfg.divider) this._buildDivider();
 
-    // teacher(s)
-    const n = cfg.teachers || 1;
+    // teacher(s) — one per patrol entry ('front', 'back', 'roam', …)
+    const patrols = cfg.patrols || ['front'];
     this.teachers = [];
-    const wps = this._waypoints();
-    for (let i = 0; i < n; i++) {
-      const side = n > 1 ? (i === 0 ? -1 : 1) : 0;
-      const home = n > 1 ? { x: side < 0 ? CONFIG.W * 0.3 : CONFIG.W * 0.7, y: 150 } : { x: CONFIG.W / 2, y: 150 };
-      const mine = side === 0 ? wps : wps.filter(p => side < 0 ? p.x < CONFIG.W / 2 : p.x >= CONFIG.W / 2);
-      const t = new Teacher(this.levelCfg, mine, home, this.layer);
-      t.side = side;
-      if (n > 1) { t.angle *= 0.72; t._buildConePath(); }
+    for (const mode of patrols) {
+      const t = new Teacher(this.levelCfg, mode, this.layer);
+      if (patrols.length > 1) { t.angle *= 0.72; t._buildConePath(); }  // narrower beams when shared
       this.teachers.push(t);
     }
     this.teacher = this.teachers[0];
@@ -1225,12 +1293,6 @@ class Game {
       chosen.push(best);
     }
     return chosen;
-  }
-
-  _waypoints() {
-    const pts = [], xs = [110, 220, 360, 500, 640, 780, 890], ys = [200, 300, 392, 484, 576, 640];
-    for (const x of xs) for (const y of ys) pts.push({ x, y });
-    return pts;
   }
 
   _buildDivider() {
@@ -1599,8 +1661,10 @@ const UI = {
       if (tile && !tile.classList.contains('locked')) this.pickLevel(+tile.dataset.level);
     });
 
-    document.querySelectorAll('.tool').forEach(btn =>
-      btn.addEventListener('click', () => this.selectMethod(btn.dataset.method)));
+    document.querySelectorAll('.tool').forEach(btn => {
+      btn.querySelector('.t-ico').innerHTML = CONFIG.METHODS_IC[btn.dataset.method];
+      btn.addEventListener('click', () => this.selectMethod(btn.dataset.method));
+    });
     window.addEventListener('keydown', e => {
       const map = { '1': 'whisper', '2': 'note', '3': 'airplane', '4': 'distraction' };
       if (map[e.key]) this.selectMethod(map[e.key]);
@@ -1622,11 +1686,11 @@ const UI = {
   },
 
   load() {
-    try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.maxLevel) return s; } catch (e) {}
-    return { maxLevel: 1, muted: false };
+    try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.maxLevel) { s.seenTools = s.seenTools || {}; return s; } } catch (e) {}
+    return { maxLevel: 1, muted: false, seenTools: {} };
   },
   save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.state)); } catch (e) {} },
-  reset() { this.state = { maxLevel: 1, muted: this.state.muted }; this.save(); this.sel = 1; this.renderLevelSelect(); this.goHome(); },
+  reset() { this.state = { maxLevel: 1, muted: this.state.muted, seenTools: {} }; this.save(); this.sel = 1; this.renderLevelSelect(); this.goHome(); },
 
   show(id) { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show')); if (id) this.el(id).classList.add('show'); },
   goHome() { this.renderLevelSelect(); this.show('titleScreen'); },
@@ -1664,6 +1728,17 @@ const UI = {
     const total = (cfg.clusters || []).reduce((s, c) => s + c.cols * c.rows, 0);
     const need = Math.ceil(total * CONFIG.CLEAR_RATE / 100);
     this.el('briefObjective').textContent = `Get at least ${need} of ${total} students to pass (${CONFIG.CLEAR_RATE}%).`;
+
+    // First time a tool appears, introduce it with a card.
+    const neu = this.el('briefNew'); neu.innerHTML = '';
+    for (const m of METHODS_ORDER) {
+      if (!((cfg.inv || {})[m] > 0) || this.state.seenTools[m]) continue;
+      const d = document.createElement('div'); d.className = 'new-tool';
+      d.innerHTML = `<span class="inv-ic">${CONFIG.METHODS_IC[m]}</span>
+        <span class="nt-txt"><b>NEW — ${CONFIG.METHODS[m].name}</b><i>${CONFIG.METHODS[m].desc}</i></span>`;
+      neu.appendChild(d);
+    }
+
     const inv = this.el('briefInv'); inv.innerHTML = '';
     for (const m of METHODS_ORDER) {
       const n = (cfg.inv || {})[m] || 0; if (!n) continue;
@@ -1675,6 +1750,11 @@ const UI = {
   },
 
   beginExam() {
+    // mark this level's tools as introduced
+    const inv = CONFIG.levelFor(this.sel).inv || {};
+    for (const m of Object.keys(inv)) if (inv[m] > 0) this.state.seenTools[m] = true;
+    this.save();
+
     this.game.newDay(this.sel);
     this.el('totalValue').textContent = this.game.students.length;
     METHODS_ORDER.forEach(m => {
@@ -1711,6 +1791,9 @@ const UI = {
     const rateEl = this.el('rRate'); let cur = 0;
     clearInterval(this._iv);
     this._iv = setInterval(() => { cur += Math.max(1, Math.ceil(r.rate / 30)); if (cur >= r.rate) { cur = r.rate; clearInterval(this._iv); } rateEl.textContent = cur + '%'; }, 24);
+    const stamp = this.el('resultStamp');
+    stamp.textContent = r.cleared ? 'CLEARED' : 'SEE ME.';
+    stamp.classList.toggle('fail', !r.cleared);
     this.el('resultBtn').textContent = r.cleared ? 'Next level →' : 'Retry level';
     this.show('resultScreen');
   },
