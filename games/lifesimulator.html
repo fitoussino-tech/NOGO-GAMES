@@ -802,7 +802,7 @@ const STAGES = [
 {
   age: 0, name: 'GET BORN', sub: 'Day one. Technically day zero. Eviction notice received.',
   hint: 'MASH <span class="k">SPACE</span> or TAP — escape the womb!',
-  death: "Refused to be born. The womb listed your room on Airbnb the same day.",
+  death: "Refused to be born. You decided you were too cosy inside and stayed there.",
   init() { S = { p: 0, pulse: 0 }; },
   press() { S.p = Math.min(1, S.p + .07); S.pulse = 1; sfx.blip(); if (S.p >= 1) win(); },
   update(dt) {
