@@ -2331,19 +2331,6 @@ function showTitle() {
     </div>
     <div class="menu-btns">
       <button id="start">BE BORN</button>
-      <button class="teal" id="howbtn">HOW TO LIVE</button>
-      <button class="grape" id="wipebtn">FORGET MY PAST</button>
-    </div>
-    <div id="howpanel" class="wcard hidden" style="width:min(92vw,400px)">
-      <div class="wh">THE RULES OF EXISTENCE</div>
-      <div class="wb">
-        <div class="wr" style="--d:.05s"><span class="lb">The run</span><span class="vl">17 minigames · birth → death · no breaks</span></div>
-        <div class="wr" style="--d:.12s"><span class="lb">One life</span><span class="vl bad">fail once = back to the womb</span></div>
-        <div class="wr" style="--d:.16s"><span class="lb">Checkpoints</span><span class="vl">fail = retry that stage</span></div>
-        <div class="wr" style="--d:.19s"><span class="lb">The goal</span><span class="vl good">die of old age — that’s the win</span></div>
-        <div class="wr" style="--d:.26s"><span class="lb">Controls</span><span class="vl">SPACE · ARROWS · taps &amp; clicks</span></div>
-      </div>
-      <div class="wflav">Life has no pause button. Neither does this.</div>
     </div>
     <div class="keyhint">SPACE to be born · M for sound</div>
   `);
@@ -2363,17 +2350,6 @@ function showTitle() {
       o.querySelectorAll('.diffbtn:not(.modebtn)').forEach(x => x.classList.toggle('on', parseInt(x.dataset.i) === diffI));
       sfx.pop();
     });
-  });
-  o.querySelector('#howbtn').addEventListener('click', () => {
-    o.querySelector('#howpanel').classList.toggle('hidden');
-    sfx.pop();
-  });
-  o.querySelector('#wipebtn').addEventListener('click', () => {
-    ['lp_bestage','lp_besttime','lp_deaths','lp_wins'].forEach(k => localStorage.removeItem(k));
-    best = { age: -1, time: 0, deaths: 0, wins: 0 };
-    lifeNum = 1;
-    sfx.boop();
-    showTitle();
   });
   spaceAction = startRun;
 }
