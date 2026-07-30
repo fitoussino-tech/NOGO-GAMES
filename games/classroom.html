@@ -1,41 +1,1774 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(find ~/Desktop ~/Downloads -maxdepth 3 -iname \"*how*to*\" -o -iname \"*logo*\" 2>/dev/null | grep -v -i insead)",
-      "Bash(find /private/tmp/claude-501 -maxdepth 6 -iname \"*.png\" -o -iname \"*.jpg\" -o -iname \"*.jpeg\" 2>/dev/null | grep -v scratchpad | head -30; echo \"---\"; ls -la \"/private/tmp/claude-501/-Users-noamfitoussi-Desktop/56a7a2bd-5fef-4877-af05-935fc3e69729/scratchpad\" 2>/dev/null)",
-      "Bash(mkdir -p ~/Desktop/how-to-website/.claude)",
-      "Bash(lsof -nP -iTCP:4599)",
-      "Bash(timeout 3 python3 -m http.server 4600 --directory trader-game)",
-      "Bash(echo \"exit=$?\")",
-      "Bash(python3 -m http.server 4601 --directory trader-game)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:4601/index.html)",
-      "Read(//tmp/**)",
-      "Bash(kill %1)",
-      "Read(//usr/share/dict/**)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/build.py)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/paths.py)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/inject.py)",
-      "Bash(python3 -c ' *)",
-      "Bash(sed -i '' 's/enio kiev/enio kiev john york paul mark rome cuba nile ymca faq/' buildfinal.py)",
-      "Bash(python3 buildfinal.py)",
-      "Bash(mkdir -p games/week-01-word-ladder)",
-      "Bash(cp word-ladder.html games/week-01-word-ladder/index.html)",
-      "Bash(rm -f word-ladder.html)",
-      "Bash(mv games/week-01-word-ladder/index.html games/week-01-word-ladder.html)",
-      "Bash(rmdir games/week-01-word-ladder)",
-      "Bash([ -f \"$FILE\" ])",
-      "Bash(open -R /Users/noamfitoussi/Desktop/nogo-games/games/week-01-word-ladder.html)",
-      "Bash(open -R /Users/noamfitoussi/Desktop/UPLOAD-THIS-word-ladder.html)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/inspect.py)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/theme.py)",
-      "Bash(sed -i '' 's/paul mark noah adam/paul mark noah adam john york june july karl/' finalbank.py)",
-      "Bash(python3 finalbank.py)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/diag.py)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/diag2.py)",
-      "Bash(python3 /private/tmp/claude-501/-Users-noamfitoussi-Desktop/160111b6-1584-4142-88e0-ab7a1286e80c/scratchpad/sweep.py)",
-      "Bash(python3 final2.py)",
-      "Bash(echo \"exit: $?\")",
-      "Bash(grep -n 'titleScreen\\\\|enterMenu\\\\|keydown\\\\|result=\\\\$' /Users/noamfitoussi/Desktop/sumo-showdown.html)"
-    ]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Cheat Sheet — Exam Day</title>
+<style>
+/* ============================================================
+   Cheat Sheet — styles (DOM art, goofy warm cartoon)
+   Everything is HTML/CSS: characters, desks, cone, papers.
+   No emoji — icons are drawn with CSS shapes.
+   ============================================================ */
+
+:root{
+  /* surfaces (menus, HUD, toolbar, tiles) — twilight indigo */
+  --wood:#514b86; --wood-d:#403a6e; --wood-dd:#2c2750;
+  --cream:#f3f1ff; --cream-d:#cfcbf0;
+  --ink:#3a3560;
+  --panel:#4a4478; --panel-d:#3a3560;
+  /* classroom interior stays warm & cosy */
+  --floor:#f0e6cf; --floor-2:#e8dcbe;
+  --wall:#f6f1e6;
+  /* accents */
+  --green:#4bd6a0; --green-d:#2fb082;
+  --red:#ff6b6b; --red-d:#e04a4a;
+  --mint:#3fd6b4; --mint-d:#27b295;
+  --orange:#ff9a52; --orange-d:#e0762e;
+  --blue:#5bb6e0; --pink:#ff9db0; --yellow:#ffd24d;
+  --good:#4bd6a0; --bad:#ff6b6b; --warn:#ffb454;
+  --shadow:0 16px 38px rgba(22,16,50,.45);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  height:100%;
+  font-family:"Baloo 2","Segoe UI",system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(1000px 700px at 15% -10%, #6c5ce6 0%, transparent 55%),
+    radial-gradient(1000px 700px at 90% 110%, #ff7ab8 0%, transparent 50%),
+    linear-gradient(160deg, #5a4fd0 0%, #3d3a8e 45%, #262251 100%) fixed;
+  color:var(--cream);
+  overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  -webkit-font-smoothing:antialiased;
+}
+b{font-weight:800;}
+
+#app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+#stage{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column;}
+
+/* ---------- Wood panel helper look ---------- */
+.pill,.tool,.panel,.mini-btn,.brief-list li,.row,.shop-card{
+  background:linear-gradient(180deg,var(--wood) 0%,var(--wood-d) 100%);
+  border:2px solid var(--wood-dd);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18), inset 0 -3px 0 rgba(0,0,0,.18);
+}
+
+/* ---------- HUD ---------- */
+#hud{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 12px;z-index:5;
+}
+.hud-left,.hud-right{display:flex;gap:8px;align-items:center;}
+.hud-mid{display:flex;gap:10px;flex:1;justify-content:center;max-width:560px;}
+.pill{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:14px;color:var(--cream);}
+.pill-cap{font-size:11px;font-weight:800;letter-spacing:.08em;opacity:.75;}
+.pill b{font-size:19px;}
+.pill.coin{background:linear-gradient(180deg,#e0a53c,#b97e22);border-color:#8a5c15;}
+.pill.coin .pill-cap{color:#4a3410;opacity:1;}
+.pill.coin b{color:#4a3410;}
+.mini-btn{color:var(--cream);border-radius:12px;padding:8px 10px;font-weight:800;font-size:11px;cursor:pointer;}
+.meter{flex:1;max-width:250px;}
+.meter-cap{font-size:10px;font-weight:800;letter-spacing:.08em;opacity:.8;display:block;margin-bottom:3px;}
+.bar{height:13px;border-radius:8px;background:rgba(0,0,0,.32);overflow:hidden;border:2px solid var(--wood-dd);}
+.bar i{display:block;height:100%;width:0%;border-radius:6px;background:linear-gradient(90deg,#ffd85e,#e05a48);transition:width .18s ease;}
+.bar.spread i{background:linear-gradient(90deg,#7fd0ff,#57c47a);}
+
+/* ---------- Classroom ---------- */
+#roomWrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#room{
+  position:relative;width:1000px;height:680px;flex:none;
+  transform-origin:center center;
+  background:
+    repeating-linear-gradient(0deg, rgba(120,90,50,.10) 0 1px, transparent 1px 62px),
+    repeating-linear-gradient(90deg, rgba(120,90,50,.10) 0 1px, transparent 1px 62px),
+    linear-gradient(180deg,var(--floor),var(--floor-2));
+  border-radius:14px;
+  box-shadow:var(--shadow), inset 0 0 60px rgba(120,80,40,.15);
+  overflow:hidden;
+}
+#room.shake{animation:shake .4s;}
+@keyframes shake{0%,100%{transform:var(--rs) translate(0,0);}20%{transform:var(--rs) translate(-8px,4px);}40%{transform:var(--rs) translate(7px,-5px);}60%{transform:var(--rs) translate(-5px,-3px);}80%{transform:var(--rs) translate(4px,4px);}}
+
+/* Back wall */
+.wall{position:absolute;top:0;left:0;width:1000px;height:104px;background:linear-gradient(180deg,var(--wall),#e7dfcf);border-bottom:4px solid #d3c6ad;}
+.wall .door{position:absolute;left:36px;top:16px;width:62px;height:86px;border-radius:6px;background:linear-gradient(180deg,#a06a3c,#875531);border:3px solid #6f4520;box-shadow:inset -6px 0 rgba(0,0,0,.12);}
+.wall .door::after{content:"";position:absolute;right:8px;top:44px;width:6px;height:6px;border-radius:50%;background:var(--yellow);}
+.wall .door span{position:absolute;top:-15px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:#8a6a3a;letter-spacing:.1em;}
+.wall .clock{position:absolute;left:180px;top:22px;width:46px;height:46px;border-radius:50%;background:#fff;border:4px solid #4a4a4a;}
+.wall .clock i{position:absolute;left:50%;top:50%;background:#333;transform-origin:bottom center;border-radius:2px;}
+.wall .clock .hh{width:3px;height:12px;margin-left:-1.5px;margin-top:-12px;}
+.wall .clock .mm{width:2px;height:16px;margin-left:-1px;margin-top:-16px;}
+.wall .clock .ss{width:1px;height:17px;margin-left:-.5px;margin-top:-17px;background:var(--red);}
+.wall .board{position:absolute;left:300px;top:14px;width:400px;height:74px;border-radius:8px;background:linear-gradient(180deg,#356b52,#2c5643);border:5px solid #a9825a;box-shadow:inset 0 0 18px rgba(0,0,0,.25);}
+.wall .board span{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-style:italic;font-size:13px;color:rgba(255,255,255,.5);}
+.wall .window{position:absolute;top:20px;width:80px;height:60px;border-radius:8px;background:linear-gradient(180deg,#cdecff,#a7d6f5);border:4px solid #8aa0b5;}
+.wall .window:nth-of-type(4){left:742px;}
+.wall .window:nth-of-type(5){left:838px;}
+.wall .window::before,.wall .window::after{content:"";position:absolute;background:#8aa0b5;}
+.wall .window::before{left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;}
+.wall .window::after{top:50%;left:0;right:0;height:3px;margin-top:-1.5px;}
+.wall .tdesk{position:absolute;left:410px;top:70px;width:180px;height:34px;border-radius:8px 8px 5px 5px;background:linear-gradient(180deg,#c98f4e,#9a6835);border:3px solid #6f4720;box-shadow:0 8px 14px rgba(0,0,0,.18);}
+
+#entities{position:absolute;inset:0;}
+
+/* Partition / divider obstacle down the middle of the room */
+.divider{position:absolute;width:14px;margin-left:-7px;border-radius:7px;z-index:2;
+  background:
+    repeating-linear-gradient(0deg, rgba(120,80,40,.25) 0 2px, transparent 2px 26px),
+    linear-gradient(90deg,#a9793f,#d8b078 45%,#e8c79a 55%,#a9793f);
+  border:2px solid #6f4720;
+  box-shadow:6px 0 14px rgba(0,0,0,.2), -6px 0 14px rgba(0,0,0,.2), inset 0 0 10px rgba(255,255,255,.25);}
+.divider::before,.divider::after{content:"";position:absolute;left:-4px;width:22px;height:16px;border-radius:5px;background:#8a5a34;border:2px solid #6f4720;}
+.divider::before{top:-6px;} .divider::after{bottom:-6px;}
+
+/* Divider / partition obstacle */
+.divider{position:absolute;width:14px;margin-left:-7px;border-radius:7px;z-index:1;
+  background:linear-gradient(90deg,#7a5227,#c98f4e 45%,#c98f4e 55%,#7a5227);
+  border:2px solid #6f4720;box-shadow:0 4px 12px rgba(0,0,0,.3), inset 0 0 8px rgba(0,0,0,.2);}
+.divider::before{content:"";position:absolute;left:1px;right:1px;top:0;height:100%;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 2px, transparent 2px 22px);border-radius:6px;}
+
+/* ---------- Desk + Student ---------- */
+.student{position:absolute;width:96px;height:104px;margin-left:-48px;margin-top:-58px;cursor:pointer;}
+.student .desk{
+  position:absolute;left:14px;bottom:0;width:68px;height:26px;border-radius:7px 7px 5px 5px;
+  background:linear-gradient(180deg,#c98f4e,#a06c38);border:3px solid #7a5227;
+  box-shadow:0 6px 10px rgba(0,0,0,.18);
+}
+.student .desk::before{content:"";position:absolute;left:16px;top:-9px;width:36px;height:14px;border-radius:2px;background:#fbf3e0;box-shadow:0 1px 0 rgba(0,0,0,.1);}
+.student .shadow{position:absolute;left:24px;bottom:18px;width:48px;height:14px;border-radius:50%;background:rgba(0,0,0,.16);}
+
+/* Character */
+.char{position:absolute;left:50%;bottom:20px;width:56px;height:64px;margin-left:-28px;transform-origin:bottom center;animation:idle 3s ease-in-out infinite;}
+@keyframes idle{0%,100%{transform:rotate(-1.5deg) translateY(0);}50%{transform:rotate(1.5deg) translateY(-2px);}}
+.char .body{position:absolute;bottom:0;left:6px;width:44px;height:38px;border-radius:22px 22px 16px 16px;background:var(--shirt);box-shadow:inset 0 -5px 0 rgba(0,0,0,.10), 0 3px 0 rgba(0,0,0,.06);}
+.char .arm{position:absolute;bottom:6px;width:9px;height:20px;border-radius:6px;background:var(--shirt);}
+.char .arm.l{left:2px;transform:rotate(12deg);} .char .arm.r{right:2px;transform:rotate(-12deg);}
+.char .head{position:absolute;top:0;left:50%;margin-left:-22px;width:44px;height:42px;border-radius:46% 46% 44% 44%;background:var(--skin);box-shadow:inset 0 -4px 0 rgba(0,0,0,.06);}
+.char .hair{position:absolute;top:-4px;left:-3px;right:-3px;height:22px;border-radius:24px 24px 10px 10px;background:var(--hair);}
+.char .hair::after{content:"";position:absolute;left:6px;right:6px;bottom:-4px;height:10px;background:var(--hair);border-radius:0 0 8px 8px;}
+.char[data-hair="1"] .hair{border-radius:26px 26px 0 16px;}
+.char[data-hair="2"] .hair{height:26px;border-radius:50% 50% 8px 8px;}
+.char[data-hair="3"] .hair::before{content:"";position:absolute;top:-5px;left:50%;margin-left:-6px;width:12px;height:12px;border-radius:50%;background:var(--hair);}
+.char[data-hair="4"] .hair{height:18px;border-radius:14px 14px 2px 2px;}
+.char .eye{position:absolute;top:20px;width:5px;height:6px;border-radius:50%;background:#3a2b20;}
+.char .eye.l{left:12px;} .char .eye.r{right:12px;}
+.char .cheek{position:absolute;top:27px;width:7px;height:5px;border-radius:50%;background:var(--pink);opacity:.8;}
+.char .cheek.l{left:6px;} .char .cheek.r{right:6px;}
+.char .mouth{position:absolute;top:31px;left:50%;margin-left:-5px;width:10px;height:5px;border-radius:0 0 8px 8px;background:#a05a48;}
+
+/* Answer card that a knower holds */
+.char .card{position:absolute;bottom:8px;left:50%;margin-left:-11px;width:22px;height:16px;border-radius:3px;background:#fbf3e0;border:1px solid #d8c8a6;opacity:0;transform:scale(.6);transition:.2s;
+  background-image:linear-gradient(#c9b98f 1px,transparent 1px);background-size:100% 4px;background-position:0 4px;}
+
+/* ---------- State visuals ---------- */
+.student.no-answers .char{filter:saturate(.55) brightness(.97);opacity:.9;}
+.student.no-answers .tag-q{opacity:1;}
+.tag-q{position:absolute;top:-6px;left:50%;margin-left:-9px;width:18px;height:18px;border-radius:50%;background:#c9b48f;border:2px solid #a88f63;color:#5b4329;font-weight:800;font-size:12px;line-height:15px;text-align:center;opacity:0;transition:.2s;}
+
+.student.has-answers .char .card{opacity:1;transform:scale(1);}
+.student.cheat .char .card{opacity:1;transform:scale(1);box-shadow:0 0 0 2px var(--yellow);}
+
+.student.writing .char{animation:writeWob .5s ease-in-out infinite;}
+@keyframes writeWob{0%,100%{transform:rotate(-2deg);}50%{transform:rotate(2deg) translateY(-1px);}}
+.student.writing .char .arm.r{animation:scribble .3s ease-in-out infinite;}
+@keyframes scribble{0%,100%{transform:rotate(-24deg);}50%{transform:rotate(-6deg);}}
+
+.student.nervous .char .mouth{border-radius:8px 8px 0 0;height:4px;background:#7a4636;}
+.student.nervous .char .eye{height:7px;}
+.student.nervous .sweat{opacity:1;}
+.sweat{position:absolute;top:14px;right:14px;width:7px;height:10px;border-radius:0 60% 60% 60%;transform:rotate(45deg);background:#7fd0ff;opacity:0;transition:.2s;box-shadow:0 0 4px #7fd0ff;}
+
+.student.passed .char{animation:hop 1.6s ease-in-out infinite;}
+@keyframes hop{0%,100%{transform:translateY(0);}25%{transform:translateY(-5px);}50%{transform:translateY(0);}}
+.student.passed .char .mouth{border-radius:0 0 10px 10px;height:7px;width:14px;margin-left:-7px;background:#8a4a38;}
+.student.passed .ring{opacity:1;box-shadow:0 0 0 3px var(--green), 0 0 18px rgba(99,195,104,.6);}
+.student.passed .check{opacity:1;transform:scale(1) rotate(-8deg);}
+.check{position:absolute;top:-10px;left:50%;margin-left:-13px;width:26px;height:26px;border-radius:50%;background:var(--green);border:2px solid var(--green-d);opacity:0;transform:scale(.4) rotate(-40deg);transition:.3s cubic-bezier(.2,1.6,.4,1);}
+.check::after{content:"";position:absolute;left:8px;top:5px;width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(40deg);}
+
+/* Busted — embarrassed blush + exclamation mark, sheepish little wobble */
+.student.caught .char{animation:bustWob 1.4s ease-in-out infinite;}
+@keyframes bustWob{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+.student.caught .char .cheek{background:#ff5a5a;opacity:.95;width:12px;height:8px;top:26px;box-shadow:0 0 5px rgba(255,90,90,.6);}
+.student.caught .char .cheek.l{left:2px;} .student.caught .char .cheek.r{right:2px;}
+.student.caught .char .eye{height:7px;}
+.student.caught .char .mouth{width:12px;height:5px;margin-left:-6px;top:32px;border-radius:6px 6px 0 0;background:#8a4636;}
+.student.caught .char .arm.l{transform:rotate(30deg);}
+.student.caught .char .arm.r{transform:rotate(-30deg);}
+/* embarrassment steam puffs */
+.student.caught .char .head::before{content:"";position:absolute;top:-6px;left:-8px;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);box-shadow:34px 0 0 rgba(255,255,255,.7);}
+.student.caught .bang{opacity:1;animation:bangPop .45s cubic-bezier(.2,1.7,.4,1);}
+@keyframes bangPop{0%{transform:scale(0) translateY(8px);}100%{transform:scale(1) translateY(0);}}
+.bang{position:absolute;top:-22px;left:50%;margin-left:-9px;width:18px;height:24px;opacity:0;pointer-events:none;}
+.bang::before{content:"!";display:block;text-align:center;font-weight:900;font-size:26px;line-height:24px;color:var(--red);-webkit-text-stroke:2px #fff;paint-order:stroke fill;text-shadow:0 3px 0 rgba(0,0,0,.18);}
+
+/* OUT — busted student is removed from play: greyed, slumped, non-interactive */
+.student.out{pointer-events:none;}
+.student.out .char{filter:grayscale(.9) brightness(.85);opacity:.5;transform:translateY(7px);animation:none;transition:.4s;}
+.student.out .char .head{transform:translateY(3px) rotate(10deg);}
+.student.out .char .cheek{opacity:.25;box-shadow:none;}
+.student.out .bang{opacity:.4;}
+.student.out .pbar{display:none;}
+.student.out::after{content:"OUT";position:absolute;top:24px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:900;letter-spacing:.12em;color:#fff;background:rgba(90,40,30,.9);padding:2px 7px;border-radius:7px;border:1px solid rgba(0,0,0,.2);z-index:6;}
+
+/* selection + target rings */
+.ring{position:absolute;left:50%;top:22px;margin-left:-30px;width:60px;height:52px;border-radius:50%;opacity:0;transition:.15s;pointer-events:none;}
+.student.selectable:hover .char{transform:scale(1.06);}
+.student.selected .ring{opacity:1;box-shadow:0 0 0 3px var(--yellow),0 0 16px rgba(255,207,77,.7);}
+.student.target .ring{opacity:1;box-shadow:0 0 0 3px var(--blue);animation:pulseR 1s ease-in-out infinite;}
+@keyframes pulseR{0%,100%{box-shadow:0 0 0 3px rgba(91,182,224,.9);}50%{box-shadow:0 0 0 6px rgba(91,182,224,.35);}}
+
+/* progress under student */
+.pbar{position:absolute;bottom:14px;left:50%;margin-left:-20px;width:40px;height:5px;border-radius:3px;background:rgba(0,0,0,.28);overflow:hidden;opacity:0;transition:.2s;}
+.student.has-answers .pbar,.student.writing .pbar{opacity:1;}
+.pbar i{display:block;height:100%;background:var(--green);width:0%;transition:width .25s;}
+.pbar i.pend{background:var(--blue);position:absolute;top:0;}
+
+/* Nerd marker — watchful, wears glasses, red dashed ring */
+.student.nerd .char .head::after{content:"";position:absolute;top:16px;left:6px;right:6px;height:11px;border:2px solid #3a2b20;border-radius:6px;opacity:.6;}
+.student.nerd .char .head::before{content:"";position:absolute;top:19px;left:50%;margin-left:-1px;width:2px;height:4px;background:#3a2b20;opacity:.6;z-index:2;}
+.student.nerd::after{content:"";position:absolute;left:50%;top:24px;margin-left:-34px;width:68px;height:60px;border-radius:50%;border:2px dashed rgba(224,90,72,.7);animation:nerdPulse 1.4s ease-in-out infinite;pointer-events:none;}
+@keyframes nerdPulse{0%,100%{opacity:.4;transform:scale(.96);}50%{opacity:.8;transform:scale(1.04);}}
+
+/* Security camera */
+.camera-box{position:absolute;width:26px;height:18px;margin:-22px 0 0 -13px;border-radius:4px;background:#3a3f4b;border:2px solid #2a2f3a;z-index:3;}
+.camera-box::before{content:"";position:absolute;right:-8px;top:2px;width:12px;height:10px;border-radius:4px;background:#2a2f3a;}
+.camera-box::after{content:"";position:absolute;left:4px;top:5px;width:5px;height:5px;border-radius:50%;background:#e05a48;animation:rec 1.4s steps(1) infinite;}
+@keyframes rec{0%,50%{opacity:1;}51%,100%{opacity:.2;}}
+
+/* ---------- Teacher ---------- */
+.teacher{position:absolute;width:70px;height:80px;margin-left:-35px;margin-top:-52px;z-index:3;transition:none;}
+.teacher .shadow{position:absolute;left:14px;bottom:8px;width:44px;height:14px;border-radius:50%;background:rgba(0,0,0,.22);}
+.teacher .tchar{position:absolute;left:50%;bottom:12px;margin-left:-26px;width:52px;height:60px;}
+.teacher .body{position:absolute;bottom:0;left:6px;width:40px;height:40px;border-radius:20px 20px 12px 12px;background:#4f6a99;box-shadow:inset 0 -5px 0 rgba(0,0,0,.12);}
+.teacher .tie{position:absolute;bottom:6px;left:50%;margin-left:-4px;width:8px;height:20px;background:#c14b57;clip-path:polygon(50% 0,100% 25%,60% 100%,40% 100%,0 25%);}
+.teacher .head{position:absolute;top:0;left:50%;margin-left:-21px;width:42px;height:40px;border-radius:46%;background:#e8b98a;box-shadow:inset 0 -3px 0 rgba(0,0,0,.06);}
+.teacher .bald{position:absolute;top:-2px;left:2px;right:2px;height:14px;border-radius:20px 20px 0 0;background:#6f6f74;}
+.teacher .eye{position:absolute;top:18px;width:5px;height:6px;border-radius:50%;background:#2a2230;}
+.teacher .eye.l{left:11px;} .teacher .eye.r{right:11px;}
+.teacher .glasses{position:absolute;top:15px;left:7px;right:7px;height:10px;border:2px solid #333;border-radius:6px;opacity:.5;}
+.teacher .mous{position:absolute;top:27px;left:50%;margin-left:-8px;width:16px;height:5px;border-radius:0 0 6px 6px;background:#6f6f74;}
+.teacher.alert .head{animation:tAlert .3s;}
+@keyframes tAlert{0%,100%{transform:none;}50%{transform:translateY(-2px) scale(1.04);}}
+.teacher .tbang{position:absolute;top:-20px;left:50%;margin-left:-6px;font-size:24px;font-weight:900;color:var(--red);-webkit-text-stroke:3px #fff;opacity:0;transition:.1s;}
+.teacher.alert .tbang{opacity:1;}
+
+/* Vision cone (SVG) */
+.cone{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:2;}
+.cone path{fill:url(#coneGrad);stroke:rgba(224,90,72,.6);stroke-width:2;transition:none;}
+.cone.alert path{fill:url(#coneGradR);stroke:rgba(224,90,72,.9);stroke-width:2.5;}
+.cone.hush path{fill:url(#coneGradB);stroke:rgba(120,200,255,.6);}
+
+/* ---------- Papers / whisper ---------- */
+.fx{position:absolute;z-index:4;pointer-events:none;will-change:transform;}
+.paper{width:20px;height:14px;margin:-7px 0 0 -10px;border-radius:2px;background:#fbf3e0;border:1px solid #d8c8a6;box-shadow:0 2px 4px rgba(0,0,0,.2);
+  background-image:linear-gradient(#c9b98f 1px,transparent 1px);background-size:100% 4px;background-position:0 4px;}
+.plane{width:24px;height:16px;margin:-8px 0 0 -12px;background:#fbf6ea;clip-path:polygon(100% 50%,0 0,35% 50%,0 100%);filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));}
+/* whisper speech-waves — nested ")" arcs radiating outward from a mouth dot */
+.whisper{width:0;height:0;}
+.whisper::before{content:"";position:absolute;left:-3px;top:-3px;width:6px;height:6px;border-radius:50%;background:#8fd0ff;box-shadow:0 0 6px rgba(143,208,255,.9);}
+.whisper i{position:absolute;left:0;top:0;border:3.5px solid transparent;border-right-color:#8fd0ff;border-radius:50%;opacity:0;filter:drop-shadow(0 0 2px rgba(143,208,255,.7));animation:swave 1s ease-out infinite;}
+.whisper i:nth-child(1){width:16px;height:16px;margin:-8px 0 0 0;}
+.whisper i:nth-child(2){width:26px;height:26px;margin:-13px 0 0 -2px;animation-delay:.22s;}
+.whisper i:nth-child(3){width:38px;height:38px;margin:-19px 0 0 -4px;animation-delay:.44s;}
+@keyframes swave{0%{opacity:0;transform:scale(.45) translateX(0);}25%{opacity:1;}100%{opacity:0;transform:scale(1.15) translateX(7px);}}
+
+.float{position:absolute;z-index:6;font-weight:900;font-size:15px;pointer-events:none;text-shadow:0 2px 3px rgba(0,0,0,.4);animation:floatUp 1.1s ease-out forwards;white-space:nowrap;}
+@keyframes floatUp{0%{transform:translate(-50%,0) scale(.6);opacity:0;}20%{opacity:1;transform:translate(-50%,-8px) scale(1);}100%{transform:translate(-50%,-42px) scale(1);opacity:0;}}
+
+.confetti{position:absolute;z-index:6;width:7px;height:10px;border-radius:2px;pointer-events:none;}
+
+/* hint + toast */
+#hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);background:rgba(50,30,12,.72);border:2px solid var(--wood-dd);color:var(--cream);font-size:13px;font-weight:600;padding:6px 14px;border-radius:16px;transition:opacity .4s;pointer-events:none;}
+#toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--red);border:2px solid var(--red-d);color:#fff;font-weight:800;padding:8px 18px;border-radius:14px;opacity:0;transition:.2s;pointer-events:none;box-shadow:var(--shadow);}
+#toast.show{opacity:1;}
+
+/* ---------- Toolbar ---------- */
+#toolbar{display:flex;gap:10px;padding:10px 12px;z-index:5;}
+.tool{position:relative;flex:1;overflow:hidden;border-radius:16px;color:var(--cream);padding:10px 8px 12px;cursor:pointer;text-align:center;transition:transform .08s;}
+.tool:hover{transform:translateY(-2px);}
+.tool:active{transform:translateY(1px);}
+.tool .t-name{display:block;font-weight:800;font-size:15px;}
+.tool .t-sub{display:block;font-size:10px;opacity:.75;font-weight:700;}
+.tool .t-key{position:absolute;top:5px;right:8px;font-size:10px;opacity:.6;border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:0 4px;}
+.tool.active{border-color:var(--yellow);box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 0 0 3px rgba(255,207,77,.35);}
+.tool .t-cd{position:absolute;left:0;bottom:0;height:4px;width:0%;background:var(--yellow);}
+.tool .t-lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(40,25,10,.72);font-weight:800;font-size:12px;letter-spacing:.1em;}
+.tool.locked{cursor:not-allowed;}
+.tool.locked .t-lock{display:flex;}
+.tool.empty{opacity:.45;}
+.tool.empty .t-count{color:#ffb3a0;}
+.tool .t-count{position:absolute;top:5px;left:9px;font-weight:900;font-size:14px;color:var(--yellow);text-shadow:0 1px 0 rgba(0,0,0,.3);}
+
+/* brief-screen objective + inventory */
+.brief-objective{font-weight:800;font-size:15px;margin:6px 0 10px;color:var(--cream);}
+.brief-inv{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 20px;}
+.inv-item{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.22);border:1px solid var(--wood-dd);border-radius:11px;padding:6px 11px;font-weight:700;font-size:13px;}
+.inv-ic{width:26px;height:26px;background:rgba(255,255,255,.92);border-radius:7px;padding:2px;flex:none;}
+.inv-ic svg{width:100%;height:100%;display:block;}
+.inv-item b{color:var(--yellow);font-size:15px;}
+.tool .t-charges{position:absolute;top:6px;left:8px;display:none;gap:3px;}
+.tool .t-charges b{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.22);}
+.tool .t-charges b.on{background:var(--yellow);box-shadow:0 0 4px rgba(255,207,77,.6);}
+
+/* ---------- Overlays ---------- */
+.overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,16,46,.72);backdrop-filter:blur(6px);z-index:30;padding:18px;}
+.overlay.show{display:flex;animation:fade .25s;}
+@keyframes fade{from{opacity:0;}to{opacity:1;}}
+.panel{width:min(520px,94vw);max-height:92vh;overflow-y:auto;border-radius:22px;padding:26px;text-align:center;color:var(--cream);animation:pop .3s cubic-bezier(.2,1.4,.4,1);}
+.panel.wide{width:min(720px,96vw);}
+@keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:none;opacity:1;}}
+.logo{font-size:52px;font-weight:900;line-height:.95;letter-spacing:.02em;color:var(--cream);text-shadow:0 4px 0 var(--wood-dd);}
+.logo span{display:block;color:var(--yellow);text-shadow:0 4px 0 #b58a1e;}
+.tag{margin:14px 0;font-size:15px;font-weight:600;opacity:.92;}
+/* level select */
+.lvl-select-cap{font-size:12px;font-weight:900;letter-spacing:.16em;color:var(--yellow);margin:14px 0 10px;}
+.lvl-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 14px;}
+.lvl-tile{width:108px;min-height:96px;border-radius:14px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--cream);
+  background:linear-gradient(180deg,var(--wood),var(--wood-d));border:2px solid var(--wood-dd);box-shadow:inset 0 2px 0 rgba(255,255,255,.18),inset 0 -3px 0 rgba(0,0,0,.18);transition:transform .08s;}
+.lvl-tile:hover{transform:translateY(-2px);}
+.lvl-tile:active{transform:translateY(1px);}
+.lvl-num{font-size:26px;font-weight:900;line-height:1;}
+.lvl-title{font-size:11px;font-weight:700;opacity:.85;text-align:center;line-height:1.12;}
+.lvl-badge{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--yellow);}
+.lvl-tile.cleared{border-color:var(--green-d);}
+.lvl-tile.cleared .lvl-badge{color:var(--good);}
+.lvl-tile.locked{opacity:.5;cursor:not-allowed;filter:grayscale(.5);}
+.lvl-tile.locked:hover{transform:none;}
+.lvl-lock{width:15px;height:12px;border-radius:2px;background:var(--cream);position:relative;margin-top:3px;opacity:.7;}
+.lvl-lock::before{content:"";position:absolute;left:3.5px;top:-6px;width:8px;height:8px;border:2px solid var(--cream);border-bottom:none;border-radius:5px 5px 0 0;}
+
+.how{list-style:none;text-align:left;display:grid;gap:8px;margin:16px 0 20px;}
+.how li{background:rgba(0,0,0,.2);border-radius:12px;padding:10px 14px;font-size:13.5px;font-weight:600;}
+.how li::before{content:"›";color:var(--yellow);font-weight:900;margin-right:8px;}
+h2{font-size:26px;font-weight:900;margin-bottom:12px;}
+.cap{font-size:13px;font-weight:900;letter-spacing:.15em;color:var(--yellow);}
+.brief-list{list-style:none;text-align:left;display:grid;gap:8px;margin:14px 0;}
+.brief-list li{border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600;}
+.brief-list li.new::before{content:"NEW ";color:var(--yellow);font-weight:900;font-size:11px;}
+.brief-stat{display:flex;justify-content:space-around;margin:14px 0 20px;font-size:14px;font-weight:600;}
+
+.btn{font-family:inherit;font-weight:800;cursor:pointer;border:none;border-radius:14px;padding:13px 22px;color:#08312a;font-size:16px;
+  background:linear-gradient(180deg,#63efc9,var(--mint));box-shadow:0 5px 0 var(--mint-d);transition:transform .07s,box-shadow .07s;}
+.btn:hover{filter:brightness(1.05);}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--mint-d);}
+.btn.big{width:100%;font-size:18px;padding:15px;margin-top:4px;}
+.btn.big + .btn.big{margin-top:10px;}
+.pause-ico{display:inline-block;width:12px;height:13px;position:relative;vertical-align:middle;}
+.pause-ico::before,.pause-ico::after{content:"";position:absolute;top:0;bottom:0;width:4px;border-radius:2px;background:var(--cream);}
+.pause-ico::before{left:1px;} .pause-ico::after{right:1px;}
+.panel.narrow{width:min(360px,92vw);}
+.btn.coral{background:linear-gradient(180deg,#ff9a8f,var(--red));box-shadow:0 5px 0 var(--red-d);color:#fff;}
+.btn.coral:active{box-shadow:0 1px 0 var(--red-d);}
+.btn.link{background:none;box-shadow:none;color:var(--cream);opacity:.72;font-size:13px;font-weight:700;text-decoration:underline;margin-top:10px;padding:6px;}
+.btn.link:active{transform:none;}
+
+/* results */
+.grade{font-size:60px;font-weight:900;width:112px;height:112px;line-height:112px;margin:6px auto 14px;border-radius:28px;color:#5b3e0f;
+  background:radial-gradient(circle at 32% 26%,#fff0c4,var(--yellow));box-shadow:var(--shadow);animation:pop .4s cubic-bezier(.2,1.6,.4,1);}
+.grade.fail{background:radial-gradient(circle at 32% 26%,#ffc2b8,var(--red));color:#5a1c14;}
+#resultTitle.fail{color:#ffd0c8;}
+.rows{display:grid;gap:8px;margin:6px 0 20px;}
+.row{border-radius:12px;padding:11px 16px;display:flex;justify-content:space-between;font-size:15px;font-weight:700;}
+.row.coin b{color:var(--yellow);}
+.coin.big-coin{background:linear-gradient(180deg,#e0a53c,#b97e22);border:2px solid #8a5c15;border-radius:14px;padding:6px 16px;font-size:20px;font-weight:900;color:#4a3410;}
+
+/* shop — simple leveled tiles */
+.shop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.shop-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:18px;}
+.shop-card{width:132px;border-radius:16px;padding:12px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;}
+.shop-card .sc-icon{width:46px;height:46px;background:rgba(255,255,255,.9);border-radius:12px;padding:4px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.1);}
+.shop-card .sc-icon svg{width:100%;height:100%;display:block;}
+.sc-name{font-weight:800;font-size:13px;}
+.sc-dots{display:flex;gap:3px;}
+.sc-dots i{width:9px;height:6px;border-radius:2px;background:rgba(0,0,0,.3);}
+.sc-dots i.on{background:var(--yellow);}
+.sc-buy{margin-top:2px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;font-weight:800;font-size:14px;border:none;border-radius:11px;padding:6px 15px;cursor:pointer;color:#fff;
+  background:linear-gradient(180deg,#e0684a,#c0472f);box-shadow:0 3px 0 #93341f;}
+.coin-dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe694,#e0a53c);border:1px solid #b97e22;box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);}
+.shop-card.broke{opacity:.5;}
+.shop-card.broke .sc-buy{background:#6f4620;box-shadow:0 3px 0 #4a2f16;cursor:default;}
+.shop-card.maxed .sc-buy{background:linear-gradient(180deg,#63c368,#3f9d54);box-shadow:0 3px 0 #2f7a40;}
+.sc-buy:disabled{cursor:default;}
+
+@media (max-width:620px){.hud-mid{display:none;}.shop-grid{grid-template-columns:1fr;}.logo{font-size:42px;}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="stage">
+
+    <!-- ===== Top HUD ===== -->
+    <header id="hud">
+      <div class="hud-left">
+        <div class="pill"><span class="pill-cap">LVL</span><b id="dayValue">1</b></div>
+        <div class="pill"><span class="pill-cap">TIME</span><b id="timeValue">1:40</b></div>
+      </div>
+
+      <div class="hud-mid">
+        <div class="meter">
+          <span class="meter-cap">TEACHER SUSPICION</span>
+          <div class="bar"><i id="suspicionFill"></i></div>
+        </div>
+        <div class="meter">
+          <span class="meter-cap">ANSWERS SPREAD</span>
+          <div class="bar spread"><i id="spreadFill"></i></div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="pill"><span class="pill-cap">PASS</span><b><span id="passedValue">0</span>/<span id="totalValue">24</span></b></div>
+        <button id="muteBtn" class="mini-btn" title="Sound">SND</button>
+        <button id="pauseBtn" class="mini-btn" title="Pause"><i class="pause-ico"></i></button>
+      </div>
+    </header>
+
+    <!-- ===== Classroom ===== -->
+    <div id="roomWrap">
+      <div id="room">
+        <!-- back wall furniture -->
+        <div class="wall">
+          <div class="door"><span>EXIT</span></div>
+          <div class="clock"><i class="hh"></i><i class="mm"></i><i class="ss"></i></div>
+          <div class="board"><span>EXAM — NO CHEATING</span></div>
+          <div class="window"></div>
+          <div class="window"></div>
+          <div class="tdesk"></div>
+        </div>
+        <!-- desks + students + teacher injected by JS -->
+        <div id="entities"></div>
+      </div>
+      <div id="hint">Tap a classmate who <b>has the answers</b>, then tap a neighbour to send them.</div>
+      <div id="toast"></div>
+    </div>
+
+    <!-- ===== Toolbar ===== -->
+    <footer id="toolbar">
+      <button class="tool" data-method="whisper">
+        <span class="t-name">Whisper</span>
+        <span class="t-sub">fast · noisy</span>
+        <span class="t-key">1</span>
+        <span class="t-count"></span>
+        <span class="t-lock">—</span>
+      </button>
+      <button class="tool" data-method="note">
+        <span class="t-name">Pass Note</span>
+        <span class="t-sub">slow · quiet</span>
+        <span class="t-key">2</span>
+        <span class="t-count"></span>
+        <span class="t-lock">—</span>
+      </button>
+      <button class="tool" data-method="airplane">
+        <span class="t-name">Paper Plane</span>
+        <span class="t-sub">far · risky</span>
+        <span class="t-key">3</span>
+        <span class="t-count"></span>
+        <span class="t-lock">—</span>
+      </button>
+      <button class="tool" data-method="distraction">
+        <span class="t-name">Distraction</span>
+        <span class="t-sub">divert gaze</span>
+        <span class="t-key">4</span>
+        <span class="t-count"></span>
+        <span class="t-lock">—</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- ===== Overlays ===== -->
+  <div class="overlay show" id="titleScreen">
+    <div class="panel wide">
+      <div class="logo">CHEAT<span>SHEET</span></div>
+      <p class="tag">Spread the answers so everyone passes. Dodge the teacher's red cone — get caught and you're out.</p>
+      <div class="lvl-select-cap">SELECT A LEVEL</div>
+      <div class="lvl-grid" id="levelGrid"></div>
+      <button class="btn link" id="resetBtn">reset progress</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="briefScreen">
+    <div class="panel">
+      <div class="cap" id="briefDay">LEVEL 1</div>
+      <h2 id="briefTitle"></h2>
+      <ul class="brief-list" id="briefList"></ul>
+      <div class="brief-objective" id="briefObjective"></div>
+      <div class="brief-inv" id="briefInv"></div>
+      <button class="btn big" id="beginBtn">Begin exam</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="resultScreen">
+    <div class="panel">
+      <h2 id="resultTitle">LEVEL CLEARED</h2>
+      <div class="grade" id="gradeBadge">A</div>
+      <div class="rows">
+        <div class="row"><span>Students passed</span><b id="rPassed">0 / 24</b></div>
+        <div class="row"><span>Pass rate</span><b id="rRate">0%</b></div>
+        <div class="row"><span>Caught</span><b id="rCaught">0</b></div>
+      </div>
+      <button class="btn big" id="resultBtn">Next level →</button>
+      <button class="btn link" id="homeBtn">level select</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseScreen">
+    <div class="panel narrow">
+      <h2>Paused</h2>
+      <button class="btn big" id="resumeBtn">Resume</button>
+      <button class="btn big coral" id="restartBtn">Restart level</button>
+      <button class="btn link" id="pauseHomeBtn">level select</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------- js/config.js ---------- */
+/* ============================================================
+   config.js  —  Puzzle levels with fixed tool inventories.
+   No shop / money. Each level hands you a limited number of
+   each transmission type; solve the seating with what you get.
+   ============================================================ */
+
+const CONFIG = {
+  W: 1000, H: 680,
+
+  QUESTIONS: 8,
+  PASS_REQUIRED: 5,
+  COPY_TIME: 0.42,
+
+  CONE_RANGE: 1300,                 // infinite red vision cone
+  CONE_REACTION: 0.03,              // basically instant — seen in the cone = busted
+  SUSPICION_CAUGHT: 18,
+  SUSPICION_NEARMISS: 5,
+  SUSPICION_NERD: 10,
+  SUSPICION_DECAY: 3.0,             // meter cools this fast per second
+
+  CLEAR_RATE: 80,                   // % of the class that must pass to clear a level
+};
+
+/* ---- Transmission methods ----
+   note: slow & quiet.  whisper: fast but noisy (raises suspicion &
+   turns the nearest teacher toward the sound).  airplane: long range. */
+CONFIG.METHODS = {
+  whisper:  { name: 'Whisper', time: 0.55, range: 205, cone: true, hear: 150, risk: 1.2, noise: 9 },
+  note:     { name: 'Pass Note', time: 2.6, range: 150, cone: true, hear: 0, risk: 0.9, noise: 0 },
+  airplane: { name: 'Paper Plane', fold: 1.4, speed: 470, range: 2000, cone: true, hear: 0, risk: 2.4, accuracy: 0.86, noise: 0 },
+  distraction: { name: 'Distraction', duration: 3.6 },
+};
+
+/* C is the minimum passing grade and sits exactly on CLEAR_RATE (80%). */
+CONFIG.GRADES = [
+  { min: 100, g: 'S' }, { min: 95, g: 'A' }, { min: 88, g: 'B' },
+  { min: 80, g: 'C' }, { min: 55, g: 'D' }, { min: 0, g: 'F' },
+];
+
+/* Small drawn icons (no emoji) — used on the toolbar/brief. */
+const IC = {
+  whisper: `<svg viewBox="0 0 40 40"><circle cx="10" cy="20" r="4" fill="#4a3b2a"/><g fill="none" stroke="#5bb6e0" stroke-width="3" stroke-linecap="round"><path d="M17 13a11 11 0 0 1 0 14"/><path d="M23 9a17 17 0 0 1 0 22"/></g></svg>`,
+  note: `<svg viewBox="0 0 40 40"><rect x="9" y="8" width="22" height="26" rx="2" fill="#fbf3e0" stroke="#c9b98f" stroke-width="2"/><g stroke="#c9b98f" stroke-width="2" stroke-linecap="round"><path d="M13 15h14M13 21h14M13 27h9"/></g></svg>`,
+  airplane: `<svg viewBox="0 0 40 40"><path d="M6 20 34 8 22 34 18 24Z" fill="#fbf6ea" stroke="#c9b98f" stroke-width="1.5" stroke-linejoin="round"/><path d="M18 24 34 8" stroke="#c9b98f" stroke-width="1.5" fill="none"/></svg>`,
+  distraction: `<svg viewBox="0 0 40 40"><path d="M20 5 23.5 15 34 15.5 25.5 22 28.5 32 20 26 11.5 32 14.5 22 6 15.5 16.5 15Z" fill="#ffcf4d" stroke="#c8a63a" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+};
+CONFIG.METHODS_IC = IC;
+
+/* ============================================================
+   LEVELS
+   clusters: groups of desks {cx,cy,cols,rows}. Wide gaps between
+   clusters force paper planes. cheats seed only the first cluster.
+   inv: how many of each tool you get this level.
+   ============================================================ */
+CONFIG.LEVELS = [
+  { title: 'Notes only.',
+    notes: ['Pass notes desk-to-desk. Slow, but silent.', 'Spread the answers to the whole cluster before the bell.'],
+    time: 130, maxCaught: 3, teachers: 1, cheats: 1,
+    clusters: [{ cx: 500, cy: 420, cols: 4, rows: 3 }],
+    inv: { note: 26 } },
+
+  { title: 'Reach across the room.',
+    notes: ['A paper plane is the ONLY way to reach the far group.', 'Notes inside a cluster, a plane to bridge the gap.'],
+    time: 130, maxCaught: 3, teachers: 1, cheats: 1,
+    clusters: [{ cx: 268, cy: 420, cols: 3, rows: 3 }, { cx: 762, cy: 420, cols: 2, rows: 3 }],
+    inv: { note: 14, airplane: 2 } },
+
+  { title: 'Whisper — but keep it down.',
+    notes: ['Whispers are fast, but the NOISE raises suspicion and turns the teacher.', 'Two teachers patrol. Plan your routes.'],
+    time: 130, maxCaught: 4, teachers: 2, cheats: 1,
+    clusters: [{ cx: 250, cy: 400, cols: 3, rows: 2 }, { cx: 760, cy: 300, cols: 2, rows: 2 }, { cx: 760, cy: 545, cols: 2, rows: 2 }],
+    inv: { whisper: 8, note: 8, airplane: 3 } },
+
+  { title: 'Whispers only — beat the clock.',
+    notes: ['Only whispers, and barely any time. You must move fast.',
+      'But every whisper is LOUD: suspicion climbs quickly and cools slowly.',
+      'Race, then pause to let the meter drop. Hit 100% and the exam is over.'],
+    time: 62, maxCaught: 3, teachers: 1, cheats: 1,
+    noiseMult: 2.0,        // whispers are twice as loud here
+    decayMult: 0.5,        // …and the meter cools half as fast
+    clusters: [{ cx: 500, cy: 420, cols: 4, rows: 3 }],
+    inv: { whisper: 24 } },
+
+  { title: 'Split room.',
+    notes: ['A partition blocks whispers and notes — planes fly over it.', 'Two teachers, both halves watched.'],
+    time: 135, maxCaught: 4, teachers: 2, divider: true, cheats: 1,
+    clusters: [{ cx: 260, cy: 360, cols: 2, rows: 2 }, { cx: 260, cy: 560, cols: 2, rows: 2 }, { cx: 740, cy: 360, cols: 2, rows: 2 }, { cx: 740, cy: 560, cols: 2, rows: 2 }],
+    inv: { whisper: 6, note: 6, airplane: 4, distraction: 1 } },
+
+  { title: 'The full ring.',
+    notes: ['Everything you\'ve got, and everything they\'ve got.', 'Two teachers, a nerd, and a camera.'],
+    time: 140, maxCaught: 4, teachers: 2, nerd: 1, camera: 1, cheats: 1,
+    clusters: [{ cx: 240, cy: 360, cols: 2, rows: 3 }, { cx: 760, cy: 360, cols: 2, rows: 3 }, { cx: 500, cy: 560, cols: 3, rows: 1 }],
+    inv: { whisper: 10, note: 10, airplane: 4, distraction: 2 } },
+];
+
+/* Teacher patrol behaviour scales with the level number. */
+CONFIG.teacherFor = function (n) {
+  return {
+    speed: 30 + n * 3,             // slow, steady sweep (a touch faster each level)
+    angle: 0.46,
+    pause: Math.max(0.4, 1.4 - n * 0.12),   // pause at each end of the sweep
+  };
+};
+
+CONFIG.levelFor = function (n) {
+  const list = CONFIG.LEVELS;
+  if (n <= list.length) return list[n - 1];
+  const over = n - list.length;
+  return {
+    title: `Endless — round ${n}.`,
+    notes: ['Everything at once, and less to work with.'],
+    time: 140, maxCaught: Math.max(2, 4 - Math.floor(over / 2)), teachers: 2, nerd: 1, camera: 1, divider: over % 2 === 1, cheats: 1,
+    clusters: [{ cx: 240, cy: 360, cols: 2, rows: 3 }, { cx: 760, cy: 360, cols: 2, rows: 3 }, { cx: 500, cy: 560, cols: 3, rows: 1 }],
+    inv: { whisper: 8, note: 8, airplane: 3, distraction: 1 },
+  };
+};
+
+/* ---------- js/utils.js ---------- */
+/* ============================================================
+   utils.js  —  math, geometry, colour and misc helpers.
+   Exposed on the global U object.
+   ============================================================ */
+
+const U = {
+  clamp: (v, a, b) => v < a ? a : (v > b ? b : v),
+  lerp:  (a, b, t) => a + (b - a) * t,
+  rand:  (a, b) => a + Math.random() * (b - a),
+  randi: (a, b) => Math.floor(a + Math.random() * (b - a + 1)),
+  chance: p => Math.random() < p,
+  pick: arr => arr[Math.floor(Math.random() * arr.length)],
+  TAU: Math.PI * 2,
+
+  // Easing
+  easeInOut: t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+  easeOut:   t => 1 - Math.pow(1 - t, 3),
+  easeIn:    t => t * t,
+
+  dist(ax, ay, bx, by) { const dx = ax - bx, dy = ay - by; return Math.hypot(dx, dy); },
+  dist2(ax, ay, bx, by) { const dx = ax - bx, dy = ay - by; return dx * dx + dy * dy; },
+
+  // Smallest signed difference between two angles.
+  angleDiff(a, b) {
+    let d = (a - b) % U.TAU;
+    if (d > Math.PI) d -= U.TAU;
+    if (d < -Math.PI) d += U.TAU;
+    return d;
+  },
+
+  // Rotate angle a toward b by at most `step`.
+  approachAngle(a, b, step) {
+    const d = U.angleDiff(b, a);
+    if (Math.abs(d) <= step) return b;
+    return a + Math.sign(d) * step;
+  },
+
+  // Count set bits (number of answers a student knows).
+  popcount(n) {
+    let c = 0;
+    while (n) { n &= n - 1; c++; }
+    return c;
+  },
+
+  // Is a point inside a vision cone?  origin(ox,oy), facing angle, halfAngle, range.
+  inCone(px, py, ox, oy, facing, halfAngle, range) {
+    const dx = px - ox, dy = py - oy;
+    const d = Math.hypot(dx, dy);
+    if (d > range || d < 1) return d <= range; // very close = seen
+    const ang = Math.atan2(dy, dx);
+    return Math.abs(U.angleDiff(ang, facing)) <= halfAngle;
+  },
+
+  // Rounded rectangle path.
+  roundRect(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  },
+
+  // HSL string helper.
+  hsl: (h, s, l) => `hsl(${h},${s}%,${l}%)`,
+
+  // Deterministic-ish shuffle (Fisher–Yates).
+  shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  },
+};
+
+/* Palettes for cartoon students — cheerful, readable, distinct. */
+U.SHIRTS = [
+  '#ff6b7a', '#ffa94d', '#ffd24d', '#57e08a', '#4dd0c8',
+  '#6ad3ff', '#7c8cff', '#b98cff', '#ff8cc6', '#8fbf6a',
+  '#e08a5a', '#5aa9e0',
+];
+U.HAIR = [
+  '#3a2a1e', '#6b4423', '#a5673f', '#d9a441', '#2b2b33',
+  '#8a4b2b', '#c96a3a', '#e8c07d', '#4a3b2a', '#1e1e24',
+  '#7a5230', '#b0703f',
+];
+U.SKIN = [
+  '#f2c9a0', '#e8b98a', '#d69f6e', '#c58a55', '#a5683f',
+  '#8a5233', '#f6d3b0', '#dcae82',
+];
+
+/* ---------- js/audio.js ---------- */
+/* ============================================================
+   audio.js  —  procedural sound via WebAudio (no asset files).
+   Quiet ambience, clock tick, sfx, heartbeat under pressure.
+   Exposed on the global Sound object. Starts on first gesture.
+   ============================================================ */
+
+const Sound = {
+  ctx: null,
+  master: null,
+  ambientGain: null,
+  muted: false,
+  started: false,
+  _heart: 0,
+
+  init() {
+    if (this.started) return;
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) { return; }
+    this.master = this.ctx.createGain();
+    this.master.gain.value = this.muted ? 0 : 0.9;
+    this.master.connect(this.ctx.destination);
+
+    // ---- Soft room ambience: filtered noise bed ----
+    const noise = this._noiseBuffer(2);
+    const src = this.ctx.createBufferSource();
+    src.buffer = noise; src.loop = true;
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 420;
+    this.ambientGain = this.ctx.createGain();
+    this.ambientGain.gain.value = 0.05;
+    src.connect(lp).connect(this.ambientGain).connect(this.master);
+    src.start();
+
+    this.started = true;
+  },
+
+  _noiseBuffer(seconds) {
+    const len = this.ctx.sampleRate * seconds;
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  },
+
+  setMuted(m) {
+    this.muted = m;
+    if (this.master) this.master.gain.value = m ? 0 : 0.9;
+  },
+
+  // Generic short tone.
+  tone(freq, dur, type = 'sine', vol = 0.2, slideTo = null) {
+    if (!this.ctx || this.muted) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(this.master);
+    o.start(t); o.stop(t + dur + 0.02);
+  },
+
+  // Filtered noise burst (paper / footstep).
+  noise(dur, freq, vol = 0.15) {
+    if (!this.ctx || this.muted) return;
+    const t = this.ctx.currentTime;
+    const src = this.ctx.createBufferSource();
+    src.buffer = this._noiseBuffer(dur + 0.05);
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 0.8;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp).connect(g).connect(this.master);
+    src.start(t); src.stop(t + dur + 0.05);
+  },
+
+  // ---- Named cues ----
+  note()      { this.noise(0.14, 2600, 0.12); },
+  whisper()   { this.noise(0.22, 5200, 0.06); },
+  fold()      { this.noise(0.1, 1800, 0.1); },
+  airplane()  { this.tone(520, 0.35, 'triangle', 0.08, 720); },
+  copy()      { this.tone(880, 0.05, 'square', 0.03); },
+  finish()    { this.tone(660, 0.1, 'sine', 0.18, 990); setTimeout(() => this.tone(990, 0.12, 'sine', 0.18, 1320), 90); },
+  caught()    { this.tone(200, 0.35, 'sawtooth', 0.25, 90); },
+  tick()      { this.tone(1400, 0.02, 'square', 0.04); },
+  bell()      { for (let i = 0; i < 3; i++) setTimeout(() => this.tone(880, 0.6, 'sine', 0.2, 660), i * 260); },
+  buy()       { this.tone(700, 0.08, 'sine', 0.15, 1050); },
+  click()     { this.tone(500, 0.03, 'sine', 0.08); },
+  distract()  { this.tone(300, 0.25, 'triangle', 0.15, 500); },
+
+  // Heartbeat, called each frame with suspicion 0..1.
+  heartbeat(intensity, now) {
+    if (!this.ctx || this.muted || intensity < 0.55) return;
+    const interval = U.lerp(0.9, 0.42, (intensity - 0.55) / 0.45);
+    if (now - this._heart > interval) {
+      this._heart = now;
+      this.tone(60, 0.14, 'sine', 0.22 * intensity);
+      setTimeout(() => this.tone(52, 0.12, 'sine', 0.16 * intensity), 130);
+    }
+  },
+};
+
+/* ---------- js/entities.js ---------- */
+/* ============================================================
+   entities.js  —  DOM-backed Student and Teacher.
+   Each entity owns real HTML elements (easy clicks, CSS art).
+   Game logic (transmissions/detection) lives in game.js.
+   ============================================================ */
+
+/* ---------------------------------------------------------- */
+/*  STUDENT                                                    */
+/* ---------------------------------------------------------- */
+class Student {
+  constructor(row, col, x, y, seed, game) {
+    this.row = row; this.col = col; this.x = x; this.y = y;
+    this.game = game;
+
+    // knowledge
+    this.copiedMask = 0; this.pendingMask = 0; this.copyTimer = 0;
+    this.isCheater = false; this.isNerd = false;
+    this.finished = false; this.caught = false;
+    this.busyUntil = 0; this.relayTimer = U.rand(1.5, 4);
+    this.nervous = 0; this._passing = false;
+    this._cls = '';
+
+    // ---- DOM ----
+    const shirt = U.SHIRTS[seed % U.SHIRTS.length];
+    const hair = U.HAIR[(seed * 3) % U.HAIR.length];
+    const skin = U.SKIN[(seed * 5) % U.SKIN.length];
+    const el = document.createElement('div');
+    el.className = 'student';
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.innerHTML = `
+      <div class="ring"></div>
+      <div class="shadow"></div>
+      <div class="desk"></div>
+      <div class="char" data-hair="${seed % 5}" style="--shirt:${shirt};--hair:${hair};--skin:${skin};animation-delay:${(seed % 10) * -0.3}s">
+        <div class="arm l"></div><div class="arm r"></div>
+        <div class="body"></div>
+        <div class="card"></div>
+        <div class="head">
+          <div class="hair"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="cheek l"></div><div class="cheek r"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="sweat"></div>
+      </div>
+      <div class="tag-q">?</div>
+      <div class="check"></div>
+      <div class="bang"></div>
+      <div class="pbar"><i class="copied"></i><i class="pend"></i></div>`;
+    el.addEventListener('pointerdown', e => { e.stopPropagation(); game.onStudentClick(this); });
+    this.el = el;
+    this.pCopied = el.querySelector('.pbar .copied');
+    this.pPend = el.querySelector('.pbar .pend');
+  }
+
+  knownCount() { return U.popcount(this.copiedMask); }
+  bitsFor(o) { return this.copiedMask & ~(o.copiedMask | o.pendingMask); }
+  canBeSource(now) { return !this.caught && this.copiedMask > 0 && now >= this.busyUntil; }
+
+  update(dt, game) {
+    // copy pending answers one at a time
+    if (this.pendingMask && !this.caught) {
+      this.copyTimer += dt;
+      const per = CONFIG.COPY_TIME;
+      while (this.copyTimer >= per && this.pendingMask) {
+        this.copyTimer -= per;
+        const bit = this.pendingMask & -this.pendingMask;
+        this.pendingMask &= ~bit; this.copiedMask |= bit;
+        Sound.copy();
+        if (!this.finished && this.knownCount() >= CONFIG.PASS_REQUIRED) this.finish(game);
+      }
+    } else this.copyTimer = 0;
+
+    // nervousness eased toward danger
+    const target = this._danger(game);
+    this.nervous += (target - this.nervous) * Math.min(1, dt * 6);
+
+    this.applyState(game);
+  }
+
+  _danger(game) {
+    if (this.caught) return 1;
+    let danger = 0;
+    for (const t of game.teachers) {
+      if (U.inCone(this.x, this.y, t.x, t.y, t.facing, t.angle, t.range)) return 1;
+      const d = U.dist(this.x, this.y, t.x, t.y);
+      if (d < 150) danger = Math.max(danger, U.clamp(1 - (d - 70) / 150, 0, 0.7));
+    }
+    return danger;
+  }
+
+  finish(game) { this.finished = true; game.onStudentFinish(this); }
+
+  state() {
+    if (this.caught) return 'caught';
+    if (this.finished) return 'passed';
+    if (this.isCheater) return 'cheat';
+    if (this._passing) return 'passing';
+    if (this.pendingMask) return 'writing';
+    if (this.copiedMask) return 'has-answers';
+    if (this.nervous > 0.55) return 'nervous';
+    return 'no-answers';
+  }
+
+  applyState(game) {
+    const s = this.state();
+    if (s !== this._cls) {
+      if (this._cls) this.el.classList.remove(this._cls);
+      this.el.classList.add(s);
+      this._cls = s;
+    }
+    // 'has-answers' visual also for cheat/writing/passing (holds a card)
+    const holds = this.copiedMask > 0 && !this.caught && !this.finished;
+    this.el.classList.toggle('has-answers', holds);
+    this.el.classList.toggle('selectable', this.canBeSource(game.time));
+
+    const n = CONFIG.QUESTIONS;
+    const done = this.knownCount(), pend = U.popcount(this.pendingMask);
+    this.pCopied.style.width = (done / n * 100) + '%';
+    this.pPend.style.width = (pend / n * 100) + '%';
+    this.pPend.style.left = (done / n * 100) + '%';
+  }
+
+  setSel(on) { this.el.classList.toggle('selected', on); }
+  setTarget(on) { this.el.classList.toggle('target', on); }
+}
+
+/* ---------------------------------------------------------- */
+/*  TEACHER                                                    */
+/* ---------------------------------------------------------- */
+class Teacher {
+  constructor(dayCfg, waypoints, home, layer) {
+    this.home = home;
+    this.cfg = dayCfg.teacher;
+    this.range = CONFIG.CONE_RANGE;   // infinite — spans the whole room
+    this.angle = Math.min(this.cfg.angle, 0.46);
+
+    // Predictable horizontal sweep in front of the class, cone pointing down.
+    const W = CONFIG.W;
+    if (home.x < W / 2 - 50) { this.xMin = 110; this.xMax = W / 2 - 30; }        // left half
+    else if (home.x > W / 2 + 50) { this.xMin = W / 2 + 30; this.xMax = 890; }   // right half
+    else { this.xMin = 120; this.xMax = 880; }                                   // full width
+    this.y = 205;
+    this.x = this.xMin;
+    this.dir = 1;
+    this.facing = Math.PI / 2;         // straight down into the desks
+    this.pauseUntil = 0;
+    this.distractUntil = 0; this.step = 0; this._alert = 0;
+    this._phase = U.rand(0, U.TAU);
+
+    // ---- DOM: cone (svg) + body ----
+    const svgns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgns, 'svg');
+    svg.setAttribute('class', 'cone');
+    svg.setAttribute('width', this.range * 2); svg.setAttribute('height', this.range * 2);
+    svg.innerHTML = `<defs>
+      <radialGradient id="coneGrad"><stop offset="0" stop-color="rgba(224,90,72,.48)"/><stop offset="0.5" stop-color="rgba(224,90,72,.24)"/><stop offset="1" stop-color="rgba(224,90,72,0)"/></radialGradient>
+      <radialGradient id="coneGradR"><stop offset="0" stop-color="rgba(224,90,72,.5)"/><stop offset="1" stop-color="rgba(224,90,72,0)"/></radialGradient>
+      <radialGradient id="coneGradB"><stop offset="0" stop-color="rgba(120,200,255,.4)"/><stop offset="1" stop-color="rgba(120,200,255,0)"/></radialGradient>
+    </defs><path d=""></path>`;
+    this.coneEl = svg; this.conePath = svg.querySelector('path');
+    this._buildConePath();
+
+    const t = document.createElement('div');
+    t.className = 'teacher';
+    t.innerHTML = `<div class="shadow"></div>
+      <div class="tbang">!</div>
+      <div class="tchar">
+        <div class="body"></div><div class="tie"></div>
+        <div class="head"><div class="bald"></div>
+          <div class="glasses"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="mous"></div></div>
+      </div>`;
+    this.el = t;
+    layer.appendChild(svg); layer.appendChild(t);
+    this.render();
+  }
+
+  _buildConePath() {
+    const r = this.range, a = this.angle, cx = r, cy = r; // svg local centre
+    const x1 = cx + Math.cos(-a) * r, y1 = cy + Math.sin(-a) * r;
+    const x2 = cx + Math.cos(a) * r, y2 = cy + Math.sin(a) * r;
+    this.conePath.setAttribute('d', `M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 0 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z`);
+    this.coneEl.setAttribute('width', r * 2); this.coneEl.setAttribute('height', r * 2);
+  }
+
+  update(dt, game) {
+    const c = this.cfg;
+    if (this._alert > 0) this._alert = Math.max(0, this._alert - dt);
+
+    // A distraction diverts the gaze off the class for a moment.
+    if (game.time < this.distractUntil) {
+      this.facing = U.approachAngle(this.facing, this.lookTarget, dt * 3);
+      this.render(game); return;
+    }
+
+    // Steady, predictable sweep + a scanning head-turn so the cone swings.
+    this.facing = U.approachAngle(this.facing, Math.PI / 2 + Math.sin(game.time * 0.7 + this._phase) * 0.5, dt * 3.4);
+    if (game.time < this.pauseUntil) { this.render(game); return; }
+
+    this.step += dt * 7;
+    this.x += this.dir * c.speed * dt;
+    if (this.x <= this.xMin) { this.x = this.xMin; this.dir = 1; this.pauseUntil = game.time + c.pause; }
+    else if (this.x >= this.xMax) { this.x = this.xMax; this.dir = -1; this.pauseUntil = game.time + c.pause; }
+    this.render(game);
+  }
+
+  distract(x, y, game) {
+    this.lookTarget = Math.atan2(y - this.y, x - this.x);
+    this.distractUntil = game.time + CONFIG.METHODS.distraction.duration;
+  }
+
+  // Noise (a whisper) snaps the teacher's gaze toward the sound.
+  hearNoise(x, y) {
+    this.lookTarget = Math.atan2(y - this.y, x - this.x);
+    this.facing = this.lookTarget;      // instant turn toward the noise
+    this.state = 'look'; this.timer = U.rand(1.2, 2.0);
+    this._alert = 0.4;
+  }
+
+  flashAlert() { this._alert = 0.4; }
+
+  render(game) {
+    this.el.style.transform = `translate(${this.x}px,${this.y}px)`;
+    // head look direction
+    const hx = Math.cos(this.facing) * 4, hy = Math.sin(this.facing) * 3;
+    const head = this.el.querySelector('.head');
+    if (head) head.style.transform = `translate(${hx}px,${hy}px)`;
+    // cone position + rotation
+    this.coneEl.style.left = (this.x - this.range) + 'px';
+    this.coneEl.style.top = (this.y - this.range) + 'px';
+    this.coneEl.style.transformOrigin = `${this.range}px ${this.range}px`;
+    this.coneEl.style.transform = `rotate(${this.facing}rad)`;
+    const hush = game && game.time < this.distractUntil;
+    const alert = game && game.suspicion > 60;
+    this.coneEl.classList.toggle('alert', !!alert && !hush);
+    this.coneEl.classList.toggle('hush', !!hush);
+    this.el.classList.toggle('alert', this._alert > 0);
   }
 }
+
+/* ---------- js/game.js ---------- */
+/* ============================================================
+   game.js  —  Core simulation with a DOM renderer.
+   Puzzle model: each level gives a fixed inventory of tools.
+   No cooldowns/economy — spend your notes/whispers/planes wisely.
+   ============================================================ */
+
+class Game {
+  constructor() {
+    this.room = document.getElementById('room');
+    this.wrap = document.getElementById('roomWrap');
+    this.layer = document.getElementById('entities');
+
+    this.students = []; this.teachers = []; this.teacher = null; this.camera = null; this.divider = null;
+    this.trans = [];
+    this.time = 0; this.dt = 0; this.running = false; this.ended = false;
+    this.method = 'note'; this.selected = null; this.validTargets = new Set();
+    this.suspicion = 0; this.caughtCount = 0;
+    this.inv = {};
+    this.scale = 1;
+
+    this.onExamEnd = null; this.onStudentFinishCb = null;
+
+    this.room.addEventListener('pointerdown', () => this.onRoomClick());
+    this.wrap.addEventListener('pointermove', e => this._pointer = e);
+    window.addEventListener('resize', () => this.resize());
+    this.resize();
+
+    this._last = performance.now();
+    requestAnimationFrame(t => this._frame(t));
+  }
+
+  /* ---------------- Sizing ---------------- */
+  resize() {
+    const w = this.wrap.clientWidth, h = this.wrap.clientHeight;
+    if (!w || !h) return;
+    this.scale = Math.min(w / CONFIG.W, h / CONFIG.H);
+    this.room.style.setProperty('--rs', `scale(${this.scale})`);
+    this.room.style.transform = `scale(${this.scale})`;
+  }
+  roomToLogical(cx, cy) {
+    const r = this.room.getBoundingClientRect();
+    return { x: (cx - r.left) / this.scale, y: (cy - r.top) / this.scale };
+  }
+
+  /* ---------------- Level setup ---------------- */
+  newDay(level) {
+    this.level = level;
+    this.levelCfg = CONFIG.levelFor(level);
+    this.levelCfg.teacher = CONFIG.teacherFor(level);
+    this.inv = Object.assign({ whisper: 0, note: 0, airplane: 0, distraction: 0 }, this.levelCfg.inv);
+    this.layer.innerHTML = '';
+    this.students = []; this.trans = [];
+    this.time = 0; this.timeLeft = this.levelCfg.time;
+    this.suspicion = 0; this.caughtCount = 0; this.ended = false;
+    this.selected = null; this.validTargets = new Set();
+    this._tick = 0; this.paused = false;
+    // default to the first tool the level actually gives you
+    this.method = ['note', 'whisper', 'airplane', 'distraction'].find(m => this.inv[m] > 0) || 'note';
+    this._build();
+  }
+  start() { this.running = true; }
+
+  /* ---------------- Inventory ---------------- */
+  canFire(m) { return (this.inv[m] || 0) > 0; }
+  useInv(m) { if (this.inv[m] > 0) this.inv[m]--; }
+  hasAnyTools() { return ['whisper', 'note', 'airplane', 'distraction'].some(m => this.inv[m] > 0); }
+
+  /* ---------------- Build classroom from clusters ---------------- */
+  _build() {
+    const cfg = this.levelCfg, DX = 124, DY = 102;
+    const cells = [];
+    (cfg.clusters || []).forEach((cl, ci) => {
+      for (let r = 0; r < cl.rows; r++)
+        for (let col = 0; col < cl.cols; col++)
+          cells.push({ x: cl.cx + (col - (cl.cols - 1) / 2) * DX, y: cl.cy + (r - (cl.rows - 1) / 2) * DY, cluster: ci });
+    });
+
+    cells.forEach((p, i) => {
+      const s = new Student(0, i, p.x, p.y, i + this.level * 7, this);
+      s.cluster = p.cluster;
+      this.students.push(s); this.layer.appendChild(s.el);
+    });
+
+    // Cheat sheets seed only the FIRST cluster, forcing planes to reach the rest.
+    const first = this.students.filter(s => s.cluster === 0);
+    const pool = first.length ? first : this.students;
+    const chosen = this._spread(pool, cfg.cheats || 1);
+    chosen.forEach(s => {
+      s.isCheater = true;
+      s.copiedMask = (1 << CONFIG.QUESTIONS) - 1;
+      if (s.knownCount() >= CONFIG.PASS_REQUIRED) s.finished = true;
+    });
+
+    // nerds
+    const free = this.students.filter(s => !s.isCheater); U.shuffle(free);
+    for (let i = 0; i < (cfg.nerd || 0) && i < free.length; i++) { free[i].isNerd = true; free[i].el.classList.add('nerd'); }
+
+    // divider
+    this.divider = null;
+    if (cfg.divider) this._buildDivider();
+
+    // teacher(s)
+    const n = cfg.teachers || 1;
+    this.teachers = [];
+    const wps = this._waypoints();
+    for (let i = 0; i < n; i++) {
+      const side = n > 1 ? (i === 0 ? -1 : 1) : 0;
+      const home = n > 1 ? { x: side < 0 ? CONFIG.W * 0.3 : CONFIG.W * 0.7, y: 150 } : { x: CONFIG.W / 2, y: 150 };
+      const mine = side === 0 ? wps : wps.filter(p => side < 0 ? p.x < CONFIG.W / 2 : p.x >= CONFIG.W / 2);
+      const t = new Teacher(this.levelCfg, mine, home, this.layer);
+      t.side = side;
+      if (n > 1) { t.angle *= 0.72; t._buildConePath(); }
+      this.teachers.push(t);
+    }
+    this.teacher = this.teachers[0];
+
+    if (cfg.camera) this._buildCamera();
+    for (const s of this.students) s.applyState(this);
+  }
+
+  _spread(pool, n) {
+    if (n <= 0 || !pool.length) return [];
+    const chosen = [U.pick(pool)];
+    while (chosen.length < n && chosen.length < pool.length) {
+      let best = null, bd = -1;
+      for (const s of pool) {
+        if (chosen.includes(s)) continue;
+        let md = Infinity;
+        for (const c of chosen) md = Math.min(md, U.dist2(s.x, s.y, c.x, c.y));
+        if (md > bd) { bd = md; best = s; }
+      }
+      chosen.push(best);
+    }
+    return chosen;
+  }
+
+  _waypoints() {
+    const pts = [], xs = [110, 220, 360, 500, 640, 780, 890], ys = [200, 300, 392, 484, 576, 640];
+    for (const x of xs) for (const y of ys) pts.push({ x, y });
+    return pts;
+  }
+
+  _buildDivider() {
+    this.divider = { x: CONFIG.W / 2, y0: 180, y1: CONFIG.H };
+    const wall = document.createElement('div');
+    wall.className = 'divider';
+    wall.style.left = this.divider.x + 'px'; wall.style.top = this.divider.y0 + 'px';
+    wall.style.height = (this.divider.y1 - this.divider.y0) + 'px';
+    this.layer.appendChild(wall);
+  }
+  _crossesDivider(ax, bx) { return this.divider ? (ax < this.divider.x) !== (bx < this.divider.x) : false; }
+
+  _buildCamera() {
+    const cam = { x: CONFIG.W - 44, y: 118, facing: Math.PI * 0.75, angle: 0.5, range: 235, sweep: 0 };
+    const svgns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgns, 'svg');
+    svg.setAttribute('class', 'cone cam-cone'); svg.style.zIndex = 2;
+    svg.setAttribute('width', cam.range * 2); svg.setAttribute('height', cam.range * 2);
+    const r = cam.range, a = cam.angle, cx = r, cy = r;
+    const x1 = cx + Math.cos(-a) * r, y1 = cy + Math.sin(-a) * r, x2 = cx + Math.cos(a) * r, y2 = cy + Math.sin(a) * r;
+    svg.innerHTML = `<defs><radialGradient id="camGrad"><stop offset="0" stop-color="rgba(224,90,72,.32)"/><stop offset="1" stop-color="rgba(224,90,72,0)"/></radialGradient></defs>
+      <path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 0 1 ${x2},${y2} Z" fill="url(#camGrad)"/>`;
+    svg.style.left = (cam.x - r) + 'px'; svg.style.top = (cam.y - r) + 'px';
+    svg.style.transformOrigin = `${r}px ${r}px`;
+    const box = document.createElement('div'); box.className = 'camera-box';
+    box.style.left = cam.x + 'px'; box.style.top = cam.y + 'px';
+    this.layer.appendChild(svg); this.layer.appendChild(box);
+    cam.el = svg; this.camera = cam;
+  }
+
+  /* ---------------- Input ---------------- */
+  setMethod(m) {
+    if (!(this.inv[m] > 0)) return;   // only tools this level provides
+    this.method = m;
+    if (m === 'distraction') this._clearSelection();
+    else if (this.selected) this._computeTargets();
+  }
+
+  onStudentClick(s) {
+    if (!this.running || this.ended) return;
+    Sound.init();
+    if (this.method === 'distraction') { this._fireDistraction(s.x, s.y); return; }
+
+    if (!this.selected) {
+      if (s.canBeSource(this.time)) { this._select(s); Sound.click(); }
+      else this.float(s.x, s.y - 44, 'no answers', '#ffd0c8');
+      return;
+    }
+    if (s === this.selected) { this._clearSelection(); return; }
+    if (this.validTargets.has(s)) {
+      if (!this.canFire(this.method)) { this.toast('Out of ' + CONFIG.METHODS[this.method].name + 's'); return; }
+      this.useInv(this.method);
+      this.startTransmission(this.selected, s, this.method);
+      this._clearSelection();
+    } else if (s.canBeSource(this.time)) { this._select(s); Sound.click(); }
+    else this._clearSelection();
+  }
+
+  onRoomClick() {
+    if (!this.running || this.ended) return;
+    if (this.method === 'distraction' && this._pointer) {
+      const p = this.roomToLogical(this._pointer.clientX, this._pointer.clientY);
+      this._fireDistraction(p.x, p.y);
+    } else this._clearSelection();
+  }
+
+  _fireDistraction(x, y) {
+    if (!this.canFire('distraction')) { this.toast('No distractions left'); return; }
+    this.useInv('distraction');
+    let near = this.teachers[0], nd = Infinity;
+    for (const t of this.teachers) { const d = U.dist2(x, y, t.x, t.y); if (d < nd) { nd = d; near = t; } }
+    near.distract(x, y, this);
+    Sound.distract();
+    this.float(x, y, 'look over there!', '#8fd0ff');
+  }
+
+  _select(s) { this._clearSelection(); this.selected = s; s.setSel(true); this._computeTargets(); }
+  _clearSelection() {
+    if (this.selected) this.selected.setSel(false);
+    this.selected = null;
+    this.validTargets.forEach(t => t.setTarget(false));
+    this.validTargets.clear();
+  }
+  _computeTargets() {
+    this.validTargets.forEach(t => t.setTarget(false));
+    this.validTargets.clear();
+    const src = this.selected; if (!src) return;
+    for (const t of this.students) {
+      if (t === src || t.caught || t.finished) continue;
+      if (src.bitsFor(t) === 0) continue;
+      if (this._inRange(src, t)) { this.validTargets.add(t); t.setTarget(true); }
+    }
+  }
+  _inRange(src, dst) {
+    // whispers & notes can't cross the partition; planes fly over it
+    if (this.method !== 'airplane' && this._crossesDivider(src.x, dst.x)) return false;
+    return U.dist(src.x, src.y, dst.x, dst.y) <= CONFIG.METHODS[this.method].range;
+  }
+
+  /* ---------------- Transmissions ---------------- */
+  startTransmission(src, dst, method) {
+    const bits = src.bitsFor(dst);
+    if (bits === 0 || !src.canBeSource(this.time)) return;
+    const M = CONFIG.METHODS[method];
+
+    let fold = 0, move = 0, missed = false;
+    if (method === 'whisper') move = M.time;
+    else if (method === 'note') move = M.time;
+    else if (method === 'airplane') {
+      fold = M.fold;
+      move = U.dist(src.x, src.y, dst.x, dst.y) / M.speed;
+      missed = !U.chance(M.accuracy);
+    }
+
+    const fx = document.createElement('div');
+    fx.className = 'fx ' + (method === 'whisper' ? 'whisper' : method === 'airplane' ? 'plane' : 'paper');
+    if (method === 'whisper') fx.innerHTML = '<i></i><i></i><i></i>';
+    this.layer.appendChild(fx);
+
+    const tr = { method, src, dst, bits, missed, t: 0, fold, move, total: fold + move,
+      phase: fold > 0 ? 'fold' : 'move', seen: 0, nerdChecked: false, fx,
+      x: src.x, y: src.y - 30, angle: Math.atan2(dst.y - src.y, dst.x - src.x) };
+    src.busyUntil = this.time + tr.total; src._passing = true;
+    this.trans.push(tr);
+
+    // Whispering is NOISY: it raises the suspicion meter (but doesn't turn the teacher).
+    if (M.noise) {
+      const mx = (src.x + dst.x) / 2, my = (src.y + dst.y) / 2;
+      this.addSuspicion(M.noise * (this.levelCfg.noiseMult || 1));
+      this.float(mx, my - 30, 'shh!', '#ffd0c8');
+    }
+
+    if (method === 'note') Sound.note(); else if (method === 'whisper') Sound.whisper(); else Sound.fold();
+    this._drawFx(tr);
+  }
+
+  _updateTrans(tr, dt) {
+    tr.t += dt;
+    const src = tr.src, dst = tr.dst;
+    if (tr.phase === 'fold') {
+      tr.x = src.x; tr.y = src.y - 30;
+      if (tr.t >= tr.fold) { tr.phase = 'move'; Sound.airplane(); }
+      this._drawFx(tr); return;
+    }
+    const mt = U.clamp((tr.t - tr.fold) / tr.move, 0, 1);
+    let tx = dst.x, ty = dst.y - 30;
+    if (tr.missed) { tx = dst.x + 60; ty = dst.y + 26; }
+
+    if (tr.method === 'whisper') { tr.x = (src.x + dst.x) / 2; tr.y = (src.y + dst.y) / 2 - 24; }
+    else {
+      const e = tr.method === 'note' ? U.easeInOut(mt) : mt;
+      tr.x = U.lerp(src.x, tx, e);
+      tr.y = U.lerp(src.y - 30, ty, e) - Math.sin(mt * Math.PI) * (tr.method === 'airplane' ? 30 : 14);
+      tr.angle = Math.atan2(ty - (src.y - 30), tx - src.x);
+    }
+    this._detect(tr, dt);
+    this._drawFx(tr);
+    if (mt >= 1) this._complete(tr);
+  }
+
+  _drawFx(tr) {
+    if (tr.method === 'airplane') tr.fx.style.transform = `translate(${tr.x}px,${tr.y}px) rotate(${tr.angle}rad)`;
+    else tr.fx.style.transform = `translate(${tr.x}px,${tr.y}px)`;
+  }
+
+  _detect(tr, dt) {
+    if (tr.caught) return;
+    let watched = false, spotter = null;
+    for (const t of this.teachers) {
+      let sees = U.inCone(tr.x, tr.y, t.x, t.y, t.facing, t.angle, t.range);
+      if (tr.method === 'whisper' && U.dist(tr.x, tr.y, t.x, t.y) < CONFIG.METHODS.whisper.hear) sees = true;
+      if (sees) { watched = true; spotter = t; break; }
+    }
+    if (!watched && this.camera && tr.method !== 'whisper') {
+      const cam = this.camera;
+      if (U.inCone(tr.x, tr.y, cam.x, cam.y, cam.facing, cam.angle, cam.range)) watched = true;
+    }
+
+    if (watched) {
+      if (spotter) spotter.flashAlert();
+      tr.seen += dt * CONFIG.METHODS[tr.method].risk;
+      if (tr.seen >= CONFIG.CONE_REACTION) this._catch(tr);
+    } else tr.seen = Math.max(0, tr.seen - dt * 0.5);
+
+    if (!tr.nerdChecked && tr.t > 0.05) {
+      tr.nerdChecked = true;
+      for (const s of this.students) {
+        if (!s.isNerd || s.caught) continue;
+        if (U.dist(s.x, s.y, tr.src.x, tr.src.y) < 130 || U.dist(s.x, s.y, tr.dst.x, tr.dst.y) < 130) {
+          this.addSuspicion(CONFIG.SUSPICION_NERD);
+          this.float(s.x, s.y - 44, 'tattletale!', '#ffd0c8'); break;
+        }
+      }
+    }
+  }
+
+  _catch(tr) {
+    tr.caught = true;
+    const v = tr.src;
+    if (!v.caught) {
+      // Caught in the act = OUT, even if they'd already passed. It counts.
+      v.caught = true; v.finished = false; this.caughtCount++;
+      v.copiedMask = 0; v.pendingMask = 0; v.busyUntil = Infinity;
+      setTimeout(() => { if (v.caught) v.el.classList.add('out'); }, 850);
+    }
+    v._passing = false;
+    this.addSuspicion(CONFIG.SUSPICION_CAUGHT);
+    this.shake(); Sound.caught();
+    this.float(tr.x, tr.y - 10, 'BUSTED!', '#ff5a48');
+    this._removeFx(tr);
+    if (this.caughtCount > this.levelCfg.maxCaught) { this.endExam('caught'); return; }
+    this._checkAllDone();
+  }
+
+  // End early once everything that can happen has happened.
+  _checkAllDone() {
+    if (this.ended) return;
+    if (this.students.every(s => s.finished || s.caught)) { this.endExam('done'); return; }   // all pass/out
+    const inFlight = this.trans.length > 0;
+    const stillCopying = this.students.some(s => s.pendingMask && !s.caught);
+    // Impossible: too many busted for the class to still reach the pass target.
+    const reachable = this.students.filter(s => !s.caught).length;
+    if (reachable / this.students.length * 100 < CONFIG.CLEAR_RATE) { this.endExam('impossible'); return; }
+    // Impossible: no one left who holds answers to give (all sources busted).
+    const anyKnower = this.students.some(s => !s.caught && (s.copiedMask || s.pendingMask));
+    if (!anyKnower && !inFlight) { this.endExam('done'); return; }
+    // Stuck: out of tools with nothing left resolving.
+    if (!this.hasAnyTools() && !inFlight && !stillCopying) this.endExam('done');
+  }
+
+  /* ---------------- Pause ---------------- */
+  pause() { if (this.running && !this.ended) this.paused = true; }
+  resume() { this.paused = false; this._last = performance.now(); }
+
+  _complete(tr) {
+    tr.src._passing = false;
+    if (!tr.caught) {
+      if (tr.missed) { this.addSuspicion(CONFIG.SUSPICION_NEARMISS); this.float(tr.x, tr.y, 'missed!', '#f0a53c'); }
+      else { tr.dst.pendingMask |= tr.bits; this.float(tr.dst.x, tr.dst.y - 48, '+' + U.popcount(tr.bits), '#57c47a'); }
+    }
+    this._removeFx(tr);
+    this._checkAllDone();
+  }
+  _removeFx(tr) { if (tr.fx && tr.fx.parentNode) tr.fx.remove(); this.trans = this.trans.filter(x => x !== tr); }
+
+  /* ---------------- Suspicion / results ---------------- */
+  addSuspicion(v) {
+    this.suspicion = U.clamp(this.suspicion + v, 0, 100);
+    if (this.suspicion >= 100 && !this.ended) this.endExam('caught');
+  }
+  onStudentFinish(s) {
+    Sound.finish(); this.confetti(s.x, s.y - 20); this.float(s.x, s.y - 52, 'PASSED!', '#57c47a');
+    if (this.onStudentFinishCb) this.onStudentFinishCb();
+    this._checkAllDone();
+  }
+  passedCount() { return this.students.filter(s => s.finished && !s.caught).length; }
+
+  endExam(reason) {
+    if (this.ended) return;
+    this.ended = true; this.running = false; this._clearSelection();
+    if (reason === 'bell' || reason === 'done') Sound.bell();
+    const total = this.students.length, passed = this.passedCount();
+    const rate = Math.round(passed / total * 100);
+    const grade = CONFIG.GRADES.find(g => rate >= g.min);
+    const cleared = reason !== 'caught' && rate >= CONFIG.CLEAR_RATE;
+    const result = { reason, total, passed, rate, caught: this.caughtCount, cleared,
+      grade: reason === 'caught' && rate < 25 ? 'F' : grade.g };
+    if (this.onExamEnd) this.onExamEnd(result);
+  }
+
+  /* ---------------- Juice ---------------- */
+  float(x, y, text, color) {
+    const d = document.createElement('div'); d.className = 'float'; d.textContent = text;
+    d.style.color = color; d.style.left = x + 'px'; d.style.top = y + 'px';
+    this.layer.appendChild(d); setTimeout(() => d.remove(), 1100);
+  }
+  toast(msg) {
+    const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(this._toastT); this._toastT = setTimeout(() => t.classList.remove('show'), 1200);
+  }
+  shake() { this.room.classList.add('shake'); clearTimeout(this._shakeT); this._shakeT = setTimeout(() => this.room.classList.remove('shake'), 400); }
+  confetti(x, y) {
+    const cols = ['#ff5a48', '#ffd24d', '#57c47a', '#5bb6e0', '#c9b6ff'];
+    for (let i = 0; i < 18; i++) {
+      const d = document.createElement('div'); d.className = 'confetti';
+      d.style.background = U.pick(cols); d.style.left = x + 'px'; d.style.top = y + 'px';
+      this.layer.appendChild(d);
+      const a = U.rand(-Math.PI, 0), s = U.rand(60, 180);
+      d.animate([
+        { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${Math.cos(a) * s}px,${Math.sin(a) * s + 90}px) rotate(${U.rand(-360, 360)}deg)`, opacity: 0 },
+      ], { duration: U.rand(800, 1300), easing: 'cubic-bezier(.2,.7,.3,1)' });
+      setTimeout(() => d.remove(), 1300);
+    }
+  }
+
+  /* ---------------- Loop ---------------- */
+  _frame(now) {
+    this.dt = Math.min(0.05, (now - this._last) / 1000); this._last = now;
+    if (this.running && !this.ended && !this.paused) this.update(this.dt);
+    requestAnimationFrame(t => this._frame(t));
+  }
+  update(dt) {
+    this.time += dt; this.timeLeft -= dt;
+    this.suspicion = Math.max(0, this.suspicion - CONFIG.SUSPICION_DECAY * (this.levelCfg.decayMult || 1) * dt);
+    this._tick += dt; if (this._tick >= 1) { this._tick -= 1; Sound.tick(); }
+
+    for (const t of this.teachers) t.update(dt, this);
+    if (this.camera) {
+      const cam = this.camera; cam.sweep += dt * 0.4; cam.facing = Math.PI * 0.75 + Math.sin(cam.sweep) * 0.32;
+      cam.el.style.transform = `rotate(${cam.facing}rad)`;
+    }
+    for (const s of this.students) s.update(dt, this);
+    for (const tr of [...this.trans]) this._updateTrans(tr, dt);
+
+    if (this.selected && this.selected.caught) this._clearSelection();
+    Sound.heartbeat(this.suspicion / 100, this.time);
+    this._updateClock();
+    if (this.timeLeft <= 0) this.endExam('bell');
+  }
+
+  _updateClock() {
+    const frac = 1 - this.timeLeft / this.levelCfg.time;
+    const set = (sel, ang) => { const e = this.room.querySelector('.clock ' + sel); if (e) e.style.transform = `rotate(${ang}rad)`; };
+    set('.hh', frac * U.TAU - Math.PI);
+    set('.mm', frac * U.TAU * 4 - Math.PI);
+    set('.ss', this.time * 1.2);
+  }
+}
+
+/* ---------- js/ui.js ---------- */
+/* ============================================================
+   ui.js  —  Home/level-select, brief, HUD, results.
+   No shop / money — each level is a fixed-inventory puzzle.
+   Progress = highest unlocked level (maxLevel).
+   ============================================================ */
+
+const SAVE_KEY = 'cheatsheet_save_v4';
+const METHODS_ORDER = ['whisper', 'note', 'airplane', 'distraction'];
+
+const UI = {
+  game: null,
+  state: null,
+  sel: 1,          // currently selected level
+
+  el(id) { return document.getElementById(id); },
+
+  init(game) {
+    this.game = game;
+    this.state = this.load();
+    this.sel = 1;
+
+    game.onExamEnd = r => this.showResults(r);
+    game.onStudentFinishCb = () => this.updateHud();
+
+    this.el('resetBtn').onclick = () => this.reset();
+    this.el('beginBtn').onclick = () => this.beginExam();
+    this.el('resultBtn').onclick = () => this.afterResult();
+    this.el('homeBtn').onclick = () => this.goHome();
+    this.el('pauseBtn').onclick = () => this.pauseGame();
+    this.el('resumeBtn').onclick = () => this.resumeGame();
+    this.el('restartBtn').onclick = () => { this.game.resume(); this.beginExam(); };
+    this.el('pauseHomeBtn').onclick = () => { this.game.resume(); this.game.running = false; this.goHome(); };
+    this.el('levelGrid').addEventListener('click', e => {
+      const tile = e.target.closest('.lvl-tile');
+      if (tile && !tile.classList.contains('locked')) this.pickLevel(+tile.dataset.level);
+    });
+
+    document.querySelectorAll('.tool').forEach(btn =>
+      btn.addEventListener('click', () => this.selectMethod(btn.dataset.method)));
+    window.addEventListener('keydown', e => {
+      const map = { '1': 'whisper', '2': 'note', '3': 'airplane', '4': 'distraction' };
+      if (map[e.key]) this.selectMethod(map[e.key]);
+      if (e.key === 'Escape' || e.key === 'p') {
+        if (this.el('pauseScreen').classList.contains('show')) this.resumeGame();
+        else this.pauseGame();
+      }
+    });
+
+    Sound.setMuted(!!this.state.muted);
+    this.el('muteBtn').textContent = this.state.muted ? 'MUTE' : 'SND';
+    this.el('muteBtn').onclick = () => {
+      this.state.muted = !this.state.muted; Sound.setMuted(this.state.muted);
+      this.el('muteBtn').textContent = this.state.muted ? 'MUTE' : 'SND'; this.save();
+    };
+
+    this.renderLevelSelect();
+    this._loop();
+  },
+
+  load() {
+    try { const s = JSON.parse(localStorage.getItem(SAVE_KEY)); if (s && s.maxLevel) return s; } catch (e) {}
+    return { maxLevel: 1, muted: false };
+  },
+  save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.state)); } catch (e) {} },
+  reset() { this.state = { maxLevel: 1, muted: this.state.muted }; this.save(); this.sel = 1; this.renderLevelSelect(); this.goHome(); },
+
+  show(id) { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show')); if (id) this.el(id).classList.add('show'); },
+  goHome() { this.renderLevelSelect(); this.show('titleScreen'); },
+  pauseGame() { if (!this.game.running || this.game.ended) return; this.game.pause(); this.show('pauseScreen'); },
+  resumeGame() { this.game.resume(); this.show(null); },
+
+  /* ---------------- Level select ---------------- */
+  renderLevelSelect() {
+    const grid = this.el('levelGrid'); grid.innerHTML = '';
+    const count = Math.max(CONFIG.LEVELS.length, this.state.maxLevel);
+    for (let n = 1; n <= count; n++) {
+      const locked = n > this.state.maxLevel;
+      const cleared = n < this.state.maxLevel;
+      const cfg = CONFIG.levelFor(n);
+      const tile = document.createElement('button');
+      tile.className = 'lvl-tile' + (locked ? ' locked' : '') + (cleared ? ' cleared' : '');
+      tile.dataset.level = n;
+      tile.innerHTML = `<span class="lvl-num">${n}</span>` +
+        (locked ? '<span class="lvl-lock"></span>'
+          : `<span class="lvl-title">${cfg.title.replace(/\.$/, '')}</span><span class="lvl-badge">${cleared ? 'CLEARED' : 'PLAY'}</span>`);
+      grid.appendChild(tile);
+    }
+  },
+  pickLevel(n) { if (n > this.state.maxLevel) return; this.sel = n; Sound.click(); this.startLevel(); },
+
+  /* ---------------- Level flow ---------------- */
+  startLevel() {
+    const level = this.sel, cfg = CONFIG.levelFor(level);
+    this.el('dayValue').textContent = level;
+    this.el('briefDay').textContent = 'LEVEL ' + level;
+    this.el('briefTitle').textContent = cfg.title;
+    const list = this.el('briefList'); list.innerHTML = '';
+    (cfg.notes || []).forEach(n => { const li = document.createElement('li'); li.textContent = n; list.appendChild(li); });
+
+    const total = (cfg.clusters || []).reduce((s, c) => s + c.cols * c.rows, 0);
+    const need = Math.ceil(total * CONFIG.CLEAR_RATE / 100);
+    this.el('briefObjective').textContent = `Get at least ${need} of ${total} students to pass (${CONFIG.CLEAR_RATE}%).`;
+    const inv = this.el('briefInv'); inv.innerHTML = '';
+    for (const m of METHODS_ORDER) {
+      const n = (cfg.inv || {})[m] || 0; if (!n) continue;
+      const d = document.createElement('div'); d.className = 'inv-item';
+      d.innerHTML = `<span class="inv-ic">${CONFIG.METHODS_IC[m]}</span><span class="inv-n">${CONFIG.METHODS[m].name}</span><b>×${n}</b>`;
+      inv.appendChild(d);
+    }
+    this.show('briefScreen');
+  },
+
+  beginExam() {
+    this.game.newDay(this.sel);
+    this.el('totalValue').textContent = this.game.students.length;
+    METHODS_ORDER.forEach(m => {
+      const t = document.querySelector(`.tool[data-method="${m}"]`);
+      t.classList.toggle('locked', !((this.game.inv[m] || 0) > 0));
+    });
+    this.selectMethod(this.game.method);
+    this.show(null);
+    this.el('hint').style.opacity = '1'; this._hintTimer = 7;
+    this.game.start(); this.updateHud();
+  },
+
+  selectMethod(m) {
+    const t = document.querySelector(`.tool[data-method="${m}"]`);
+    if (!t || t.classList.contains('locked')) return;
+    this.game.setMethod(m);
+    document.querySelectorAll('.tool').forEach(b => b.classList.toggle('active', b.dataset.method === m));
+    Sound.click();
+  },
+
+  showResults(r) {
+    this._last = r;
+    if (r.cleared && this.sel + 1 > this.state.maxLevel) { this.state.maxLevel = this.sel + 1; this.save(); }
+    const fail = r.reason === 'caught' || r.reason === 'impossible';
+    this.el('resultTitle').textContent = r.cleared ? 'LEVEL CLEARED'
+      : r.reason === 'caught' ? 'EXAM BUSTED'
+      : r.reason === 'impossible' ? 'TOO MANY BUSTED'
+      : 'NOT ENOUGH PASSED';
+    this.el('resultTitle').classList.toggle('fail', fail);
+    const badge = this.el('gradeBadge'); badge.textContent = r.grade;
+    badge.classList.toggle('fail', fail || r.grade === 'F' || r.grade === 'D');
+    this.el('rPassed').textContent = `${r.passed} / ${r.total}`;
+    this.el('rCaught').textContent = r.caught;
+    const rateEl = this.el('rRate'); let cur = 0;
+    clearInterval(this._iv);
+    this._iv = setInterval(() => { cur += Math.max(1, Math.ceil(r.rate / 30)); if (cur >= r.rate) { cur = r.rate; clearInterval(this._iv); } rateEl.textContent = cur + '%'; }, 24);
+    this.el('resultBtn').textContent = r.cleared ? 'Next level →' : 'Retry level';
+    this.show('resultScreen');
+  },
+
+  afterResult() {
+    if (this._last && this._last.cleared) this.sel++;
+    this.startLevel();
+  },
+
+  /* ---------------- HUD ---------------- */
+  updateHud() {
+    const g = this.game; if (!g.levelCfg) return;
+    const t = Math.max(0, g.timeLeft || 0), m = Math.floor(t / 60), s = Math.floor(t % 60);
+    this.el('timeValue').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    this.el('timeValue').style.color = t < 15 ? '#ffb3a0' : '';
+    this.el('suspicionFill').style.width = g.suspicion + '%';
+    let known = 0; const tot = g.students.length * CONFIG.QUESTIONS;
+    for (const st of g.students) known += st.knownCount();
+    this.el('spreadFill').style.width = (tot ? known / tot * 100 : 0) + '%';
+    this.el('passedValue').textContent = g.passedCount();
+    this.el('dayValue').textContent = this.sel;
+
+    for (const method of METHODS_ORDER) {
+      const tool = document.querySelector(`.tool[data-method="${method}"]`);
+      if (!tool) continue;
+      const n = g.inv[method] || 0;
+      const cnt = tool.querySelector('.t-count');
+      if (cnt) cnt.textContent = n > 0 ? '×' + n : '';
+      const provided = ((g.levelCfg.inv || {})[method] || 0) > 0;
+      tool.classList.toggle('empty', provided && n === 0);
+    }
+    if (g.running && (g.inv[g.method] || 0) === 0) {
+      const next = METHODS_ORDER.find(mm => (g.inv[mm] || 0) > 0);
+      if (next) this.selectMethod(next);
+    }
+  },
+
+  _loop() {
+    const step = () => {
+      if (this.game.running) this.updateHud();
+      if (this._hintTimer > 0) { this._hintTimer -= 1 / 60; if (this._hintTimer <= 0) this.el('hint').style.opacity = '0'; }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  },
+};
+
+/* ---------- js/main.js ---------- */
+/* ============================================================
+   main.js  —  Bootstrap.
+   ============================================================ */
+window.addEventListener('load', () => {
+  const game = new Game();
+  UI.init(game);
+  const kick = () => { Sound.init(); window.removeEventListener('pointerdown', kick); };
+  window.addEventListener('pointerdown', kick);
+});
+
+</script>
+</body>
+</html>
