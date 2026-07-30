@@ -186,9 +186,9 @@
     <div class="chip" id="agechip"><div><div class="lb">AGE</div><div class="vl" id="age-v">0</div></div></div>
     <div class="chip" id="lifechip"><div><div class="lb">LIFE #</div><div class="vl" id="life-v">1</div></div></div>
     <div class="chip" id="timechip"><div><div class="lb">RUN TIME</div><div class="vl" id="time-v">0:00.0</div></div></div>
-    <div id="mutebtn" title="Sound (M)">🔊</div>
+    <div id="mutebtn" title="Sound (M)"></div>
     <div id="tl">
-      <span class="baby">👶</span><span class="grave">🪦</span>
+      <span class="baby"><svg viewBox="0 0 20 20" width="17"><circle cx="10" cy="11" r="7.5" fill="#ffb3c1"/><path d="M10 3.6 q3 -2.6 5 -.8" stroke="#5b3a24" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="7.4" cy="10" r="1.1" fill="#2d2440"/><circle cx="12.6" cy="10" r="1.1" fill="#2d2440"/><path d="M8.4 13.4 q1.6 1.4 3.2 0" stroke="#2d2440" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg></span><span class="grave"><svg viewBox="0 0 20 20" width="17"><path d="M4.5 17.5 v-8 a5.5 5.5 0 0 1 11 0 v8 z" fill="#9aa5b1"/><rect x="2.5" y="16.8" width="15" height="2.6" rx="1.3" fill="#7a8590"/><path d="M7.5 9.5 h5 M10 7 v6" stroke="#5c6570" stroke-width="1.4" stroke-linecap="round"/></svg></span>
       <div class="bar"></div><div class="fill" id="tl-fill" style="width:0"></div>
       <div id="tl-dots"></div>
     </div>
@@ -250,11 +250,18 @@ const sfx = {
   snore(){ tone(140,.4,.04,'sawtooth'); },
   splash(){ tone(280,.1,.05,'triangle'); tone(180,.14,.04,'triangle',.06); },
 };
+function muteIcon() {
+  $('mutebtn').innerHTML = `<svg viewBox="0 0 24 24" width="19"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="#2d2440"/>` +
+    (muted
+      ? `<path d="M16 9l6 6M22 9l-6 6" stroke="#d63d82" stroke-width="2.4" stroke-linecap="round" fill="none"/>`
+      : `<path d="M16.5 8.5a5 5 0 0 1 0 7M18.8 6.2a8 8 0 0 1 0 11.6" stroke="#2b98a0" stroke-width="2.2" fill="none" stroke-linecap="round"/>`) +
+    `</svg>`;
+}
 $('mutebtn').addEventListener('click', () => {
   muted = !muted; localStorage.setItem('lp_mute', muted?'1':'0');
-  $('mutebtn').textContent = muted ? '🔇' : '🔊';
+  muteIcon();
 });
-if (muted) $('mutebtn').textContent = '🔇';
+muteIcon();
 /* ---------- input ---------- */
 const keys = {};
 let pointerHeld = false, px = 480, py = 320, pHalf = 0; // -1 left, 1 right
@@ -302,9 +309,240 @@ function txt(t, x, y, size, col, weight, align) {
   ctx.fillStyle = col; ctx.textAlign = align||'center'; ctx.textBaseline = 'middle';
   ctx.fillText(t, x, y);
 }
-function emoji(t, x, y, size) {
-  ctx.font = `${size}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(t, x, y);
+/* hand-drawn mini icons — zero emojis allowed in this establishment */
+function icon(name, x, y, s) {
+  ctx.save();
+  ctx.translate(x, y);
+  const k = (s || 30) / 30;
+  ctx.scale(k, k);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  switch (name) {
+    case 'mailbox':
+      ctx.fillStyle = '#8a6540'; ctx.fillRect(-2, 2, 4, 14);
+      ctx.fillStyle = C.coral; rr(-12, -12, 24, 14, 7); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.fillRect(6, -10, 3, 6);
+      break;
+    case 'glasses':
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(-6, 0, 5, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.arc(6, 0, 5, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-1, 0); ctx.lineTo(1, 0); ctx.stroke();
+      break;
+    case 'pencil':
+      ctx.rotate(-.5);
+      ctx.fillStyle = '#ffc94b'; rr(-10, -3, 18, 6, 2); ctx.fill();
+      ctx.fillStyle = '#e8a0b0'; rr(-13, -3, 4, 6, 2); ctx.fill();
+      ctx.fillStyle = '#f0d8b0'; ctx.beginPath(); ctx.moveTo(8, -3); ctx.lineTo(14, 0); ctx.lineTo(8, 3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.ink; ctx.beginPath(); ctx.moveTo(12, -1); ctx.lineTo(14, 0); ctx.lineTo(12, 1.4); ctx.closePath(); ctx.fill();
+      break;
+    case 'party':
+      for (let i = 0; i < 6; i++) {
+        const a = i / 6 * Math.PI * 2;
+        ctx.fillStyle = [C.coral, C.teal, C.mustard, C.lav][i % 4];
+        ctx.save(); ctx.translate(Math.cos(a) * 9, Math.sin(a) * 9); ctx.rotate(a);
+        ctx.fillRect(-2.5, -1.5, 5, 3); ctx.restore();
+      }
+      break;
+    case 'clipboard':
+      ctx.fillStyle = '#b98a5a'; rr(-9, -12, 18, 24, 3); ctx.fill();
+      ctx.fillStyle = '#fffdf4'; rr(-7, -9, 14, 19, 2); ctx.fill();
+      ctx.fillStyle = '#9aa5b1'; rr(-4, -14, 8, 5, 2); ctx.fill();
+      ctx.strokeStyle = '#c9c0ac'; ctx.lineWidth = 1.4;
+      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(-5, -4 + i * 5); ctx.lineTo(5, -4 + i * 5); ctx.stroke(); }
+      break;
+    case 'mug':
+      ctx.fillStyle = C.teal; rr(-8, -6, 14, 15, 3); ctx.fill();
+      ctx.strokeStyle = C.teal; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(8, 1, 5, -1.2, 1.2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-3, -9); ctx.quadraticCurveTo(-1, -12, -3, -15); ctx.stroke();
+      break;
+    case 'crown':
+      ctx.fillStyle = C.mustard;
+      ctx.beginPath(); ctx.moveTo(-11, 6); ctx.lineTo(-11, -4); ctx.lineTo(-5, 1); ctx.lineTo(0, -8);
+      ctx.lineTo(5, 1); ctx.lineTo(11, -4); ctx.lineTo(11, 6); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.coral; ctx.beginPath(); ctx.arc(0, 2, 2, 0, 7); ctx.fill();
+      break;
+    case 'case':
+      ctx.fillStyle = '#8a5a3a'; rr(-13, -9, 26, 18, 4); ctx.fill();
+      ctx.fillStyle = '#6a4228'; rr(-5, -13, 10, 5, 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(-13, -2, 26, 3);
+      break;
+    case 'cart':
+      ctx.strokeStyle = '#9aa5b1'; ctx.lineWidth = 2.4;
+      ctx.strokeRect(-10, -10, 16, 12);
+      ctx.beginPath(); ctx.moveTo(6, -10); ctx.lineTo(11, -14); ctx.stroke();
+      ctx.fillStyle = C.ink;
+      ctx.beginPath(); ctx.arc(-7, 7, 3, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(3, 7, 3, 0, 7); ctx.fill();
+      break;
+    case 'seat':
+      ctx.fillStyle = C.lav; rr(-9, -12, 8, 22, 3); ctx.fill();
+      rr(-9, 4, 18, 7, 3); ctx.fill();
+      ctx.fillStyle = C.lavD; rr(-9, -12, 8, 5, 2); ctx.fill();
+      break;
+    case 'dog':
+      ctx.fillStyle = '#e8d9b0';
+      ctx.beginPath(); ctx.ellipse(0, 4, 11, 7, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(9, -6, 6, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(14, -11, 3, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(-11, -2, 3.4, 0, 7); ctx.fill();
+      ctx.fillStyle = C.ink;
+      ctx.beginPath(); ctx.arc(10.5, -6.5, 1.2, 0, 7); ctx.fill();
+      break;
+    case 'rose':
+      ctx.strokeStyle = '#4a7a3a'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, 12); ctx.lineTo(0, 0); ctx.stroke();
+      ctx.fillStyle = C.coral;
+      ctx.beginPath(); ctx.arc(0, -4, 6, 0, 7); ctx.fill();
+      ctx.strokeStyle = C.coralD; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(0, -4, 3, .5, 5); ctx.stroke();
+      break;
+    case 'sunhat':
+      ctx.fillStyle = C.mustard;
+      ctx.beginPath(); ctx.ellipse(0, 4, 15, 5, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, 8, Math.PI, 7); ctx.fill();
+      ctx.fillStyle = C.coral; ctx.fillRect(-8, -2, 16, 4);
+      break;
+    case 'fish':
+      ctx.fillStyle = C.teal;
+      ctx.beginPath(); ctx.ellipse(0, 0, 10, 6, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(9, 0); ctx.lineTo(15, -5); ctx.lineTo(15, 5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-4, -1.5, 1.6, 0, 7); ctx.fill();
+      ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(-4, -1.5, .8, 0, 7); ctx.fill();
+      break;
+    case 'shirt':
+      ctx.fillStyle = C.teal;
+      ctx.beginPath(); ctx.moveTo(-6, -10); ctx.lineTo(6, -10); ctx.lineTo(13, -4); ctx.lineTo(9, 1);
+      ctx.lineTo(7, -2); ctx.lineTo(7, 11); ctx.lineTo(-7, 11); ctx.lineTo(-7, -2); ctx.lineTo(-9, 1);
+      ctx.lineTo(-13, -4); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.beginPath(); ctx.arc(0, -9, 3.4, 0, Math.PI); ctx.fill();
+      break;
+    case 'pants':
+      ctx.fillStyle = '#4a5578';
+      ctx.beginPath(); ctx.moveTo(-8, -11); ctx.lineTo(8, -11); ctx.lineTo(9, 11); ctx.lineTo(2.5, 11);
+      ctx.lineTo(0, -1); ctx.lineTo(-2.5, 11); ctx.lineTo(-9, 11); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.fillRect(-8, -11, 16, 3);
+      break;
+    case 'sock':
+      ctx.fillStyle = C.coral;
+      ctx.beginPath(); ctx.moveTo(-3, -11); ctx.lineTo(5, -11); ctx.lineTo(5, 2); ctx.quadraticCurveTo(12, 6, 8, 11);
+      ctx.quadraticCurveTo(3, 14, -1, 8); ctx.lineTo(-3, 2); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.fillRect(-3, -11, 8, 3.4);
+      break;
+    case 'scarf':
+      ctx.fillStyle = C.mustard;
+      rr(-11, -4, 22, 7, 3); ctx.fill();
+      rr(2, -2, 7, 14, 3); ctx.fill();
+      ctx.fillStyle = C.mustardD; ctx.fillRect(2, 9, 7, 3);
+      break;
+    case 'tophat':
+      ctx.fillStyle = C.ink;
+      ctx.fillRect(-6, -12, 12, 12);
+      ctx.beginPath(); ctx.ellipse(0, 1, 12, 3.4, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = C.coral; ctx.fillRect(-6, -4, 12, 3.4);
+      break;
+    case 'notebook':
+      ctx.fillStyle = C.lav; rr(-8, -11, 16, 22, 2.5); ctx.fill();
+      ctx.fillStyle = C.lavD; ctx.fillRect(-8, -11, 3.4, 22);
+      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.4;
+      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(-2, -5 + i * 5); ctx.lineTo(5, -5 + i * 5); ctx.stroke(); }
+      break;
+    case 'tie':
+      ctx.fillStyle = C.coralD;
+      ctx.beginPath(); ctx.moveTo(-3, -8); ctx.lineTo(3, -8); ctx.lineTo(2, 2); ctx.lineTo(0, 8); ctx.lineTo(-2, 2); ctx.closePath(); ctx.fill();
+      break;
+    case 'splash':
+      ctx.fillStyle = 'rgba(90,170,230,.9)';
+      for (let i = 0; i < 7; i++) {
+        const a = i / 7 * Math.PI * 2;
+        ctx.beginPath(); ctx.ellipse(Math.cos(a) * 10, Math.sin(a) * 10, 3.4, 2, a, 0, 7); ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, 7); ctx.fill();
+      break;
+    case 'drop':
+      ctx.fillStyle = 'rgba(90,170,230,.9)';
+      ctx.beginPath(); ctx.moveTo(0, -8); ctx.quadraticCurveTo(7, 2, 0, 7);
+      ctx.quadraticCurveTo(-7, 2, 0, -8); ctx.fill();
+      break;
+    case 'pen':
+      ctx.rotate(.6);
+      ctx.fillStyle = C.ink; rr(-2.5, -14, 5, 20, 2.5); ctx.fill();
+      ctx.fillStyle = C.mustard; ctx.beginPath(); ctx.moveTo(-2.5, 6); ctx.lineTo(0, 12); ctx.lineTo(2.5, 6); ctx.closePath(); ctx.fill();
+      break;
+    case 'lips':
+      ctx.fillStyle = '#e0455e';
+      ctx.beginPath();
+      ctx.moveTo(-10, 0);
+      ctx.quadraticCurveTo(-5, -7, -2, -3); ctx.quadraticCurveTo(0, -5, 2, -3);
+      ctx.quadraticCurveTo(5, -7, 10, 0);
+      ctx.quadraticCurveTo(5, 7, 0, 7); ctx.quadraticCurveTo(-5, 7, -10, 0);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(120,20,40,.6)'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(-9, 0); ctx.quadraticCurveTo(0, 2, 9, 0); ctx.stroke();
+      break;
+    case 'kissface':
+      ctx.fillStyle = '#ffdcb0'; ctx.beginPath(); ctx.arc(0, 0, 12, 0, 7); ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.arc(-4.5, -3, 2.4, .3, Math.PI - .3); ctx.stroke();
+      ctx.beginPath(); ctx.arc(4.5, -3, 2.4, .3, Math.PI - .3); ctx.stroke();
+      ctx.fillStyle = '#e0455e';
+      ctx.beginPath(); ctx.arc(1, 5, 3, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(-2, 5, 2, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(255,110,110,.4)';
+      ctx.beginPath(); ctx.arc(-8, 3, 2.4, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(8, 3, 2.4, 0, 7); ctx.fill();
+      break;
+    case 'shades':
+      ctx.fillStyle = C.ink;
+      rr(-11, -3, 9, 7, 3); ctx.fill();
+      rr(2, -3, 9, 7, 3); ctx.fill();
+      ctx.strokeStyle = C.ink; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(-2, -1); ctx.lineTo(2, -1); ctx.stroke();
+      break;
+    case 'ghost':
+      ctx.fillStyle = 'rgba(255,255,255,.92)';
+      ctx.beginPath();
+      ctx.arc(0, -2, 10, Math.PI, 0);
+      ctx.lineTo(10, 9);
+      ctx.arc(6.6, 9, 3.3, 0, Math.PI);
+      ctx.arc(0, 9, 3.3, 0, Math.PI);
+      ctx.arc(-6.6, 9, 3.3, 0, Math.PI);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.ink;
+      ctx.beginPath(); ctx.arc(-3.4, -4, 1.6, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(3.4, -4, 1.6, 0, 7); ctx.fill();
+      break;
+    case 'heart':
+      ctx.fillStyle = '#ff6f9d';
+      ctx.beginPath(); ctx.moveTo(0, 8);
+      ctx.bezierCurveTo(-12, -2, -6, -12, 0, -5);
+      ctx.bezierCurveTo(6, -12, 12, -2, 0, 8); ctx.fill();
+      break;
+    case 'heartW':
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.moveTo(0, 8);
+      ctx.bezierCurveTo(-12, -2, -6, -12, 0, -5);
+      ctx.bezierCurveTo(6, -12, 12, -2, 0, 8); ctx.fill();
+      break;
+    case 'shake':
+      ctx.fillStyle = '#ffdcb0';
+      ctx.beginPath(); ctx.ellipse(-4, 0, 8, 6, .3, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(4, 0, 8, 6, -.3, 0, 7); ctx.fill();
+      ctx.fillStyle = C.teal; rr(-15, -5, 5, 10, 2); ctx.fill();
+      ctx.fillStyle = C.lav; rr(10, -5, 5, 10, 2); ctx.fill();
+      ctx.strokeStyle = '#eab97e'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(-2, -3); ctx.lineTo(2, 2); ctx.stroke();
+      break;
+    case 'justice':
+      ctx.strokeStyle = '#8a7040'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(0, 10); ctx.moveTo(-9, -6); ctx.lineTo(9, -6); ctx.stroke();
+      ctx.beginPath(); ctx.arc(-9, -1, 4, 0, Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.arc(9, -1, 4, 0, Math.PI); ctx.stroke();
+      ctx.fillStyle = '#8a7040'; ctx.fillRect(-5, 10, 10, 2.4);
+      break;
+  }
+  ctx.restore();
 }
 /* Bub, our hero — chibi, big-eyed, aggressively adorable */
 function drawBub(x, y, s, age, mood, opts) {
@@ -538,9 +776,9 @@ let S = {};   // per-stage scratch state
 let stage = null, stageIdx = -1;
 /* difficulty: surv = survival-timer scale, dead = deadline scale, spd = hazard speed */
 const DIFFS = [
-  { name: '🍼 SILVER SPOON', surv: .75, dead: 1.35, spd: .8 },
-  { name: '😐 AVERAGE JOE', surv: 1, dead: 1, spd: 1 },
-  { name: '💀 CURSED TIMELINE', surv: 1.3, dead: .75, spd: 1.25 },
+  { name: 'SILVER SPOON', surv: .75, dead: 1.35, spd: .8 },
+  { name: 'AVERAGE JOE', surv: 1, dead: 1, spd: 1 },
+  { name: 'CURSED TIMELINE', surv: 1.3, dead: .75, spd: 1.25 },
 ];
 let diffI = Math.min(2, Math.max(0, parseInt(localStorage.getItem('lp_diff')||'1')));
 let DSPD = 1;
@@ -687,7 +925,7 @@ const STAGES = [
       ctx.fillRect(x, 500, 70, 8);
     }
     // the fated mailbox at the edge of tilt
-    emoji('📫', S.a > 0 ? 850 : 110, 420, 40);
+    icon('mailbox', S.a > 0 ? 850 : 110, 415, 40);
     // bike + Bub tilting
     ctx.save();
     ctx.translate(W/2, 470);
@@ -731,7 +969,7 @@ const STAGES = [
     txt('(this will matter in real life, promise)', W/2, 240, 15, 'rgba(255,248,224,.6)', 500);
     // teacher (not you — you are the eyes)
     drawBub(150, 300, 1.1, 47, 'happy', {});
-    emoji('👓', 150, 288, 22);
+    icon('glasses', 150, 289, 26);
     // your own desk, first-person
     ctx.fillStyle = '#b98a5a'; rr(-20, 480, W + 40, 180, 18); ctx.fill();
     ctx.fillStyle = '#a5764a'; rr(-20, 480, W + 40, 14, 8); ctx.fill();
@@ -740,7 +978,7 @@ const STAGES = [
     for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(380, 535 + i*20); ctx.lineTo(580, 535 + i*20); ctx.stroke(); }
     ctx.strokeStyle = 'rgba(90,122,201,.65)'; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.moveTo(380, 535); ctx.quadraticCurveTo(430, 528, 470, 536); ctx.stroke();
-    emoji('✏️', 630, 545, 24);
+    icon('pencil', 630, 545, 28);
     // eyelids
     if (S.sleep > 0.03) {
       const lid = S.sleep * (H/2 + 20);
@@ -845,10 +1083,78 @@ const STAGES = [
     });
     // birthday Bub (puffed cheeks when reloading)
     drawBub(180, 480, 1.15, 10, S.cd > .2 ? 'wow' : 'happy', {});
-    emoji('🎉', 130, 400, 26);
+    icon('party', 130, 400, 28);
     const litN = S.cands.filter(c2 => c2.lit).length;
     txt(`${10-litN} / 10 OUT`, W/2, 135, 22, '#a33d63', 800);
     timerBar(1 - stageT/S.dur);
+  }
+},
+/* ---- FIRST KISS ---- */
+{
+  age: 13, name: 'FIRST KISS', sub: 'School trip. Sunset. Sam. Your heart rate is technically a medical event.',
+  hint: '<span class="k">ARROWS</span> — steer your lips to Sam’s. Dodge the panic thoughts!',
+  death: "You panicked mid-lean, headbutted Sam, and died of embarrassment on impact. The bus ride home was very quiet.",
+  THOUGHTS: ['what if braces lock??','is my breath ok?','WHERE do hands go','MOM???','did I blink too loud'],
+  init() {
+    const clouds = [];
+    for (let i = 0; i < 4; i++) clouds.push({
+      x: rand(260, 700), y: rand(120, 480), a: rand(0, 7), sp: rand(55, 95) * DSPD,
+      w: pick(this.THOUGHTS), turn: 0
+    });
+    S = { x: 120, y: 500, clouds, lock: 0, tx: 810, ty: 210, dur: 18 };
+  },
+  update(dt) {
+    const d2 = Math.hypot(S.x - S.tx, S.y - S.ty);
+    const jit = (1 - clamp(d2 / 700, 0, 1)) * 44 + 8;   // nerves grow as you get close
+    S.x += heldLR() * 300 * dt + (Math.random() - .5) * jit * dt * 8;
+    S.y += heldUD() * 300 * dt + (Math.random() - .5) * jit * dt * 8;
+    S.x = clamp(S.x, 40, W - 40); S.y = clamp(S.y, 95, H - 60);
+    // Sam sways (also nervous)
+    S.tx = 810 + Math.sin(stageT * 1.1) * 24;
+    S.ty = 210 + Math.cos(stageT * .8) * 18;
+    for (const c2 of S.clouds) {
+      c2.turn -= dt;
+      if (c2.turn <= 0) { c2.a += rand(-1.2, 1.2); c2.turn = rand(.4, .9); }
+      c2.x += Math.cos(c2.a) * c2.sp * dt;
+      c2.y += Math.sin(c2.a) * c2.sp * dt;
+      if (c2.x < 250 || c2.x > 700) { c2.a = Math.PI - c2.a; c2.x = clamp(c2.x, 250, 700); }
+      if (c2.y < 105 || c2.y > 520) { c2.a = -c2.a; c2.y = clamp(c2.y, 105, 520); }
+      if (Math.hypot(S.x - c2.x, S.y - c2.y) < 52) { sfx.buzz(); return die(); }
+    }
+    if (Math.hypot(S.x - S.tx, S.y - S.ty) < 34) {
+      S.lock += dt;
+      if (S.lock >= .8) { sfx.big(); return win(); }
+    } else S.lock = Math.max(0, S.lock - dt * 2);
+    if (stageT > S.dur) die();
+  },
+  draw() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#ff9a76'); g.addColorStop(.55, '#ffd3a0'); g.addColorStop(1, '#ffb28a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffe9b8'; ctx.beginPath(); ctx.arc(W / 2, 560, 120, Math.PI, 7); ctx.fill();
+    ground('#c97b5e', 560);
+    // Sam, waiting, eyes closed with faith in you
+    drawBub(810, 310, 1.45, 13, 'happy', {});
+    const pulse = 1 + Math.sin(stageT * 5) * .12;
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(S.tx, S.ty, 34 * pulse, 0, 7); ctx.stroke();
+    icon('lips', S.tx, S.ty, 28);
+    if (S.lock > 0) {
+      ctx.strokeStyle = C.mustard; ctx.lineWidth = 6;
+      ctx.beginPath(); ctx.arc(S.tx, S.ty, 42, -Math.PI / 2, -Math.PI / 2 + (S.lock / .8) * 7); ctx.stroke();
+    }
+    // panic thought clouds
+    S.clouds.forEach(c2 => {
+      ctx.fillStyle = 'rgba(88,76,120,.93)';
+      ctx.beginPath(); ctx.ellipse(c2.x, c2.y, 62, 30, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(c2.x - 40, c2.y - 17, 19, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(c2.x + 34, c2.y - 18, 15, 0, 7); ctx.fill();
+      txt(c2.w, c2.x, c2.y, 11.5, '#fff', 700);
+    });
+    // you, as a pair of determined lips
+    icon('kissface', S.x, S.y, 36);
+    txt('steer gently…', S.x, S.y + 36, 11, 'rgba(120,50,40,.65)', 700);
+    timerBar(1 - stageT / S.dur);
   }
 },
 /* ---- 6. STAY AWAKE II ---- */
@@ -882,7 +1188,7 @@ const STAGES = [
     ctx.strokeStyle = '#c9c0ac'; ctx.lineWidth = 2;
     for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(380, 535 + i*20); ctx.lineTo(580, 535 + i*20); ctx.stroke(); }
     txt('mitochondria = powerh', 470, 538, 12, 'rgba(90,122,201,.7)', 700);
-    emoji('✏️', 630, 545, 24);
+    icon('pencil', 630, 545, 28);
     if (S.sleep > 0.03) {
       const lid = S.sleep * (H/2 + 20);
       ctx.fillStyle = 'rgba(20,12,18,.94)';
@@ -897,7 +1203,7 @@ const STAGES = [
 /* ---- 7. SEDUCE CRUSH ---- */
 {
   age: 17, name: 'TALK TO YOUR CRUSH', sub: 'Alex from math class. Your palms have never been wetter.',
-  hint: '<span class="k">SPACE</span> / TAP when the needle is in the ♥ zone — 3 smooth lines!',
+  hint: '<span class="k">SPACE</span> / TAP when the needle is in the heart zone — 3 smooth lines!',
   death: "Died of terminal cringe. Confirmed last words: “Do you like… air? I also breathe it.”",
   LINES: ['“Hey.” (nailed it)', '“Cool… backpack.”', '“Wanna split a milkshake?”'],
   FLUBS: ['“Do you like… air?”', '“My mom says I’m funny.”', '“…nice weather in math.”'],
@@ -931,7 +1237,7 @@ const STAGES = [
     drawBub(640, 430, 1.2, 17, S.hits > 0 ? 'happy' : 'neutral', {});
     ctx.fillStyle = '#e0b3ff';
     ctx.beginPath(); ctx.arc(640, 396, 15, Math.PI, 7); ctx.fill(); // lil hair bow vibe
-    for (let i = 0; i < S.hits; i++) emoji('💗', 610 + i*30, 340 - Math.sin(stageT*4+i)*6, 22);
+    for (let i = 0; i < S.hits; i++) icon('heart', 610 + i*30, 340 - Math.sin(stageT*4+i)*6, 22);
     if (S.said) {
       ctx.fillStyle = '#fff'; rr(180, 300, 290, 44, 14); ctx.fill();
       ctx.beginPath(); ctx.moveTo(300, 344); ctx.lineTo(316, 364); ctx.lineTo(330, 344); ctx.fill();
@@ -941,11 +1247,11 @@ const STAGES = [
     ctx.fillStyle = 'rgba(53,40,46,.85)'; rr(W/2-190, 520, 380, 46, 23); ctx.fill();
     const zx0 = W/2 + (S.zc - S.zw) * 170, zx1 = W/2 + (S.zc + S.zw) * 170;
     ctx.fillStyle = C.coral; rr(zx0, 526, zx1-zx0, 34, 17); ctx.fill();
-    txt('♥', (zx0+zx1)/2, 543, 20, '#fff', 700);
+    icon('heartW', (zx0+zx1)/2, 543, 18);
     const nx = W/2 + Math.sin(S.t*S.speed) * 170;
     ctx.fillStyle = '#fff'; rr(nx-4, 516, 8, 54, 4); ctx.fill();
     txt('RIZZ-O-METER™', W/2, 500, 13, 'rgba(53,40,46,.6)', 700);
-    txt('strikes: ' + '💔'.repeat(S.misses) + '·'.repeat(3-S.misses), W/2, 596, 15, C.ink, 600);
+    txt('strikes: ' + S.misses + ' / 3', W/2, 596, 15, C.ink, 800);
   }
 },
 /* ---- 8. PARTY ---- */
@@ -1021,7 +1327,7 @@ const STAGES = [
       ctx.beginPath(); ctx.arc(W/2, 260, size, -Math.PI/2, -Math.PI/2 + frac*7); ctx.stroke();
       txt(this.ARR[S.cur], W/2, 262, 56, C.ink, 700);
     }
-    txt(`${S.hits} / 8 needed  ·  ${'✖'.repeat(S.misses)}`, W/2, 150, 18, '#fff', 700);
+    txt(`${S.hits} / 8 needed  ·  misses ${S.misses} / 3`, W/2, 150, 18, '#fff', 700);
   }
 },
 /* ---- 9. SAY NO TO DRUGS ---- */
@@ -1055,7 +1361,7 @@ const STAGES = [
     ground('#2c2635', 520);
     // Chad
     drawBub(80, 200, 1.05, 24, 'neutral', {});
-    emoji('🕶', 80, 188, 22);
+    icon('shades', 80, 190, 26);
     ctx.fillStyle = '#fff'; rr(110, 140, 150, 36, 12); ctx.fill();
     txt('it’s natural bro', 185, 158, 13, C.ink, 600);
     // pills
@@ -1120,7 +1426,7 @@ const STAGES = [
     ctx.fillStyle = '#8a6a4a'; rr(300, 370, 380, 120, 12); ctx.fill();
     // interviewer
     drawBub(620, 330, 1.2, 47, S.strikes ? 'neutral' : 'happy', {});
-    emoji(['📋','☕','👑'][S.round] || '👑', 665, 280, 26);
+    icon(['clipboard','mug','crown'][S.round] || 'crown', 665, 280, 28);
     txt(this.TITLES[S.round] || '', 620, 250, 15, '#48607a', 700);
     // Bub with tie
     drawBub(340, 330, 1.2, 23, S.strikes ? 'panic' : 'neutral', {});
@@ -1132,9 +1438,9 @@ const STAGES = [
     ctx.fillStyle = C.leaf; rr(W/2-26, zy0, 52, zy1-zy0, 8); ctx.fill();
     const fy = 390 - S.p*260;
     ctx.fillStyle = '#fff'; rr(W/2-30, fy-4, 60, 8, 4); ctx.fill();
-    emoji('🤝', W/2, 415, 30);
+    icon('shake', W/2, 415, 32);
     txt('GRIP', W/2, 118, 13, 'rgba(53,40,46,.6)', 700);
-    txt(`handshake ${S.round+1} / 3   ·   strikes ${'✖'.repeat(S.strikes)}`, W/2, 560, 16, C.ink, 600);
+    txt(`handshake ${Math.min(S.round+1,3)} / 3   ·   strikes ${S.strikes} / 2`, W/2, 560, 16, C.ink, 800);
   }
 },
 /* ---- 11. WORK ---- */
@@ -1242,7 +1548,7 @@ const STAGES = [
     if (S.scream > 0) txt('WAAAAAH', W/2 + Math.sin(stageT*40)*6, 300, 30, '#ff9d8e', 700);
     else if (S.sleep > .5) txt('zzz…', W/2 + 90, 420, 22, 'rgba(255,255,255,.6)', 600);
     progBar(S.sleep, 'SLEEP METER');
-    txt('wakes: ' + '😱'.repeat(S.wakes) + '·'.repeat(3-S.wakes), W/2, 130, 16, '#fff', 600);
+    txt('wakes: ' + S.wakes + ' / 3', W/2, 130, 16, '#fff', 800);
     timerBar(1 - stageT/S.dur);
   }
 },
@@ -1251,8 +1557,8 @@ const STAGES = [
   age: 35, name: 'GET OUT OF BED', sub: 'Your brain is pitching ideas. Some of them are traps.',
   hint: 'TAP the GOOD ideas only — the bad ones cost you!',
   death: "The duvet absorbed you. Science still cannot determine where you end and the mattress begins.",
-  GOOD: ['🍦 eat an ice cream','☀️ enjoy the sun','📞 call mom','🚶 tiny walk','🐕 pet a dog','🚿 hot shower','💧 glass of water','🎶 favorite song'],
-  BAD: ['⏰ snooze','🛏 stay in bed','😭 cry about it','💤 sleep forever','📱 doomscroll','🙃 give up','🧅 eat a raw onion'],
+  GOOD: ['eat an ice cream','enjoy the sun','call mom','tiny walk','pet a dog','hot shower','glass of water','favorite song'],
+  BAD: ['snooze','stay in bed','cry about it','sleep forever','doomscroll','give up','eat a raw onion'],
   init() { S = { p: .3, words: [], wordT: .5, dur: 20 }; },
   press(code, x, y) {
     if (code !== 'Pointer') return;
@@ -1321,73 +1627,226 @@ const STAGES = [
     timerBar(1 - stageT/S.dur);
   }
 },
+/* ---- QUIT YOUR JOB ---- */
+{
+  age: 46, name: 'QUIT YOUR JOB', sub: 'Day 8,395 at MegaCorp. Time for a hydro-powered resignation.',
+  hint: 'HOLD <span class="k">SPACE</span> to fill the glass to the green zone — release, then press to SPLASH!',
+  death: "You fumbled the glass, whispered ‘never mind’, and worked there forever. Cause of death: quarterly targets.",
+  init() { S = { phase: 'fill', p: 0, holding: false, glasses: 3, bossX: 640, thrown: null, hit: false, dur: 24 }; },
+  press(code) {
+    if (code !== 'Space' && code !== 'Pointer') return;
+    if (S.phase === 'fill') S.holding = true;
+    else if (S.phase === 'aim' && !S.thrown && !S.hit) { S.thrown = { x: 350 }; sfx.boop(); }
+  },
+  release(code) {
+    if (code !== 'Space' && code !== 'Pointer') return;
+    if (S.phase === 'fill' && S.holding) {
+      S.holding = false;
+      if (S.p >= .7 && S.p <= .92) { S.phase = 'aim'; sfx.good(); popAt(210, 240, 'PERFECT POUR!', 'gold small'); }
+      else if (S.p > 0) { S.p = 0; sfx.boop(); popAt(210, 240, 'MORE DRAMA NEEDED!', 'small'); }
+    }
+  },
+  update(dt) {
+    if (S.phase === 'fill' && S.holding) {
+      S.p += .55 * dt;
+      if (S.p >= 1) {
+        S.holding = false; S.p = 0; S.glasses--;
+        sfx.bad(); shake(); popAt(210, 240, 'OVERFLOW! GLASS DOWN!', 'red');
+        if (S.glasses <= 0) return die();
+      }
+    }
+    if (S.phase === 'aim') {
+      S.bossX = 640 + Math.sin(stageT * 1.7 * DSPD) * 175;
+      if (S.thrown) {
+        S.thrown.x += 950 * dt;
+        if (Math.abs(S.thrown.x - S.bossX) < 45) {
+          S.thrown = null; S.hit = true;
+          sfx.splash(); sfx.big();
+          popAt(S.bossX, 220, 'I QUIT!!!', 'gold');
+          return win();
+        }
+        if (S.thrown.x > W + 20) {
+          S.thrown = null; S.glasses--;
+          sfx.bad(); popAt(760, 240, 'MISSED!', 'red');
+          if (S.glasses <= 0) return die();
+          S.phase = 'fill'; S.p = 0;
+          popAt(210, 280, 'REFILL…', 'small');
+        }
+      }
+    }
+    if (stageT > S.dur) die();
+  },
+  draw() {
+    bgFlat('#dce8f0');
+    ctx.fillStyle = '#b0c4d4'; ctx.fillRect(0, 0, W, 70);
+    txt('MEGACORP INC. — “we’re a family” (day 8,395)', W / 2, 38, 15, '#48607a', 800);
+    ground('#c4d4e0', 480);
+    // boss desk + sliding boss
+    ctx.fillStyle = '#8a6a4a'; rr(470, 370, 470, 110, 12); ctx.fill();
+    drawBub(S.bossX, 320, 1.25, 52, S.hit ? 'panic' : 'happy', {});
+    icon('tie', S.bossX, 356, 22);
+    if (S.hit) { icon('splash', S.bossX, 290, 42); icon('drop', S.bossX - 26, 316, 22); }
+    txt('THE BOSS', S.bossX, 250, 12, '#48607a', 800);
+    // you
+    drawBub(300, 430, 1.2, 46, S.phase === 'aim' ? 'wow' : 'neutral', {});
+    // the glass (fill meter)
+    ctx.strokeStyle = '#48607a'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(180, 270); ctx.lineTo(188, 400); ctx.lineTo(236, 400); ctx.lineTo(244, 270); ctx.stroke();
+    const zc0 = 400 - .92 * 126, zc1 = 400 - .7 * 126;
+    ctx.fillStyle = 'rgba(143,209,79,.4)';
+    ctx.fillRect(186, zc0, 52, zc1 - zc0);
+    if (S.p > 0) {
+      ctx.fillStyle = 'rgba(90,170,230,.8)';
+      ctx.fillRect(190, 398 - S.p * 124, 44, S.p * 124);
+    }
+    txt(S.phase === 'fill' ? 'FILL IT' : 'THROW IT', 212, 250, 12, '#48607a', 800);
+    // water in flight
+    if (S.thrown) {
+      ctx.fillStyle = 'rgba(90,170,230,.9)';
+      ctx.beginPath(); ctx.ellipse(S.thrown.x, 300, 20, 12, .2, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(S.thrown.x - 22, 306, 6, 0, 7); ctx.fill();
+    }
+    txt('glasses left: ' + S.glasses + ' / 3', W / 2, 560, 16, C.ink, 800);
+    timerBar(1 - stageT / S.dur, C.mustard);
+  }
+},
 /* ---- 14. LEAVE EVERYTHING ---- */
 {
-  age: 47, name: 'LEAVE EVERYTHING', sub: 'One suitcase. Forty-seven years of stuff. The zipper has opinions.',
-  hint: '<span class="k">↑</span><span class="k">↓</span> or tap top/bottom — guide the zip along the seam!',
-  death: "The overstuffed suitcase burst at the seams. You were found under 400 shirts you never wore.",
+  age: 47, name: 'LEAVE EVERYTHING', sub: 'Grab the essentials. The taxi is honking. The taxi has been honking for a while.',
+  hint: 'DRAG each item into the open suitcase!',
+  death: "You never left. The laundry pile was granted squatter’s rights, and eventually, your side of the bed.",
+  ITEMS: ['shirt','pants','sock','scarf','tophat','notebook'],
   init() {
-    S = { x: 130, y: 0, seam: 1, phase: rand(0, 7), phase2: rand(0, 7), trail: [] };
-    S.y = this.cy(130);
+    const items = this.ITEMS.map((e, i) => ({
+      e, x: 110 + (i % 3) * 150 + rand(-25, 25), y: 200 + Math.floor(i / 3) * 170 + rand(-20, 20),
+      packed: false, wob: rand(0, 7)
+    }));
+    S = { items, hold: null, packed: 0, dur: 15 };
   },
-  cy(x) { return 360 + Math.sin(x*.012 + S.phase)*62 + Math.sin(x*.027 + S.phase2)*30; },
-  update(dt) {
-    S.x += 82 * dt;
-    S.y = clamp(S.y + heldUD() * 250 * dt, 225, 495);
-    const band = 36 / DSPD;
-    const off = Math.abs(S.y - this.cy(S.x)) > band;
-    if (off) {
-      S.seam -= .9 * dt;
-      if (Math.random() < dt*7) popAt(S.x, S.y - 26, pick(['🧦','👕','👖','🧣']), 'small');
-      if (S.seam <= 0) { sfx.buzz(); return die(); }
-    } else {
-      S.seam = Math.min(1, S.seam + .12 * dt);
+  press(code, x, y) {
+    if (code !== 'Pointer' || S.hold) return;
+    for (const it of S.items) {
+      if (!it.packed && Math.hypot(x - it.x, y - it.y) < 44) { S.hold = it; sfx.tick(); return; }
     }
-    const lt = S.trail[S.trail.length-1];
-    if (!lt || Math.hypot(S.x-lt[0], S.y-lt[1]) > 4) S.trail.push([S.x, S.y]);
-    if (S.x >= 830) win();
+  },
+  release(code) {
+    if (code !== 'Pointer' || !S.hold) return;
+    const it = S.hold; S.hold = null;
+    if (it.x > 600 && it.x < 900 && it.y > 370 && it.y < 600) {
+      it.packed = true; S.packed++;
+      sfx.pop(); popAt(750, 400, 'PACKED!', 'gold small');
+      if (S.packed >= S.items.length) win();
+    } else sfx.boop();
+  },
+  update(dt) {
+    if (S.hold) { S.hold.x = px; S.hold.y = py; }
+    if (stageT > S.dur) die();
   },
   draw() {
     bgFlat('#f0e0c8');
-    ctx.fillStyle = '#e0cdae'; ctx.fillRect(0, 540, W, 100);
-    // the overstuffed suitcase
-    ctx.fillStyle = '#8a5a3a'; rr(100, 190, 760, 340, 26); ctx.fill();
-    ctx.fillStyle = 'rgba(0,0,0,.12)'; rr(100, 190, 760, 44, [26,26,0,0]); ctx.fill();
-    ctx.fillStyle = '#6a4228'; rr(430, 170, 100, 24, 10); ctx.fill();
-    emoji('🌍', 200, 480, 30); emoji('🌹', 776, 260, 26); emoji('✈️', 700, 470, 26);
-    const band = 36 / DSPD;
-    // the seam channel (delimited zone)
-    ctx.beginPath();
-    for (let x = 130; x <= 830; x += 8) { const yy = this.cy(x) - band; x === 130 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy); }
-    for (let x = 830; x >= 130; x -= 8) ctx.lineTo(x, this.cy(x) + band);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,242,220,.92)'; ctx.fill();
-    ctx.strokeStyle = '#5c4530'; ctx.lineWidth = 3; ctx.setLineDash([9, 8]); ctx.stroke(); ctx.setLineDash([]);
-    // clothes bulging out of the un-zipped part
-    for (let x = Math.max(S.x + 34, 170); x < 820; x += 66) {
-      emoji(['👕','🧦','👖','🧣'][(x/66|0) % 4], x, this.cy(x) - band - 16 + Math.sin(stageT*3 + x)*4, 25);
+    ground('#e0cdae', 530);
+    // wardrobe, ransacked
+    ctx.fillStyle = '#c9a06a'; rr(30, 120, 160, 330, 12); ctx.fill();
+    ctx.fillStyle = '#a5764a'; rr(104, 132, 7, 306, 3); ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.15)'; rr(44, 140, 55, 290, 6); ctx.fill();
+    txt('outside: HONK. HONK. HONK.', 700, 120, 15, '#a08050', 800);
+    // open suitcase — the target
+    ctx.fillStyle = '#7a4e30'; rr(622, 388, 256, 62, [16, 16, 0, 0]); ctx.fill();
+    ctx.fillStyle = '#8a5a3a'; rr(622, 460, 256, 108, 16); ctx.fill();
+    ctx.fillStyle = '#5c3d22'; rr(638, 472, 224, 84, 10); ctx.fill();
+    icon('rose', 654, 420, 22);
+    // packed items sit inside
+    S.items.filter(it => it.packed).forEach((it, i) => icon(it.e, 668 + (i % 4) * 55, 500 + Math.floor(i / 4) * 40, 30));
+    txt(`${S.packed}/${S.items.length}`, 750, 592, 18, '#7a4e30', 800);
+    // drop-zone glow while dragging
+    if (S.hold) {
+      ctx.strokeStyle = C.leaf; ctx.lineWidth = 5; ctx.setLineDash([12, 9]);
+      rr(612, 380, 276, 196, 18); ctx.stroke(); ctx.setLineDash([]);
     }
-    // zipped teeth along the path you actually took
-    if (S.trail.length > 1) {
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.strokeStyle = '#d8c9a8'; ctx.lineWidth = 7;
-      ctx.beginPath(); S.trail.forEach((p,i)=> i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
-      ctx.strokeStyle = '#8a7040'; ctx.lineWidth = 2;
-      ctx.beginPath(); S.trail.forEach((p,i)=> i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
+    // loose items
+    S.items.forEach(it => {
+      if (it.packed) return;
+      const w = S.hold === it ? 0 : Math.sin(stageT * 3 + it.wob) * 3;
+      if (S.hold === it) { ctx.fillStyle = 'rgba(0,0,0,.14)'; ctx.beginPath(); ctx.ellipse(it.x, it.y + 26, 20, 6, 0, 0, 7); ctx.fill(); }
+      icon(it.e, it.x, it.y + w, 46);
+    });
+    drawBub(340, 570, 1.05, 47, S.hold ? 'wow' : 'panic', { walk: S.hold ? 0 : stageT });
+    timerBar(1 - stageT / S.dur, C.coral);
+  }
+},
+/* ---- SIGN THE DIVORCE PAPERS ---- */
+{
+  age: 47, name: 'SIGN THE DIVORCE PAPERS', sub: 'Three pages. One pen. The paperwork has developed survival instincts.',
+  hint: 'TAP the SIGN HERE box — the paper keeps dodging!',
+  death: "You signed the tablecloth, the lawyer, and your own hand. Legally you’re still married. Spiritually, deceased.",
+  init() { S = { page: 0, need: 3, x: 480, y: 330, tx: 480, ty: 330, moveT: .8, speed: 1, blots: 0, spots: [], dur: 18 }; },
+  press(code, x, y) {
+    if (code !== 'Pointer') return;
+    if (Math.abs(x - S.x) < 62 && Math.abs(y - (S.y + 46)) < 26) {
+      S.page++;
+      sfx.pop(); popAt(S.x, S.y - 40, 'SIGNED ' + S.page + '/3!', 'gold');
+      if (S.page >= S.need) { sfx.big(); return win(); }
+      S.speed += .55;
+      S.moveT = 0;
+    } else {
+      S.blots++;
+      S.spots.push({ x, y });
+      sfx.bad(); popAt(x, y - 20, 'INK BLOT!', 'red small');
+      if (S.blots >= 4) die();
     }
-    // zipper pull
-    const off = Math.abs(S.y - this.cy(S.x)) > band;
-    ctx.fillStyle = off ? C.coral : '#e8d9b0';
-    ctx.beginPath(); ctx.arc(S.x, S.y, 12, 0, 7); ctx.fill();
-    ctx.strokeStyle = '#5c4530'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = '#5c4530'; rr(S.x - 3, S.y + 10, 6, 15, 3); ctx.fill();
-    // meters: seam integrity + zip progress
-    ctx.fillStyle = 'rgba(53,40,46,.25)'; rr(W/2-160, 66, 320, 14, 7); ctx.fill();
-    ctx.fillStyle = S.seam < .35 ? C.coral : C.leaf;
-    rr(W/2-156, 69, 312 * clamp(S.seam, 0, 1), 8, 4); ctx.fill();
-    txt('SEAM INTEGRITY', W/2, 56, 11, 'rgba(53,40,46,.55)', 800);
-    progBar((S.x - 130) / 700, 'ZIPPED');
-    drawBub(58, 560, 1.05, 47, off ? 'panic' : 'neutral', {});
+  },
+  update(dt) {
+    S.moveT -= dt;
+    if (S.moveT <= 0) {
+      S.tx = rand(240, 720); S.ty = rand(200, 400);
+      S.moveT = rand(.6, 1.0) / (S.speed * DSPD);
+    }
+    S.x += (S.tx - S.x) * Math.min(1, dt * 5);
+    S.y += (S.ty - S.y) * Math.min(1, dt * 5);
+    if (stageT > S.dur) die();
+  },
+  draw() {
+    bgFlat('#e8e0d0');
+    // lawyer's office
+    ctx.fillStyle = '#7a5a3a'; ctx.fillRect(0, 160, W, H - 160);
+    ctx.fillStyle = 'rgba(255,255,255,.06)';
+    for (let i = 0; i < 5; i++) ctx.fillRect(80 + i * 180, 180, 120, 8);
+    // the lawyer
+    drawBub(110, 110, 1.1, 52, 'neutral', {});
+    icon('justice', 158, 76, 26);
+    txt('“Just sign the— it moved again.”', 320, 110, 14, '#8a7050', 700);
+    // the ex, arms crossed
+    drawBub(850, 110, 1.1, 47, 'neutral', {});
+    txt('!!', 892, 80, 24, C.coralD, 800);
+    // ink blots
+    S.spots.forEach(sp => {
+      ctx.fillStyle = 'rgba(30,30,60,.75)';
+      ctx.beginPath(); ctx.arc(sp.x, sp.y, 11, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(sp.x + 9, sp.y + 6, 5, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(sp.x - 8, sp.y + 8, 4, 0, 7); ctx.fill();
+    });
+    // the fugitive paper
+    ctx.save();
+    ctx.translate(S.x, S.y);
+    ctx.rotate(Math.sin(stageT * 2.2) * .06);
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    rr(-104, -74 + 8, 208, 152, 8); ctx.fill();
+    ctx.fillStyle = '#fffdf4';
+    rr(-104, -74, 208, 152, 8); ctx.fill();
+    txt('DIVORCE DECREE', 0, -52, 14, '#8a4050', 800);
+    txt('page ' + Math.min(S.page + 1, 3) + ' of 3', 0, -34, 10, '#b0a090', 700);
+    ctx.strokeStyle = '#d5cbb5'; ctx.lineWidth = 2;
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(-84, -14 + i * 16); ctx.lineTo(84, -14 + i * 16); ctx.stroke(); }
+    // the sacred sign-here zone
+    ctx.strokeStyle = C.coralD; ctx.lineWidth = 2.5; ctx.setLineDash([6, 5]);
+    rr(-60, 32, 120, 30, 8); ctx.stroke(); ctx.setLineDash([]);
+    txt('SIGN HERE', 8, 47, 12.5, C.coralD, 800);
+    icon('pen', -44, 46, 18);
+    ctx.restore();
+    // your pen chases the paper
+    icon('pen', px, py, 32);
+    txt('ink blots: ' + S.blots + ' / 4', W / 2, 560, 15, '#fff', 800);
+    timerBar(1 - stageT / S.dur, C.coral);
   }
 },
 /* ---- 15. ELOPE WITH FERNANDO ---- */
@@ -1395,7 +1854,7 @@ const STAGES = [
   age: 47, surv: true, name: 'ELOPE WITH FERNANDO', sub: 'Gate B7. He’s holding two tickets to Portugal and your heart.',
   hint: '<span class="k">SPACE</span> / TAP to jump the obstacles — don’t drop his hand!',
   death: "Tripped over your own emotional baggage, three meters from Fernando. He waited. You didn’t get up.",
-  OBS: ['🧳','🛒','💺','🐩'],
+  OBS: ['case','cart','seat','dog'],
   init() { S = { y: 0, vy: 0, ground: 470, obs: [], spawnT: 1, dur: 11, run: 0 }; },
   press(code) {
     if (code !== 'Space' && code !== 'Pointer') return;
@@ -1435,12 +1894,12 @@ const STAGES = [
       ctx.fillRect(lx, 530, 80, 6);
     }
     // obstacles
-    S.obs.forEach(o => emoji(o.e, o.x, 478, 46));
+    S.obs.forEach(o => icon(o.e, o.x, 478, 46));
     // Bub + Fernando holding hands, jumping together
     const jy = S.y;
     drawBub(300, 470 + jy, 1.15, 47, 'wow', { walk: S.run, noShadow: jy < -4 });
     drawBub(360, 470 + jy, 1.2, 40, 'happy', { walk: S.run + .4, noShadow: jy < -4 });
-    emoji('🌹', 385, 440 + jy, 20);
+    icon('rose', 385, 438 + jy, 22);
     ctx.strokeStyle = C.ink; ctx.lineWidth = 4; ctx.lineCap='round';
     ctx.beginPath(); ctx.moveTo(322, 462 + jy); ctx.quadraticCurveTo(330, 452 + jy, 340, 462 + jy); ctx.stroke();
     txt('FERNANDO', 360, 400 + jy, 12, '#3a5a78', 700);
@@ -1492,7 +1951,7 @@ const STAGES = [
     // old Bub on chair
     ctx.fillStyle = '#6a8a5a'; rr(150, 330, 90, 76, 10); ctx.fill();
     drawBub(195, 340, 1.15, 65, S.phase === 'caught' ? 'wow' : 'neutral', { noLegs: true });
-    emoji('👒', 195, 300, 30);
+    icon('sunhat', 195, 294, 36);
     // rod + line + bobber
     ctx.strokeStyle = '#5a4632'; ctx.lineWidth = 4; ctx.lineCap='round';
     ctx.beginPath(); ctx.moveTo(230, 350); ctx.lineTo(420, 260); ctx.stroke();
@@ -1504,8 +1963,8 @@ const STAGES = [
     ctx.beginPath(); ctx.arc(640, 378 + dip, 13, 0, 7); ctx.fill();
     ctx.fillStyle = C.coralD; ctx.beginPath(); ctx.arc(640, 372 + dip, 13, Math.PI, 7); ctx.fill();
     if (S.phase === 'bite') txt('!!', 640, 330, 34, C.coralD, 700);
-    if (S.phase === 'caught') emoji('🐟', 620, 300 - S.pt*40, 36);
-    txt(`fish ${S.caught}/${S.need} · scared ${'💨'.repeat(S.strikes)}${'·'.repeat(3-S.strikes)}`, W/2, 130, 17, '#7a5a30', 700);
+    if (S.phase === 'caught') icon('fish', 620, 300 - S.pt*40, 36);
+    txt(`fish ${S.caught} / ${S.need}  ·  scared ${S.strikes} / 3`, W/2, 130, 17, '#7a5a30', 800);
     timerBar(1 - stageT/S.dur, C.mustard);
   }
 },
@@ -1663,7 +2122,7 @@ function showDeath() {
   sfx.flat();
   const st = stage;
   const o = overlayEl(`
-    <div class="tomb">🪦</div>
+    <div class="tomb"><svg viewBox="0 0 80 66" width="88"><path d="M14 60 V27 a26 26 0 0 1 52 0 v33 z" fill="#9aa5b1" stroke="#5c6570" stroke-width="3"/><rect x="6" y="58" width="68" height="7" rx="3.5" fill="#7a8590"/><text x="40" y="35" text-anchor="middle" font-family="'Titan One','Arial Black',sans-serif" font-size="13" fill="#5c6570">RIP</text><path d="M30 45 h20" stroke="#5c6570" stroke-width="2.5" stroke-linecap="round"/><path d="M8 58 q4 -6 8 0 M64 58 q4 -6 8 0" fill="#7ac98a"/></svg></div>
     <h1><span class="bad">GAME OVER</span></h1>
     <div class="sub">CAUSE OF DEATH · CORONER’S REPORT #${best.deaths}</div>
     <div class="wcard">
@@ -1683,8 +2142,8 @@ function showDeath() {
       ])}</div>
     </div>
     <div class="btnrow">
-      <button class="ghost" id="gohome">☰ MENU</button>
-      <button id="again">${mode === 'chk' ? '↻ RETRY AGE ' + st.age : '↻ BE REBORN'}</button>
+      <button class="ghost" id="gohome">MENU</button>
+      <button id="again">${mode === 'chk' ? 'RETRY AGE ' + st.age : 'BE REBORN'}</button>
     </div>
     <div class="keyhint">${mode === 'chk' ? 'SPACE — checkpoint magic, no questions asked' : 'SPACE — the universe recycles'}</div>
   `);
@@ -1707,14 +2166,14 @@ function endGame() {
     : 'DEATH’S LOYALTY CARD HOLDER';
   confetti(40);
   const o = overlayEl(`
-    <h1>YOU <span class="acc">DIED!</span> 🎉</h1>
+    <h1>YOU <span class="acc">DIED!</span></h1>
     <div class="sub">of old age · the secret good ending · everyone claps</div>
     <div class="wcard">
       <div class="wh gold">CERTIFICATE OF A COMPLETED LIFE</div>
       ${isRec ? '<div class="stamp">NEW RECORD!</div>' : ''}
       <div class="wb">
         <div class="wr" style="--d:.05s"><span class="lb">Final age</span><span class="vl gold">87 years</span></div>
-        <div class="wr" style="--d:.15s"><span class="lb">Life speedrun</span><span class="vl">${fmtT(runT)}${isRec?' ⚡':''}${mode==='chk'?' (checkpoints)':''}</span></div>
+        <div class="wr" style="--d:.15s"><span class="lb">Life speedrun</span><span class="vl">${fmtT(runT)}${isRec?' — NEW BEST!':''}${mode==='chk'?' (checkpoints)':''}</span></div>
         <div class="wr" style="--d:.25s"><span class="lb">${mode==='chk' ? 'Deaths along the way' : 'Attempts needed'}</span><span class="vl">${mode==='chk' ? deathsRun + ' (rude of them)' : lifeNum + ' li' + (lifeNum===1?'fe':'ves')}</span></div>
         <div class="wr" style="--d:.35s"><span class="lb">Coroner rank</span><span class="vl good">${rank}</span></div>
         ${best.time ? `<div class="wr" style="--d:.45s"><span class="lb">Best one-life time</span><span class="vl gold">${fmtT(best.time)}</span></div>` : ''}
@@ -1722,7 +2181,7 @@ function endGame() {
       <div class="wflav">Survived by: Fernando, two fish, one well-rested baby, and 847 unread emails.</div>
     </div>
     <div class="btnrow">
-      <button class="ghost" id="gohome">☰ MENU</button>
+      <button class="ghost" id="gohome">MENU</button>
       <button class="teal" id="again">RUN IT BACK</button>
     </div>
     <div class="keyhint">total completed lives: ${best.wins}</div>
@@ -1760,15 +2219,15 @@ function showTitle() {
     </div>
     <div class="dtitle">GAME MODE</div>
     <div class="diffrow">
-      <button class="diffbtn modebtn ${mode==='iron'?'on':''}" data-m="iron" title="Die once, restart from birth. The speedrun way.">⚡ ONE LIFE</button>
-      <button class="diffbtn modebtn ${mode==='chk'?'on':''}" data-m="chk" title="Death just restarts the current stage. Cozy immortality.">🔁 CHECKPOINTS</button>
+      <button class="diffbtn modebtn ${mode==='iron'?'on':''}" data-m="iron" title="Die once, restart from birth. The speedrun way.">ONE LIFE</button>
+      <button class="diffbtn modebtn ${mode==='chk'?'on':''}" data-m="chk" title="Death just restarts the current stage. Cozy immortality.">CHECKPOINTS</button>
     </div>
     <div class="dtitle">CHOOSE YOUR TIMELINE</div>
     <div class="diffrow">
       ${DIFFS.map((d,i)=>`<button class="diffbtn ${i===diffI?'on':''}" data-i="${i}">${d.name}</button>`).join('')}
     </div>
     <div class="menu-btns">
-      <button id="start">▶ &nbsp;BE BORN</button>
+      <button id="start">BE BORN</button>
       <button class="teal" id="howbtn">HOW TO LIVE</button>
       <button class="grape" id="wipebtn">FORGET MY PAST</button>
     </div>
@@ -1863,7 +2322,7 @@ function loop(t) {
     ctx.fillStyle = 'rgba(120,20,30,.28)';
     ctx.fillRect(0, 0, W, H);
     drawBub(W/2, H/2, 1.6, stage.age, 'dead', { noShadow: true });
-    emoji('👻', W/2 + 60, H/2 - 80 - (stageT%1)*30, 34);
+    icon('ghost', W/2 + 60, H/2 - 90, 36);
   } else if (state === 'end') {
     bgFlat('#f4ead8');
   }
