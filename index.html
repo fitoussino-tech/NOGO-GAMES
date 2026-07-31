@@ -406,7 +406,7 @@
   // CONFIG
   // ============================================================
   const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZGZ2dGd1YXZiYmlkZ3BqeGR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MjAxNzQsImV4cCI6MjEwMTA5NjE3NH0.S4Aku-Lbn-N-3r8o4JsqwJAPX5OP6_Y0GeMUKm6XWjI';
+  const SUPABASE_ANON_KEY = 'COLLE_TA_CLE_ICI';
 
   const ADS_ENABLED = false;   // passe à true le jour où tu auras une régie pub
   const AD_SECONDS = 15;
@@ -665,4 +665,200 @@
     if (data) {
       points = data.points || 0;
       isMember = !!data.is_member;
-      const n = ((data.first_name || '')
+      const n = ((data.first_name || '') + ' ' + (data.last_name || '')).trim();
+      if (n) loggedUser.name = n;
+    }
+    document.body.classList.toggle('is-member', isMember);
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    loggedUser = null; isMember = false; points = 0;
+    document.body.classList.remove('is-member');
+    refreshAccountUI();
+    renderVault();
+    closeAccount();
+  }
+
+  function refreshAccountUI() {
+    const logged = !!loggedUser;
+    document.querySelectorAll('.nav-account').forEach(el => {
+      el.textContent = logged ? ('★ ' + points + ' pts') : 'Log in';
+    });
+    document.getElementById('auth-forms').style.display = logged ? 'none' : 'block';
+    document.getElementById('account-view').style.display = logged ? 'block' : 'none';
+    if (logged) {
+      document.getElementById('account-name').textContent = loggedUser.name;
+      document.getElementById('account-email').textContent = loggedUser.email;
+      document.getElementById('account-points').textContent = points;
+      document.getElementById('account-member-pill').innerHTML = isMember
+        ? '<span class="member-pill yes">★ MEMBER</span>'
+        : '<span class="member-pill no">FREE ACCOUNT</span>';
+      document.getElementById('portal-btn').style.display = isMember ? 'inline-block' : 'none';
+    }
+  }
+
+  (async function start() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await onLoggedIn(session);
+    await loadCatalogue();
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('checkout') === 'success') {
+      history.replaceState({}, '', location.pathname);
+      setTimeout(async () => {
+        await fetchProfile(); refreshAccountUI(); renderVault();
+        if (isMember) openAccount();
+      }, 2000);
+    }
+  })();
+
+  async function subscribeClick() {
+    const msg = document.getElementById('subscribe-msg');
+    if (!loggedUser) { openAccount('Create an account first, then subscribe.'); return; }
+    if (isMember) { msg.textContent = "You're already a member!"; return; }
+    const btn = document.getElementById('subscribe-btn');
+    btn.disabled = true; msg.textContent = '';
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ returnUrl: location.origin + location.pathname })
+      });
+      const out = await res.json();
+      if (out.url) { location.href = out.url; }
+      else { msg.textContent = out.error || 'Payment error, try again.'; }
+    } catch (e) {
+      msg.textContent = 'Network error, try again.';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function openPortal() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/customer-portal', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ returnUrl: location.origin + location.pathname })
+      });
+      const out = await res.json();
+      if (out.url) location.href = out.url;
+    } catch (e) { /* silencieux */ }
+  }
+
+  let saveTimer = null;
+  function savePointsSoon() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      if (!loggedUser) return;
+      await sb.from('profiles').update({ points: points }).eq('id', loggedUser.id);
+    }, 1500);
+  }
+  window.addEventListener('message', (e) => {
+    if (!e.data || e.data.type !== 'nogo-score') return;
+    if (!loggedUser) return;
+    points += Math.max(0, Math.floor(Number(e.data.points) || 0));
+    refreshAccountUI();
+    savePointsSoon();
+  });
+
+  function msUntilParisMidnight() {
+    const now = new Date();
+    const paris = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
+    const offset = now.getTime() - paris.getTime();
+    const midnight = new Date(paris);
+    midnight.setHours(24, 0, 0, 0);
+    return midnight.getTime() + offset - now.getTime();
+  }
+  const p = n => String(n).padStart(2, '0');
+  let lastDayShown = null;
+  function tick() {
+    const diff = Math.max(0, msUntilParisMidnight());
+    document.getElementById('cd-h').textContent = p(Math.floor(diff / 3600000));
+    document.getElementById('cd-m').textContent = p(Math.floor(diff / 60000) % 60);
+    document.getElementById('cd-s').textContent = p(Math.floor(diff / 1000) % 60);
+    const dayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
+    if (lastDayShown && dayKey !== lastDayShown) loadCatalogue();
+    lastDayShown = dayKey;
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  const DINO_BODY = [
+    "............XXXXXXXX..",
+    "............XoXXXXXX..",
+    "............XXXXXXXX..",
+    "............XXXXXXXX..",
+    "............XXXX......",
+    "............XXXXXXX...",
+    "............XXXX......",
+    "X...........XXXX......",
+    "X..........XXXXX......",
+    "XX........XXXXXXXXX...",
+    "XXX......XXXXXXXX.....",
+    "XXXX....XXXXXXXXX.....",
+    "XXXXX..XXXXXXXXX......",
+    "XXXXXXXXXXXXXXXX......",
+    ".XXXXXXXXXXXXXXX......",
+    "..XXXXXXXXXXXXX.......",
+    "...XXXXXXXXXXX........",
+    "....XXXXXXXXX........."
+  ];
+  const DINO_LEGS_A = [
+    ".....XXX..XXX.........",
+    ".....XXX...XX.........",
+    "...........X..........",
+    "...........XX........."
+  ];
+  const DINO_LEGS_B = [
+    ".....XXX..XXX.........",
+    ".....XX...XXX.........",
+    ".....X................",
+    ".....XX..............."
+  ];
+  const dinoSvg = document.getElementById('dino-svg');
+  const dinoWrap = document.getElementById('dino-wrap');
+  let eyeOpen = true;
+  function drawDino(legsFrame) {
+    const rows = DINO_BODY.concat(legsFrame);
+    let s = '';
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        const c = row[x];
+        if (c === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#e8eaf6"/>`;
+        if (c === 'o') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${eyeOpen ? '#080c20' : '#e8eaf6'}"/>`;
+      }
+    });
+    dinoSvg.innerHTML = s;
+  }
+  let legFlip = false;
+  drawDino(DINO_LEGS_A);
+  setInterval(() => { legFlip = !legFlip; drawDino(legFlip ? DINO_LEGS_B : DINO_LEGS_A); }, 160);
+  setInterval(() => { eyeOpen = false; setTimeout(() => { eyeOpen = true; }, 150); }, 3400);
+  function dinoJump(shout) {
+    if (dinoWrap.classList.contains('jump')) return;
+    dinoWrap.classList.add('jump');
+    if (shout) dinoWrap.classList.add('talk');
+    setTimeout(() => {
+      dinoWrap.classList.remove('jump');
+      setTimeout(() => dinoWrap.classList.remove('talk'), 400);
+    }, 750);
+  }
+  dinoWrap.addEventListener('click', () => dinoJump(true));
+  (function autoJump() {
+    setTimeout(() => { dinoJump(false); autoJump(); }, 6000 + Math.random() * 8000);
+  })();
+</script>
+</body>
+</html>
