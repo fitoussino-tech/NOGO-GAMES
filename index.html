@@ -57,6 +57,7 @@
     box-shadow: 0 3px 0 rgba(0,0,0,0.35);
   }
   .nav-btn:hover { filter: brightness(1.1); }
+  body.is-member .nav-btn.sub-cta { display: none; }
   .hero {
     flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 60px 20px 46px;
@@ -132,6 +133,10 @@
     background: var(--card-deep); overflow: hidden;
   }
   .game-full iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: block; }
+  .game-loading {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-family: var(--px-font); font-size: 11px; color: var(--grey); letter-spacing: 2px;
+  }
   .sub-box {
     max-width: 460px; margin: 0 auto; background: var(--card);
     border: 2px solid var(--line); border-radius: 16px;
@@ -149,6 +154,7 @@
     border: 2px solid var(--amber);
   }
   .btn:hover { background: transparent; color: var(--amber); }
+  .btn:disabled { opacity: 0.6; cursor: wait; }
   .modal-overlay {
     display: none; position: fixed; inset: 0; background: rgba(5, 10, 40, 0.85);
     z-index: 1000; align-items: center; justify-content: center; padding: 20px;
@@ -179,6 +185,13 @@
   }
   .auth-input:focus { border-color: var(--accent); }
   .auth-msg { font-size: 13px; color: var(--rose); min-height: 20px; margin-bottom: 8px; }
+  .auth-msg.ok { color: var(--amber); }
+  .member-pill {
+    display: inline-block; font-family: var(--px-font); font-size: 9px;
+    padding: 8px 12px; border-radius: 6px; margin-bottom: 10px;
+  }
+  .member-pill.yes { background: var(--amber); color: var(--card-deep); }
+  .member-pill.no { color: var(--grey); border: 1px solid var(--line); }
   footer {
     background: var(--card-deep);
     padding: 20px 30px; text-align: center;
@@ -217,7 +230,7 @@
     <div class="nav-right">
       <a class="nav-link" onclick="go('vault')">Previous games</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
-      <button class="nav-btn" onclick="go('subscribe')">SUBSCRIBE</button>
+      <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
   </header>
   <div class="hero">
@@ -252,7 +265,7 @@
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
-      <button class="nav-btn" onclick="go('subscribe')">SUBSCRIBE</button>
+      <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
   </header>
   <div class="page">
@@ -269,7 +282,7 @@
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link" onclick="go('vault')">Previous games</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
-      <button class="nav-btn" onclick="go('subscribe')">SUBSCRIBE</button>
+      <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
   </header>
   <div class="game-full" id="game-frame"></div>
@@ -286,15 +299,15 @@
   <div class="page">
     <div class="sub-box">
       <h1>UNLOCK THE VAULT</h1>
-      <div class="price">$2.99<small> / month</small></div>
-      <div style="font-size:13px;color:var(--grey);">(placeholder price — TBD)</div>
+      <div class="price">€2.99<small> / month</small></div>
       <ul class="perks">
         <li>Access every past game</li>
         <li>New game every Monday, forever</li>
         <li>No ads, no install, plays in your browser</li>
         <li>Cancel anytime, one click</li>
       </ul>
-      <button class="btn" onclick="subscribeClick()">SUBSCRIBE</button>
+      <button class="btn" id="subscribe-btn" onclick="subscribeClick()">SUBSCRIBE</button>
+      <div class="auth-msg" id="subscribe-msg" style="margin-top:14px;"></div>
     </div>
   </div>
   <footer>NOGO GAMES © 2026 — where bored people go</footer>
@@ -304,7 +317,7 @@
     <div class="lock-icon">🔒</div>
     <h2>THIS GAME IS IN<br>THE VAULT</h2>
     <p>Past weeks' games are for members only. This week's game is always free.</p>
-    <button class="btn" onclick="closePaywall(); go('subscribe')">UNLOCK — $2.99/MONTH</button>
+    <button class="btn" onclick="closePaywall(); go('subscribe')">UNLOCK — €2.99/MONTH</button>
     <button class="close" onclick="closePaywall()">no thanks, back to being bored</button>
   </div>
 </div>
@@ -330,10 +343,12 @@
     </div>
     <div id="account-view" style="display:none;">
       <h2>YOUR ACCOUNT</h2>
+      <div id="account-member-pill"></div>
       <p id="account-name" style="margin-bottom:2px;color:var(--fg);font-weight:500;"></p>
       <p id="account-email" style="margin-bottom:6px;color:var(--grey);font-size:14px;"></p>
       <div style="font-family:var(--px-font);font-size:26px;color:var(--amber);margin:18px 0 6px;" id="account-points">0</div>
       <div style="font-size:13px;color:var(--grey);letter-spacing:2px;margin-bottom:18px;">TOTAL POINTS</div>
+      <button class="btn" id="portal-btn" style="display:none;" onclick="openPortal()">MANAGE SUBSCRIPTION</button>
       <button class="btn" style="background:transparent;color:var(--grey);border-color:var(--line);" onclick="logout()">LOG OUT</button>
       <button class="close" onclick="closeAccount()">close</button>
     </div>
@@ -343,14 +358,26 @@
   <div id="dino-bubble">RAWR!</div>
   <svg id="dino-svg" viewBox="0 0 22 22" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
-<!-- All games are set in games/current.js — you never edit this skeleton. -->
 <script src="games/current.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-  // All games live in games/current.js (window.GAMES + window.CURRENT_INDEX).
-  // This skeleton stays generic — it never names a specific game.
+  // ============================================================
+  // CONFIG — remplace COLLE_TA_CLE_ICI par ta clé Supabase
+  // (Supabase → roue dentée ⚙️ en bas à gauche → API Keys → clé "anon public")
+  // ============================================================
+  const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
+  const SUPABASE_ANON_KEY = 'COLLE_TA_CLE_ICI';
+  // ============================================================
+
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   const GAMES = window.GAMES || [];
   const CURRENT_INDEX = (typeof window.CURRENT_INDEX === 'number') ? window.CURRENT_INDEX : 0;
   const CURRENT_GAME = GAMES[CURRENT_INDEX] || {};
+
+  let loggedUser = null;
+  let isMember = false;
+  let points = 0;
 
   function go(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -359,8 +386,8 @@
     if (name === 'vault') renderVault();
     window.scrollTo(0, 0);
   }
-  function loadGame(game) {
-    if (!game || !game.path) return;
+
+  function loadPublicGame(game) {
     const frame = document.getElementById('game-frame');
     frame.innerHTML = '';
     const iframe = document.createElement('iframe');
@@ -369,13 +396,45 @@
     frame.appendChild(iframe);
     go('game');
   }
-  function playCurrent() { loadGame(CURRENT_GAME); }
-  function playIndex(i) { loadGame(GAMES[i]); }
 
-  // The vault lists every game EXCEPT this week's — built from the list in current.js.
+  async function loadVaultGame(game) {
+    const frame = document.getElementById('game-frame');
+    frame.innerHTML = '<div class="game-loading">LOADING…</div>';
+    go('game');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(
+        SUPABASE_URL + '/functions/v1/serve-game?file=' + encodeURIComponent(game.vaultFile),
+        { headers: { 'Authorization': 'Bearer ' + session.access_token, 'apikey': SUPABASE_ANON_KEY } }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const html = await res.text();
+      frame.innerHTML = '';
+      const iframe = document.createElement('iframe');
+      iframe.srcdoc = html;
+      iframe.title = game.title || 'Game';
+      frame.appendChild(iframe);
+    } catch (e) {
+      frame.innerHTML = '<div class="game-loading">ERROR — TRY AGAIN</div>';
+    }
+  }
+
+  function playCurrent() {
+    if (CURRENT_GAME.path) loadPublicGame(CURRENT_GAME);
+  }
+
+  function playIndex(i) {
+    const g = GAMES[i];
+    if (!g) return;
+    if (i === CURRENT_INDEX && g.path) { loadPublicGame(g); return; }
+    if (!loggedUser) { openAccount('Log in first — vault games are for members.'); return; }
+    if (!isMember) { openPaywall(); return; }
+    if (g.vaultFile) { loadVaultGame(g); }
+    else if (g.path) { loadPublicGame(g); }
+  }
+
   function renderVault() {
     let html = '';
-    // this week's game — free, shown first
     if (CURRENT_GAME.path) {
       html +=
         '<div class="card free" onclick="playIndex(' + CURRENT_INDEX + ')">' +
@@ -385,17 +444,17 @@
           '<span class="tag">FREE</span>' +
         '</div>';
     }
-    // every other game in the list = a previous game in the vault
     let previous = 0;
     GAMES.forEach(function (g, i) {
-      if (i === CURRENT_INDEX || !g || !g.path) return;
+      if (i === CURRENT_INDEX || !g || (!g.path && !g.vaultFile)) return;
       previous++;
+      const locked = !isMember;
       html +=
         '<div class="card" onclick="playIndex(' + i + ')">' +
-          '<div class="thumb">' + (g.emoji || '') + '</div>' +
+          '<div class="thumb">' + (locked ? '🔒' : (g.emoji || '')) + '</div>' +
           '<div class="name">' + (g.title || 'GAME') + '</div>' +
           '<div class="week">Previous game</div>' +
-          '<span class="tag" style="background:var(--amber);">PLAY</span>' +
+          '<span class="tag" style="background:var(--amber);">' + (locked ? 'MEMBERS' : 'PLAY') + '</span>' +
         '</div>';
     });
     if (previous === 0) {
@@ -407,11 +466,16 @@
     }
     document.getElementById('vault-grid').innerHTML = html;
   }
+
   function openPaywall() { document.getElementById('paywall').classList.add('open'); }
   function closePaywall() { document.getElementById('paywall').classList.remove('open'); }
-  function openAccount() { document.getElementById('auth-modal').classList.add('open'); refreshAccountUI(); }
+  function openAccount(msg) {
+    document.getElementById('auth-modal').classList.add('open');
+    refreshAccountUI();
+    if (msg) { const m = document.getElementById('auth-msg'); m.textContent = msg; m.classList.remove('ok'); }
+  }
   function closeAccount() { document.getElementById('auth-modal').classList.remove('open'); }
-  let loggedUser = null;
+
   let authMode = 'login';
   let captchaAnswer = null;
   function newCaptcha() {
@@ -433,27 +497,85 @@
     document.getElementById('auth-captcha-row').style.display = signup ? 'block' : 'none';
     if (signup) newCaptcha();
   }
-  function submitAuth() {
+
+  async function submitAuth() {
     const msg = document.getElementById('auth-msg');
+    msg.classList.remove('ok');
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
     if (!email || password.length < 6) { msg.textContent = 'Valid email + password of 6+ characters required.'; return; }
-    if (authMode === 'signup') {
-      const fn = document.getElementById('auth-firstname').value.trim();
-      const ln = document.getElementById('auth-lastname').value.trim();
-      if (!fn || !ln) { msg.textContent = 'First name and last name required.'; return; }
-      if (parseInt(document.getElementById('auth-captcha').value, 10) !== captchaAnswer) {
-        msg.textContent = 'Wrong anti-robot answer, try again.'; newCaptcha(); return;
+    const btn = document.getElementById('auth-submit');
+    btn.disabled = true;
+    try {
+      if (authMode === 'signup') {
+        const fn = document.getElementById('auth-firstname').value.trim();
+        const ln = document.getElementById('auth-lastname').value.trim();
+        if (!fn || !ln) { msg.textContent = 'First name and last name required.'; return; }
+        if (parseInt(document.getElementById('auth-captcha').value, 10) !== captchaAnswer) {
+          msg.textContent = 'Wrong anti-robot answer, try again.'; newCaptcha(); return;
+        }
+        const { data, error } = await sb.auth.signUp({
+          email, password,
+          options: { data: { first_name: fn, last_name: ln } }
+        });
+        if (error) { msg.textContent = error.message; return; }
+        if (data.user && !data.session) {
+          msg.textContent = 'Check your inbox to confirm your email, then log in!';
+          msg.classList.add('ok');
+          setAuthTab('login');
+          return;
+        }
+        await onLoggedIn(data.session);
+      } else {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) { msg.textContent = 'Wrong email or password.'; return; }
+        await onLoggedIn(data.session);
       }
-      loggedUser = { name: fn + ' ' + ln, email: email };
-    } else {
-      loggedUser = { name: 'Player', email: email };
+      msg.textContent = '';
+      closeAccount();
+    } finally {
+      btn.disabled = false;
     }
-    msg.textContent = '';
+  }
+
+  async function onLoggedIn(session) {
+    if (!session) return;
+    const u = session.user;
+    const meta = u.user_metadata || {};
+    loggedUser = {
+      id: u.id,
+      email: u.email,
+      name: ((meta.first_name || '') + ' ' + (meta.last_name || '')).trim() || 'Player'
+    };
+    await fetchProfile();
     refreshAccountUI();
+    renderVault();
+  }
+
+  async function fetchProfile() {
+    if (!loggedUser) return;
+    const { data } = await sb.from('profiles')
+      .select('points, is_member, first_name, last_name')
+      .eq('id', loggedUser.id)
+      .single();
+    if (data) {
+      points = data.points || 0;
+      isMember = !!data.is_member;
+      const n = ((data.first_name || '') + ' ' + (data.last_name || '')).trim();
+      if (n) loggedUser.name = n;
+    }
+    document.body.classList.toggle('is-member', isMember);
+  }
+
+  async function logout() {
+    await sb.auth.signOut();
+    loggedUser = null; isMember = false; points = 0;
+    document.body.classList.remove('is-member');
+    refreshAccountUI();
+    renderVault();
     closeAccount();
   }
-  function logout() { loggedUser = null; points = 0; refreshAccountUI(); closeAccount(); }
+
   function refreshAccountUI() {
     const logged = !!loggedUser;
     document.querySelectorAll('.nav-account').forEach(el => {
@@ -465,19 +587,89 @@
       document.getElementById('account-name').textContent = loggedUser.name;
       document.getElementById('account-email').textContent = loggedUser.email;
       document.getElementById('account-points').textContent = points;
+      document.getElementById('account-member-pill').innerHTML = isMember
+        ? '<span class="member-pill yes">★ MEMBER</span>'
+        : '<span class="member-pill no">FREE ACCOUNT</span>';
+      document.getElementById('portal-btn').style.display = isMember ? 'inline-block' : 'none';
     }
   }
-  function subscribeClick() {
-    alert('Preview — Stripe payment will be wired later.');
+
+  (async function restoreSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await onLoggedIn(session);
+    const params = new URLSearchParams(location.search);
+    if (params.get('checkout') === 'success') {
+      history.replaceState({}, '', location.pathname);
+      setTimeout(async () => {
+        await fetchProfile(); refreshAccountUI(); renderVault();
+        if (isMember) openAccount();
+      }, 2000);
+    }
+  })();
+
+  async function subscribeClick() {
+    const msg = document.getElementById('subscribe-msg');
+    if (!loggedUser) {
+      openAccount('Create an account first, then subscribe.');
+      return;
+    }
+    if (isMember) { msg.textContent = "You're already a member!"; return; }
+    const btn = document.getElementById('subscribe-btn');
+    btn.disabled = true; msg.textContent = '';
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ returnUrl: location.origin + location.pathname })
+      });
+      const out = await res.json();
+      if (out.url) { location.href = out.url; }
+      else { msg.textContent = out.error || 'Payment error, try again.'; }
+    } catch (e) {
+      msg.textContent = 'Network error, try again.';
+    } finally {
+      btn.disabled = false;
+    }
   }
-  // points (local for the preview) — only counted when logged in
-  let points = 0;
+
+  async function openPortal() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/customer-portal', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ returnUrl: location.origin + location.pathname })
+      });
+      const out = await res.json();
+      if (out.url) location.href = out.url;
+    } catch (e) { /* silencieux */ }
+  }
+
+  let saveTimer = null;
+  function savePointsSoon() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      if (!loggedUser) return;
+      await sb.from('profiles').update({ points: points }).eq('id', loggedUser.id);
+    }, 1500);
+  }
   window.addEventListener('message', (e) => {
     if (!e.data || e.data.type !== 'nogo-score') return;
     if (!loggedUser) return;
     points += Math.max(0, Math.floor(Number(e.data.points) || 0));
     refreshAccountUI();
+    savePointsSoon();
   });
+
   function nextMonday() {
     const now = new Date();
     const d = new Date(now);
@@ -496,6 +688,7 @@
   }
   tick();
   setInterval(tick, 1000);
+
   const DINO_BODY = [
     "............XXXXXXXX..",
     "............XoXXXXXX..",
