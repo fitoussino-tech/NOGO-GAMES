@@ -421,6 +421,1329 @@ const BUILDINGS = [
     BUILDINGS.push({id:"t"+i, name, desc:descs[i%descs.length], icon:icons[i%icons.length], cost, perClick:per});
   }
 })();
+// Builder bees live in the Build tab: they click the build-hex automatically.
+const BUILDERS = [
+  {id:"mason",     name:"Mason Bee",       desc:"Lays comb, click after click", icon:"hexicon", cost:250,   bRate:1},
+  {id:"bricklayer",name:"Bricklayer Bee",  desc:"Twice the clicks, twice the wax", icon:"bee",  cost:600,   bRate:2},
+  {id:"carpenter", name:"Carpenter Bee",   desc:"Frames whole combs at once",   icon:"hexicon", cost:3000,  bRate:5},
+  {id:"waxsmith",  name:"Wax Smith",       desc:"Shapes cells like a jeweler",  icon:"drop",    cost:16000, bRate:12},
+  {id:"foundry",   name:"Wax Foundry",     desc:"Comb pours out in sheets",     icon:"wind",    cost:120000,bRate:40},
+  {id:"archswarm", name:"Architect Swarm", desc:"A thousand plans at once",     icon:"flower",  cost:1.2e6, bRate:150},
+  {id:"combengine",name:"Comb Engine",     desc:"It never sleeps, never stops", icon:"sun",     cost:1.5e7, bRate:700},
+  {id:"granddesign",name:"The Grand Design",desc:"The hive dreams itself bigger", icon:"crown", cost:2.5e8, bRate:4000},
+];
+const MASON = BUILDERS[0]; // first builder, kept as a handy alias
+const COST_GROWTH = 1.16;
+
+const SEASONS = [
+  {name:"Spring", icon:"flower", mult:1.3,  tint:"rgba(120,200,120,0.06)"},
+  {name:"Summer", icon:"sun",    mult:1.0,  tint:"rgba(255,210,90,0.05)"},
+  {name:"Autumn", icon:"leaf",   mult:0.8,  tint:"rgba(220,130,60,0.07)"},
+  {name:"Winter", icon:"snow",   mult:0.5,  tint:"rgba(140,180,255,0.10)"},
+];
+const DAY_LEN = 22, DAYS_PER_SEASON = 5;
+
+// ---------- State ----------
+let S = null;
+function defaultState(){
+  const b = {}; BUILDINGS.forEach(x=>b[x.id]=0); BUILDERS.forEach(x=>b[x.id]=0);
+  return {
+    honey:0, lifetime:0, lifetimeAll:0,
+    cells:8, cellCapLvl:0, buildProg:0,
+    b, ups:{}, ach:{},
+    time:0, day:1, seasonIdx:0, seasonsOn:false, raidsOn:false,
+    frenzy:0, lineage:0, swarms:0,
+    hiveName:"Honeyfall Hive", clicks:0, buildClicks:0, raidsWon:0, goldenClicked:0, winters:0,
+    lastSave:Date.now(),
+  };
+}
+
+// ---------- Achievements (Cookie-Clicker toasts) ----------
+const ACHIEVEMENTS = [
+  {id:"click1",   name:"First Drop",       icon:"drop",   cond:()=>S.clicks>=1},
+  {id:"click100", name:"Sticky Fingers",   icon:"drop",   cond:()=>S.clicks>=100},
+  {id:"click1k",  name:"Calloused Wings",  icon:"drop",   cond:()=>S.clicks>=1000},
+  {id:"bee1",     name:"First Worker",     icon:"bee",    cond:()=>S.b.worker>=1},
+  {id:"help10",   name:"Buzzing Business", icon:"bee",    cond:()=>totalB()>=10},
+  {id:"help50",   name:"Full House",       icon:"bee",    cond:()=>totalB()>=50},
+  {id:"help150",  name:"Bee Metropolis",   icon:"bee",    cond:()=>totalB()>=150},
+  {id:"h100",     name:"Sweet Hundred",    icon:"hexicon",cond:()=>S.lifetimeAll>=100},
+  {id:"h1k",      name:"Kilo Club",        icon:"hexicon",cond:()=>S.lifetimeAll>=1000},
+  {id:"h1t",      name:"A Ton of Fun",     icon:"hexicon",cond:()=>S.lifetimeAll>=1e6},
+  {id:"drone10",  name:"Automation",       icon:"cursor", cond:()=>S.b.drone>=10},
+  {id:"gold1",    name:"Golden Touch",     icon:"star",   cond:()=>S.goldenClicked>=1},
+  {id:"raid1",    name:"Pest Control",     icon:"shield", cond:()=>S.raidsWon>=1},
+  {id:"winter1",  name:"Winter Survivor",  icon:"snow",   cond:()=>S.winters>=1},
+  {id:"court1",   name:"Royalty",          icon:"crown",  cond:()=>S.b.court>=1},
+  {id:"swarm1",   name:"New Blood",        icon:"crown",  cond:()=>S.swarms>=1},
+];
+function toast(name, iconName){
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerHTML = `<span class="tIcon">${icon(iconName)}</span><span><div class="tSub">Achievement unlocked</div><div class="tName">${name}</div></span><span class="tX">✕</span>`;
+  t.querySelector(".tX").onclick = ()=>t.remove();
+  $("toasts").appendChild(t);
+  while ($("toasts").children.length>3) $("toasts").firstChild.remove();
+  setTimeout(()=>{ t.style.transition="opacity .6s"; t.style.opacity="0"; setTimeout(()=>t.remove(),650); }, 6000);
+}
+function checkAch(silent){
+  for (const a of ACHIEVEMENTS){
+    if (!S.ach[a.id] && a.cond()){
+      S.ach[a.id] = 1;
+      if (!silent) toast(a.name, a.icon);
+    }
+  }
+}
+
+// ---------- Helpers ----------
+const $ = id => document.getElementById(id);
+function fmtH(g){
+  if (g < 1000)  return (g<100 ? Math.floor(g*10)/10 : Math.floor(g)) + " g";
+  if (g < 1e6)   return (g/1000).toFixed(2)+" kg";
+  if (g < 1e9)   return (g/1e6).toFixed(2)+" t";
+  if (g < 1e12)  return (g/1e9).toFixed(2)+" kt";
+  return (g/1e12).toFixed(2)+" Mt";
+}
+function bCost(b){ return Math.ceil(b.cost*Math.pow(COST_GROWTH, S.b[b.id])); }
+function bCostN(b, n){
+  let sum = 0;
+  for (let k=0;k<n;k++) sum += b.cost*Math.pow(COST_GROWTH, S.b[b.id]+k);
+  return Math.ceil(sum);
+}
+
+// ---------- Comb capacity: the hive can only hold so much ----------
+// Deepening starts at x1.6 and decays 0.05 per level down to a x1.2 floor.
+function deepenMult(lvl){ return Math.max(1.2, 1.6 - 0.05*lvl); }
+function cellCap(){
+  let c = 10;
+  for (let k=0;k<S.cellCapLvl;k++) c *= deepenMult(k);
+  return c;
+}
+function capacity(){ return S.cells*cellCap(); }
+function deepenCost(){ return Math.ceil(capacity()*0.5); }
+function deepen(){
+  if (S.honey < deepenCost()) return false;
+  S.honey -= deepenCost();
+  S.cellCapLvl++;
+  return true;
+}
+function storesFull(){ return S.honey >= capacity()-0.01; }
+// build clicks accumulate into new cells
+function addBuildClicks(n){
+  S.buildProg += n;
+  let built = 0;
+  while (S.buildProg >= cellBuildCost()){
+    S.buildProg -= cellBuildCost();
+    S.cells++; built++;
+  }
+  return built;
+}
+function totalB(){ return BUILDINGS.reduce((a,x)=>a+S.b[x.id],0); }
+function lineageMult(){ return 1 + S.lineage*0.10; }
+function frenzyMult(){ return S.frenzy>0 ? 7 : 1; }
+function seasonMult(){ return S.seasonsOn ? SEASONS[S.seasonIdx].mult : 1; }
+function isWinter(){ return S.seasonsOn && S.seasonIdx===3; }
+
+// ---------- Upgrades: two clear kinds per tab ----------
+// 1) CLICK POWER — your own clicks give more honey (or build faster)
+// 2) BEE POWER — a species' automatic clicks bring twice the honey
+const B_TIERS = [10,25,50,100,150,200,250,300,400,500];
+const C_TIERS = [200, 2500, 30000];                       // early honey click power (x2), unlock at lifetime
+// endless click synergy: each tier adds +5% of your bees' output to every click
+const SYN_TIERS = [];
+(function(){ let t = 150000; for (let i=0;i<40;i++){ SYN_TIERS.push(t); t*=12; } })();
+const BC_TIERS = [];                                      // build click power (x2), unlock at cell counts
+(function(){ let cells=15, cost=500; for (let i=0;i<10;i++){ BC_TIERS.push({cells, cost}); cells*=2; cost*=15; } })();
+const G_TIERS = [8000, 90000, 1e6];
+function allUpgrades(){
+  const list = [];
+  for (const b of BUILDINGS){
+    B_TIERS.forEach((n,i)=>{
+      list.push({
+        id:`b_${b.id}_${i}`, icon:b.icon, tab:"bees", kind:"Bee power",
+        name:`${b.name} ×2`,
+        desc:`Each ${b.name}'s click brings twice the honey`,
+        cost: b.cost*n*3*Math.pow(2,i),
+        avail: ()=> S.b[b.id]>=n,
+      });
+    });
+  }
+  C_TIERS.forEach((t,i)=>{
+    list.push({
+      id:`c_${i}`, icon:"drop", tab:"bees", kind:"Click power",
+      name:"Sweeter Harvest",
+      desc:"Your clicks on the comb give ×2 honey",
+      cost: t*1.2,
+      avail: ()=> S.lifetime>=t,
+    });
+  });
+  SYN_TIERS.forEach((t,i)=>{
+    list.push({
+      id:`s_${i}`, icon:"bee", tab:"bees", kind:"Click power",
+      name:"Hive Rhythm "+(i+1),
+      desc:"Each of your clicks also harvests +5% of what your bees bring per second",
+      cost: t,
+      avail: ()=> S.lifetime>=t,
+    });
+  });
+  BC_TIERS.forEach((tier,i)=>{
+    list.push({
+      id:`bc_${i}`, icon:"hexicon", tab:"build", kind:"Click power",
+      name:"Stronger Trowels",
+      desc:"Your build clicks count double",
+      cost: tier.cost,
+      avail: ()=> S.cells>=tier.cells,
+    });
+  });
+  for (const bd of BUILDERS){
+    B_TIERS.forEach((n,i)=>{
+      list.push({
+        id:`m_${bd.id}_${i}`, icon:bd.icon, tab:"build", kind:"Bee power",
+        name:`${bd.name} ×2`,
+        desc:`Each ${bd.name}'s build click counts double`,
+        cost: bd.cost*n*3*Math.pow(2,i),
+        avail: ()=> S.b[bd.id]>=n,
+      });
+    });
+  }
+  G_TIERS.forEach((t,i)=>{
+    list.push({
+      id:`g_${i}`, icon:"shield", tab:"bees", kind:"Bee power",
+      name:"Guard Bees",
+      desc:"Wasp raids steal half as much honey",
+      cost: t*0.6,
+      avail: ()=> S.raidsOn && S.lifetime>=t,
+    });
+  });
+  list.push({
+    id:"auto_deep", icon:"crown", tab:"build", kind:"Bee power",
+    name:"Royal Architects",
+    desc:"Cells deepen themselves when the stores are full",
+    cost: 40000,
+    avail: ()=> S.cells>=40,
+  });
+  return list;
+}
+const UPGRADE_LIST = [];
+function upMult(bid){
+  let m = 1;
+  for (let i=0;i<B_TIERS.length;i++) if (S.ups[`b_${bid}_${i}`]) m*=2;
+  return m;
+}
+function clickMult(){
+  let m = 1;
+  for (let i=0;i<C_TIERS.length;i++) if (S.ups[`c_${i}`]) m*=2;
+  return m;
+}
+function synergyLvl(){
+  let n = 0;
+  for (let i=0;i<SYN_TIERS.length;i++) if (S.ups[`s_${i}`]) n++;
+  return n;
+}
+function buildClickMult(){
+  let m = 1;
+  for (let i=0;i<BC_TIERS.length;i++) if (S.ups[`bc_${i}`]) m*=2;
+  return m;
+}
+function builderMult(bid){
+  let m = 1;
+  for (let i=0;i<B_TIERS.length;i++) if (S.ups[`m_${bid}_${i}`]) m*=2;
+  return m;
+}
+function guardLvl(){
+  let n = 0;
+  for (let i=0;i<G_TIERS.length;i++) if (S.ups[`g_${i}`]) n++;
+  return n;
+}
+
+// ---------- Production ----------
+// clicks = a modest base that doubles a few times, plus a share of the bees' work.
+// The synergy share keeps clicking useful forever without ever outgrowing the hive.
+function clickPower(){
+  return 1*clickMult()*lineageMult()*frenzyMult() + hps()*0.05*synergyLvl();
+}
+function beeRate(b){ return b.perClick*upMult(b.id)*seasonMult()*lineageMult()*frenzyMult(); } // per bee, per second
+function hps(){
+  let sum = 0;
+  for (const b of BUILDINGS) sum += S.b[b.id]*b.perClick*upMult(b.id);
+  return sum * seasonMult() * lineageMult() * frenzyMult();
+}
+// build side
+function buildClickPower(){ return 1 * buildClickMult(); }
+function builderClickRate(bd){ return bd.bRate*builderMult(bd.id); }           // per builder, per second
+function masonRate(){ return BUILDERS.reduce((a,bd)=>a+S.b[bd.id]*builderClickRate(bd),0); } // total build clicks /s
+function cellBuildCost(){ return Math.ceil(6*Math.pow(1.10, S.cells-8)); } // build clicks for the next cell
+function gainHoney(g){
+  const a = Math.min(g, Math.max(0, capacity()-S.honey));
+  if (a<=0) return 0;
+  S.honey += a; S.lifetime += a; S.lifetimeAll += a;
+  return a;
+}
+
+// ---------- Reveal logic: complexity appears little by little ----------
+function bVisible(i){
+  if (i===0) return true;
+  return S.b[BUILDINGS[i-1].id] > 0 || S.b[BUILDINGS[i].id] > 0;
+}
+function anyUpVisible(){ return visibleUps().length > 0; }
+function visibleUps(){
+  return UPGRADE_LIST.filter(u=>!S.ups[u.id] && u.avail()).sort((a,b)=>a.cost-b.cost).slice(0,6);
+}
+function swarmUnlocked(){ return S.lifetimeAll >= 50000 || S.swarms > 0; }
+
+// ---------- Golden bee & wasp raid (transient) ----------
+let goldenBee = null, gbTimer = 40+Math.random()*50;
+let raid = null, raidTimer = 90+Math.random()*90;
+
+// ---------- Log ----------
+const logEl = $("log");
+function log(msg, cls){
+  const d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.innerHTML = msg;
+  logEl.prepend(d);
+  while (logEl.children.length > 30) logEl.lastChild.remove();
+}
+
+// ---------- Tick ----------
+function tick(dt, silent){
+  // production
+  const g = hps()*dt;
+  if (g>0) gainHoney(g);
+
+  if (S.frenzy>0) S.frenzy = Math.max(0, S.frenzy-dt);
+
+  // seasons switch on once the hive is a real colony
+  if (!S.seasonsOn && totalB() >= 10){
+    S.seasonsOn = true; S.time = 0; S.day = 1; S.seasonIdx = 0;
+    if (!silent) log("The hive now feels the <b>seasons</b>. Winter slows the harvest — spring hastens it.", "info");
+  }
+  if (S.seasonsOn){
+    S.time += dt;
+    const newDay = Math.floor(S.time/DAY_LEN)+1;
+    if (newDay !== S.day){
+      S.day = newDay;
+      const idx = Math.floor((S.day-1)/DAYS_PER_SEASON) % 4;
+      if (idx !== S.seasonIdx){
+        if (S.seasonIdx===3 && idx===0) S.winters++;
+        S.seasonIdx = idx;
+        if (!silent) log(`<b>${SEASONS[idx].name}</b> — honey ×${SEASONS[idx].mult}`, "info");
+      }
+    }
+  }
+
+  // wasp raids switch on once you're worth robbing
+  if (!S.raidsOn && S.lifetime >= 5000){
+    S.raidsOn = true;
+    if (!silent) log("Your honey has attracted <b>wasps</b>. When they raid, click them before they steal!", "bad");
+  }
+  if (S.raidsOn && !raid){
+    raidTimer -= dt;
+    if (raidTimer <= 0){
+      raidTimer = 120 + Math.random()*120;
+      const n = Math.min(9, 4 + Math.floor(Math.random()*4));
+      raid = {wasps:[], timer:11, total:n};
+      for (let i=0;i<n;i++) raid.wasps.push({x:-20-Math.random()*160, y:40+Math.random()*300, phase:Math.random()*7, alive:true});
+      if (!silent) log(`<b>Wasp raid!</b> Click the ${n} wasps before they reach the comb!`, "bad");
+    }
+  }
+  if (raid){
+    raid.timer -= dt;
+    if (raid.wasps.every(w=>!w.alive)){
+      const bonus = Math.max(10, hps()*15);
+      gainHoney(bonus);
+      S.raidsWon++;
+      raid = null;
+      log(`Raid repelled! The wasps dropped their loot: <b>+${fmtH(bonus)}</b>`, "good");
+    } else if (raid.timer <= 0){
+      const frac = 0.16*Math.pow(0.5, guardLvl());
+      const loss = S.honey*frac*(raid.wasps.filter(w=>w.alive).length/raid.total);
+      S.honey = Math.max(0, S.honey-loss);
+      raid = null;
+      log(`The wasps got away with <b>${fmtH(loss)}</b> of honey.`, "bad");
+    }
+  }
+
+  // golden bee
+  gbTimer -= dt;
+  if (!goldenBee && gbTimer<=0 && totalB()>=1){
+    goldenBee = {x:-30, y:60+Math.random()*220, t:0, life:11};
+    gbTimer = 70+Math.random()*110;
+  }
+  if (goldenBee){ goldenBee.life -= dt; if (goldenBee.life<=0) goldenBee = null; }
+
+  // builder bees click the build-hex automatically
+  const br = masonRate();
+  if (br > 0) addBuildClicks(br*dt);
+  // royal architects deepen cells when the stores are full
+  if (S.ups.auto_deep && S.honey >= capacity()*0.95 && S.honey >= deepenCost()) deepen();
+
+  checkAch(silent);
+}
+
+// ---------- Buying ----------
+let buyQty = 1;
+function buyBuilding(id){
+  const b = BUILDINGS.find(x=>x.id===id) || BUILDERS.find(x=>x.id===id);
+  const c = bCostN(b, buyQty);
+  if (S.honey < c) return;
+  const firstBuy = S.b[id]===0;
+  S.honey -= c;
+  S.b[id] += buyQty;
+  if (firstBuy){
+    const msgs = {
+      worker:"Your first <b>Worker Bee</b> hums to work. The comb grows on its own now.",
+      drone:"A <b>Drone</b> settles by the comb and starts clicking it for you.",
+      forager:"A <b>Forager</b> zips off toward the horizon.",
+      nurse:"A <b>Nurse</b> warms the brood. The hive grows livelier.",
+      fanner:"A <b>Fanner</b> beats her wings — the air smells of warm honey.",
+      field:"A <b>Flower Field</b> blooms at your doorstep.",
+      press:"The <b>Honey Press</b> creaks into motion.",
+      court:"The <b>Queen's Court</b> assembles. All bow to the harvest.",
+      mason:"A <b>Mason Bee</b> starts laying comb, click after click.",
+      bricklayer:"A <b>Bricklayer Bee</b> — two clicks a second, and proud of it.",
+      carpenter:"The <b>Carpenter Bee</b> raises whole frames of comb.",
+      granddesign:"<b>The Grand Design</b> unfolds. The hive builds itself now.",
+    };
+    log(msgs[id]||`Your first <b>${b.name}</b> joins the hive.`, "good");
+  }
+  renderStore(); updateUI();
+}
+function buyUpgrade(id){
+  const u = UPGRADE_LIST.find(x=>x.id===id);
+  if (!u || S.ups[u.id] || !u.avail() || S.honey < u.cost) return;
+  S.honey -= u.cost;
+  S.ups[u.id] = 1;
+  log(`<b>${u.name}</b> — ${u.desc}.`, "good");
+  renderStore(); updateUI();
+}
+
+// ---------- Swarm (prestige) ----------
+function lineagePotential(){ return Math.floor(Math.pow(S.lifetimeAll/1e5, 0.6)); }
+function lineageGain(){ return Math.max(0, lineagePotential() - S.lineage); }
+function doSwarm(){
+  const gain = lineageGain();
+  if (gain < 1) return;
+  const keep = {
+    lineage:S.lineage+gain, lifetimeAll:S.lifetimeAll, swarms:S.swarms+1,
+    hiveName:S.hiveName, ach:S.ach, clicks:S.clicks,
+    raidsWon:S.raidsWon, goldenClicked:S.goldenClicked, winters:S.winters,
+  };
+  S = defaultState();
+  Object.assign(S, keep);
+  goldenBee = null; raid = null; sprites = [];
+  saveGame(); renderStore(); updateUI();
+  log(`<b>The swarm departs!</b> Hive #${S.swarms+1} begins. Lineage ${S.lineage} = +${S.lineage*10}% honey, forever.`, "good");
+}
+
+// ---------- Save / load ----------
+const SAVE_KEY = "hiveManagerSave_v4";
+function saveGame(){
+  try{ S.lastSave = Date.now(); localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
+}
+function loadGame(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    S = Object.assign(defaultState(), d);
+    S.b = Object.assign(defaultState().b, d.b);
+    // migrate old mason x2 upgrade ids (m_0..m_9 -> m_mason_0..)
+    for (let i=0;i<10;i++) if (d.ups && d.ups[`m_${i}`]) S.ups[`m_mason_${i}`] = 1;
+    // offline earnings (up to 2h)
+    const off = Math.min(7200, (Date.now()-(d.lastSave||Date.now()))/1000);
+    if (off > 30){
+      const gain = hps()*off*0.5;
+      if (gain > 0){
+        gainHoney(gain);
+        setTimeout(()=>log(`While you were away, the hive made <b>${fmtH(gain)}</b>.`, "info"), 60);
+      }
+    }
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ============================================================
+   UI
+   ============================================================ */
+let curTab = "bees";
+document.querySelectorAll("#tabs button").forEach(btn=>{
+  btn.onclick = ()=>{
+    curTab = btn.dataset.tab;
+    document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("active", b===btn));
+    renderStore();
+  };
+});
+
+function buildUnlocked(){ return S.lifetime>=30 || S.cells>8 || masonRate()>0; }
+function upsRowHtml(tab){
+  const ups = visibleUps().filter(u=>u.tab===tab);
+  if (!ups.length) return "";
+  const kinds = ["Click power","Bee power"];
+  let h = "";
+  for (const k of kinds){
+    const grp = ups.filter(u=>u.kind===k);
+    if (!grp.length) continue;
+    h += `<div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.4px;margin:2px 0 4px;">${k}</div>`;
+    h += `<div id="upsRow">` + grp.map(u=>
+      `<button class="upSq ${S.honey>=u.cost?"":"cant"}" data-up="${u.id}" data-name="${u.name}" data-desc="${u.desc}" data-cost="${u.cost}">${icon(u.icon)}</button>`
+    ).join("") + `</div>`;
+  }
+  return h + `<div id="upTip">hover an upgrade…</div>`;
+}
+function beeRowHtml(b, known, priceOverride){
+  const c = priceOverride!==undefined ? priceOverride : bCostN(b, buyQty);
+  const owned = S.b[b.id]||0;
+  const per = b.perClick!==undefined ? b.perClick*upMult(b.id)*lineageMult() : null;
+  let meta2;
+  if (b.bRate!==undefined) meta2 = `${b.bRate} build click${b.bRate>1?"s":""}/s ×${builderMult(b.id)}${owned?` · together ${fmt2(owned*builderClickRate(b))} clicks/s`:""}`;
+  else if (per!==null) meta2 = `clicks 1×/s · ${fmtH(per)} per click${owned?` · together ${fmtH(owned*beeRate(b))}/s`:""}`;
+  else meta2 = "";
+  return `<button class="bRow ${known?"":"mystery"} ${S.honey>=c?"":"cant"}" data-buy="${b.id}">
+    <span class="bIcon">${icon(b.icon)}</span>
+    <span class="bInfo">
+      <span class="bName">${known?b.name:"???"}</span>
+      <div class="bMeta">${known?b.desc:"&nbsp;"}</div>
+      <div class="bMeta"><span class="price">${fmtH(c)}</span>${buyQty>1?` for ${buyQty}`:""}${known?` · ${meta2}`:""}</div>
+    </span>
+    <span class="bCount">${owned||""}</span>
+  </button>`;
+}
+function fmt2(n){ return n<100 ? (Math.round(n*10)/10).toString() : fmtH(n).replace(" g",""); }
+function renderStore(){
+  const el = $("tabContent");
+  $("tabBuild").style.display = buildUnlocked() ? "block" : "none";
+  $("tabSwarm").style.display = swarmUnlocked() ? "block" : "none";
+  $("qtyRow").style.display = (totalB()>=5 && curTab!=="swarm") ? "flex" : "none";
+  if (curTab==="swarm" && swarmUnlocked()){ el.innerHTML = swarmTab(); bindSwarm(el); return; }
+  if (curTab==="build" && buildUnlocked()){ renderBuildTab(el); return; }
+
+  // ----- BEES tab: honey auto-clickers -----
+  let h = upsRowHtml("bees");
+  let lastKnown = 0;
+  for (let i=0;i<BUILDINGS.length;i++) if (S.b[BUILDINGS[i].id]>0) lastKnown = i;
+  const showTo = Math.min(BUILDINGS.length-1, lastKnown+2);
+  for (let i=0;i<=showTo;i++) h += beeRowHtml(BUILDINGS[i], bVisible(i));
+  el.innerHTML = h;
+  bindStore(el);
+}
+function renderBuildTab(el){
+  let h = upsRowHtml("build");
+  h += `<div class="hint">Each build click lays comb. New cells store more honey.</div>`;
+  let lastB = 0;
+  for (let i=0;i<BUILDERS.length;i++) if (S.b[BUILDERS[i].id]>0) lastB = i;
+  const showToB = Math.min(BUILDERS.length-1, lastB+2);
+  for (let i=0;i<=showToB;i++){
+    const known = i===0 || S.b[BUILDERS[i-1].id]>0 || S.b[BUILDERS[i].id]>0;
+    h += beeRowHtml(BUILDERS[i], known);
+  }
+  h += `<button class="bRow hiveRow ${S.honey>=deepenCost()?"":"cant"}" data-hive="deepen">
+    <span class="bIcon">${icon("drop")}</span>
+    <span class="bInfo">
+      <span class="bName">Deepen the cells</span>
+      <div class="bMeta">Each cell holds ×1.6 more honey</div>
+      <div class="bMeta"><span class="price">${fmtH(deepenCost())}</span> · now ${fmtH(cellCap())} per cell</div>
+    </span>
+    <span class="bCount">${S.cellCapLvl||""}</span>
+  </button>`;
+  h += `<div class="statLine" style="margin-top:8px">Comb: <b>${S.cells} cells</b> × ${fmtH(cellCap())} = <b>${fmtH(capacity())}</b></div>
+  <div class="statLine">Next cell needs <b>${cellBuildCost()}</b> build clicks</div>
+  <div class="statLine">Your build click counts <b>×${buildClickMult()}</b></div>`;
+  if (masonRate()>0) h += `<div class="statLine">Your builders click <b>${fmt2(masonRate())}/s</b> for you</div>`;
+  el.innerHTML = h;
+  bindStore(el);
+}
+function bindStore(el){
+  el.querySelectorAll("[data-hive]").forEach(x=> x.onclick = ()=>{ if (deepen()){ renderStore(); updateUI(); } });
+  el.querySelectorAll("[data-buy]").forEach(x=> x.onclick = ()=>buyBuilding(x.dataset.buy));
+  el.querySelectorAll("[data-up]").forEach(x=>{
+    x.onclick = ()=>buyUpgrade(x.dataset.up);
+    x.onmouseenter = ()=>{ const tip = el.querySelector("#upTip"); if (tip) tip.innerHTML = `<b>${x.dataset.name}</b> — ${x.dataset.desc}. <span class="price">${fmtH(+x.dataset.cost)}</span>`; };
+  });
+}
+
+function swarmTab(){
+  const gain = lineageGain();
+  return `<div class="hint">Leave this hive behind. A new queen starts from nothing — but the royal line keeps <b>+10% honey per Lineage, forever</b>.</div>
+  <div class="statLine">Honey made (all hives): <b>${fmtH(S.lifetimeAll)}</b></div>
+  <div class="statLine">Lineage: <b>${S.lineage}</b> (+${S.lineage*10}%)</div>
+  <div class="statLine">Hives founded: <b>${S.swarms+1}</b></div>
+  <div class="statLine">Swarm now for: <b>+${gain} Lineage</b>${gain<1?` — next at ${fmtH(1e5*Math.pow(S.lineage+1,1/0.6))}`:""}</div>
+  <button class="swarmBig" id="swarmBtn" ${gain>=1?"":"disabled"}>SWARM ${gain>=1?`(+${gain} Lineage)`:""}</button>`;
+}
+function bindSwarm(el){
+  const sb = el.querySelector("#swarmBtn");
+  if (sb) sb.onclick = ()=>{ if (confirm("Leave this hive and start anew? Lineage is forever.")) doSwarm(); };
+}
+
+let lastBeeRing = -1;
+function updateBeeRing(){
+  const n = Math.min(20, S.b.drone);
+  if (n === lastBeeRing) return;
+  lastBeeRing = n;
+  const ring = $("beeRing");
+  let h = "";
+  for (let i=0;i<n;i++){
+    const a = 360/n*i;
+    h += `<span class="orbBee" style="transform:rotate(${a}deg) translate(95px) rotate(90deg)"><svg viewBox="0 0 24 24" width="22" height="22" style="color:#ffd24d">${ICONS.bee}</svg></span>`;
+  }
+  ring.innerHTML = h;
+}
+function updateUI(){
+  $("hiveName").textContent = S.hiveName;
+  $("bigVal").innerHTML = `${fmtH(S.honey)} <small>in store</small>`;
+  $("madeVal").textContent = fmtH(S.lifetime);
+  $("hpsLine").innerHTML = storesFull()
+    ? `<b style="color:var(--bad)">STORES FULL</b> — grow the comb!`
+    : `per second: <b>${fmtH(hps())}</b>`;
+  const pct = Math.min(100, S.honey/capacity()*100);
+  $("capFill").style.width = pct+"%";
+  $("capBar").classList.toggle("full", storesFull());
+  $("capLine").innerHTML = `comb capacity <b>${fmtH(capacity())}</b> · ${S.cells} cells × ${fmtH(cellCap())}`;
+  // build clicker
+  $("buildWrap").style.display = buildUnlocked() ? "flex" : "none";
+  if (buildUnlocked()){
+    const need = cellBuildCost();
+    $("buildInfo").innerHTML = `next cell: <b>${Math.floor(S.buildProg)} / ${need}</b> clicks`;
+    $("buildFill").style.width = Math.min(100, S.buildProg/need*100)+"%";
+  }
+  // comb tooltip (who clicks for you, and how much)
+  const tip = $("combTip");
+  if (tip.classList.contains("show")){
+    let th = `Your click: <b>${fmtH(clickPower())}</b><br>`;
+    for (const b of BUILDINGS){
+      if (S.b[b.id]>0) th += `${S.b[b.id]} × ${b.name} — <b>${fmtH(S.b[b.id]*beeRate(b))}/s</b><br>`;
+    }
+    th += `<div class="tot">Bees bring <b>${fmtH(hps())}/s</b></div>`;
+    tip.innerHTML = th;
+  }
+  $("frenzyTag").style.display = S.frenzy>0?"block":"none";
+  if (S.frenzy>0) $("frenzyTag").textContent = `HONEY FRENZY ×7 · ${Math.ceil(S.frenzy)}s`;
+  $("clickHint").style.display = (S.lifetime<15 && totalB()===0) ? "block" : "none";
+  updateBeeRing();
+
+  let ls = `All-time honey <b>${fmtH(S.lifetimeAll)}</b><br>`;
+  if (totalB()>0) ls += `Bees &amp; helpers <b>${totalB()}</b><br>`;
+  ls += `Per click <b>${fmtH(clickPower())}</b><br>`;
+  const na = Object.keys(S.ach).length;
+  if (na>0) ls += `Achievements <b>${na}/${ACHIEVEMENTS.length}</b><br>`;
+  if (S.lineage>0) ls += `Lineage bonus <b>+${S.lineage*10}%</b><br>`;
+  $("leftStats").innerHTML = ls;
+
+  // badges
+  const sb = $("seasonBadge");
+  if (S.seasonsOn){
+    const s = SEASONS[S.seasonIdx];
+    sb.style.display = "flex";
+    sb.innerHTML = `${icon(s.icon)} ${s.name} · honey ×${s.mult}`;
+  } else sb.style.display = "none";
+  const lb = $("lineageBadge");
+  if (S.lineage>0){ lb.style.display="flex"; lb.innerHTML = `${icon("crown")} Lineage ${S.lineage}`; }
+  else lb.style.display = "none";
+
+  // banner
+  const bn = $("banner");
+  if (raid){
+    const left = raid.wasps.filter(w=>w.alive).length;
+    bn.style.display = "block"; bn.className = "";
+    bn.textContent = `WASP RAID — click the wasps! ${left} left · ${Math.ceil(raid.timer)}s`;
+  } else bn.style.display = "none";
+
+  // store affordability refresh (cheap)
+  document.querySelectorAll("[data-buy]").forEach(x=>{
+    const b = BUILDINGS.find(v=>v.id===x.dataset.buy) || BUILDERS.find(v=>v.id===x.dataset.buy);
+    x.classList.toggle("cant", S.honey < bCostN(b, buyQty));
+  });
+  document.querySelectorAll("[data-up]").forEach(x=>{
+    x.classList.toggle("cant", S.honey < +x.dataset.cost);
+  });
+  document.querySelectorAll("[data-hive]").forEach(x=>{
+    x.classList.toggle("cant", S.honey < deepenCost());
+  });
+}
+// qty toggle
+document.querySelectorAll("#qtyRow button").forEach(btn=>{
+  btn.onclick = ()=>{
+    buyQty = +btn.dataset.qty;
+    document.querySelectorAll("#qtyRow button").forEach(b=>b.classList.toggle("active", b===btn));
+    renderStore(); updateUI();
+  };
+});
+// rename the hive
+$("hiveName").onclick = ()=>{
+  const n = prompt("Name your hive:", S.hiveName);
+  if (n && n.trim()){ S.hiveName = n.trim().slice(0,28); updateUI(); saveGame(); }
+};
+
+// periodically re-render store (new reveals / prices)
+let lastStoreSig = "";
+function maybeRenderStore(){
+  const sig = BUILDINGS.map((b,i)=>bVisible(i)?S.b[b.id]:"x").join(",")+"|"+BUILDERS.map(b=>S.b[b.id]).join(",")+"|"+visibleUps().map(u=>u.id).join(",")+"|"+curTab+"|"+swarmUnlocked()+"|"+S.cells+"|"+S.cellCapLvl+"|"+buildUnlocked();
+  if (sig !== lastStoreSig){ lastStoreSig = sig; renderStore(); }
+}
+
+// ---------- Comb clicking ----------
+$("combBtn").onclick = (e)=>{
+  const got = gainHoney(clickPower());
+  S.clicks++;
+  const box = $("left").getBoundingClientRect();
+  const f = document.createElement("div");
+  f.className = "floatText";
+  if (got > 0) f.textContent = `+${fmtH(got)}`;
+  else { f.textContent = "full!"; f.style.color = "var(--bad)"; }
+  f.style.left = (e.clientX-box.left-15+(Math.random()*36-18))+"px";
+  f.style.top = (e.clientY-box.top-30)+"px";
+  $("left").appendChild(f);
+  setTimeout(()=>f.remove(), 1000);
+  updateUI();
+};
+// build clicker
+$("buildBtn").onclick = ()=>{
+  S.buildClicks++;
+  const built = addBuildClicks(buildClickPower());
+  if (built>0){
+    const f = document.createElement("div");
+    f.className = "floatText"; f.textContent = `+${built} cell${built>1?"s":""}`;
+    f.style.left = "44px"; f.style.top = "auto"; f.style.bottom = "130px"; f.style.color = "#cdd97a";
+    $("left").appendChild(f);
+    setTimeout(()=>f.remove(), 1000);
+  }
+  updateUI();
+};
+// comb hover: full breakdown of who clicks and what it brings
+$("combWrap").addEventListener("mouseenter", ()=>{ $("combTip").classList.add("show"); updateUI(); });
+$("combWrap").addEventListener("mouseleave", ()=>{ $("combTip").classList.remove("show"); });
+
+/* ============================================================
+   THE LIVING HIVE (canvas)
+   ============================================================ */
+const canvas = $("hiveCanvas"), ctx = canvas.getContext("2d");
+let W=0, H=0, DPR=1, lastW=0, lastH=0;
+function resize(){
+  DPR = window.devicePixelRatio||1;
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W*DPR; canvas.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener("resize", resize);
+function resizeIfNeeded(){
+  if (canvas.clientWidth!==lastW||canvas.clientHeight!==lastH){ lastW=canvas.clientWidth; lastH=canvas.clientHeight; resize(); }
+}
+
+// hex spiral
+const HEX_POS = [{q:0,r:0}];
+(function(){
+  const dirs = [[1,0],[0,1],[-1,1],[-1,0],[0,-1],[1,-1]];
+  for (let ring=1; ring<=16; ring++){
+    let q=ring, r=0;
+    for (let side=0; side<6; side++)
+      for (let i=0;i<ring;i++){
+        HEX_POS.push({q,r});
+        q += dirs[(side+2)%6][0]; r += dirs[(side+2)%6][1];
+      }
+  }
+})();
+function hexToXY(q,r,s){ return {x:s*1.732*(q+r/2), y:s*1.5*r}; }
+function ringOf(i){ if(i===0)return 0; let n=1,ring=1; while(n+ring*6<=i){n+=ring*6;ring++;} return ring; }
+function drawHex(cx,cy,s,fill,stroke,lw){
+  ctx.beginPath();
+  for (let i=0;i<6;i++){
+    const a=Math.PI/180*(60*i-30);
+    const x=cx+s*Math.cos(a), y=cy+s*Math.sin(a);
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+  }
+  ctx.closePath();
+  if (fill){ ctx.fillStyle=fill; ctx.fill(); }
+  if (stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=lw||1; ctx.stroke(); }
+}
+
+// bee sprites — one small bee per few buildings
+let sprites = [];
+function syncSprites(){
+  const beeish = BUILDINGS.reduce((a,x)=>a+S.b[x.id],0) + BUILDERS.reduce((a,x)=>a+S.b[x.id],0);
+  const want = Math.min(56, beeish);
+  while (sprites.length<want) sprites.push({x:Math.random()*W, y:Math.random()*H, tx:W/2, ty:H/2, phase:Math.random()*7, retarget:0, out:false});
+  sprites.length = want;
+}
+function moveSprites(dt, cx, cy, hiveR){
+  const t = performance.now()/1000;
+  for (const b of sprites){
+    b.retarget -= dt;
+    if (b.retarget<=0){
+      b.retarget = 1.5+Math.random()*2.5;
+      if (Math.random()<0.3){
+        b.out = true;
+        b.tx = Math.random()<0.5?20:W-20; b.ty = Math.random()*H;
+      } else {
+        b.out = false;
+        const a = Math.random()*Math.PI*2, rr = hiveR*(0.25+Math.random()*0.8);
+        b.tx = cx+Math.cos(a)*rr; b.ty = cy+Math.sin(a)*rr;
+      }
+    }
+    const sp = (b.out?85:40)*dt;
+    const dx=b.tx-b.x, dy=b.ty-b.y, d=Math.hypot(dx,dy)||1;
+    b.x += dx/d*Math.min(sp,d); b.y += dy/d*Math.min(sp,d);
+    b.x += Math.sin(t*9+b.phase)*0.5; b.y += Math.cos(t*7+b.phase)*0.5;
+  }
+}
+function drawBee(b,t,size,color){
+  ctx.save(); ctx.translate(b.x,b.y);
+  ctx.rotate(Math.atan2(b.ty-b.y,b.tx-b.x));
+  ctx.fillStyle = "rgba(255,255,255,"+(0.35+0.3*Math.sin(t*40+b.phase))+")";
+  ctx.beginPath(); ctx.ellipse(-1,-3,3.4,1.8,-0.5,0,7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-1,3,3.4,1.8,0.5,0,7); ctx.fill();
+  ctx.fillStyle = color||"#ffd24d";
+  ctx.beginPath(); ctx.ellipse(0,0,4.4,2.6,0,0,7); ctx.fill();
+  ctx.fillStyle = "#3a2405";
+  ctx.fillRect(-1.6,-2.4,1.3,4.8); ctx.fillRect(1.2,-2.2,1.2,4.4);
+  ctx.restore();
+}
+
+function drawFrame(){
+  resizeIfNeeded();
+  ctx.clearRect(0,0,W,H);
+  const g = ctx.createRadialGradient(W/2,H/2,50,W/2,H/2,Math.max(W,H)*0.7);
+  g.addColorStop(0,"#31220f"); g.addColorStop(1,"#180f06");
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  if (S.seasonsOn){ ctx.fillStyle = SEASONS[S.seasonIdx].tint; ctx.fillRect(0,0,W,H); }
+
+  const t = performance.now()/1000;
+  const cells = Math.min(1+S.cells, HEX_POS.length);
+  const rings = Math.max(3, ringOf(cells-1)+1);
+  const size = Math.min(W,H)*0.42/(rings*1.732);
+  const cx=W/2, cy=H/2;
+
+  // honey fill: real storage — each drawn cell holds cellCap() of banked honey
+  const cc = cellCap();
+  for (let i=0;i<cells;i++){
+    const p = hexToXY(HEX_POS[i].q, HEX_POS[i].r, size);
+    const x=cx+p.x, y=cy+p.y;
+    if (i===0){
+      drawHex(x,y,size*0.95,"#5a3a12","#f6b921",2);
+      // queen crown
+      const cs=size*0.5;
+      ctx.fillStyle="#f6b921";
+      ctx.beginPath();
+      ctx.moveTo(x-cs,y-cs*0.35); ctx.lineTo(x-cs*0.5,y-cs*0.05); ctx.lineTo(x,y-cs*0.7);
+      ctx.lineTo(x+cs*0.5,y-cs*0.05); ctx.lineTo(x+cs,y-cs*0.35);
+      ctx.lineTo(x+cs*0.8,y+cs*0.55); ctx.lineTo(x-cs*0.8,y+cs*0.55);
+      ctx.closePath(); ctx.fill();
+    } else {
+      const filled = Math.max(0, Math.min(1, (S.honey-(i-1)*cc)/cc));
+      drawHex(x,y,size*0.92,"#3c2a10","#241708",1);
+      if (filled>0){
+        ctx.save();
+        drawHex(x,y,size*0.92,null,null); ctx.clip();
+        ctx.fillStyle = filled>=1?"#f2a71b":"#e8b93f";
+        ctx.fillRect(x-size, y+size-filled*2*size, size*2, filled*2*size);
+        if (filled>=1){ ctx.fillStyle="rgba(255,240,180,.22)"; ctx.beginPath(); ctx.arc(x-size*0.25,y-size*0.25,size*0.3,0,7); ctx.fill(); }
+        ctx.restore();
+        drawHex(x,y,size*0.92,null,"#241708",1);
+      }
+    }
+  }
+  // ghost of next cell
+  if (cells < HEX_POS.length-1){
+    const p = hexToXY(HEX_POS[cells].q, HEX_POS[cells].r, size);
+    ctx.setLineDash([4,4]);
+    drawHex(cx+p.x, cy+p.y, size*0.9, null, "rgba(246,185,33,"+(0.22+0.14*Math.sin(t*3))+")", 1.5);
+    ctx.setLineDash([]);
+  }
+
+  // bees
+  syncSprites();
+  moveSprites(1/60, cx, cy, rings*size*1.55);
+  for (const b of sprites) drawBee(b,t);
+
+  // wasp raid
+  if (raid){
+    for (const w of raid.wasps){
+      if (!w.alive) continue;
+      const dx=cx-w.x, dy=cy-w.y, d=Math.hypot(dx,dy)||1;
+      w.x += dx/d*0.9; w.y += dy/d*0.9;
+      w.x += Math.sin(t*11+w.phase)*1.4; w.y += Math.cos(t*9+w.phase)*1.4;
+      ctx.save(); ctx.translate(w.x,w.y); ctx.rotate(Math.atan2(dy,dx));
+      ctx.fillStyle="rgba(230,230,255,"+(0.3+0.25*Math.sin(t*45+w.phase))+")";
+      ctx.beginPath(); ctx.ellipse(-1,-5,5.5,2.6,-0.5,0,7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-1,5,5.5,2.6,0.5,0,7); ctx.fill();
+      ctx.fillStyle="#2b2b1e";
+      ctx.beginPath(); ctx.ellipse(0,0,8,3.8,0,0,7); ctx.fill();
+      ctx.fillStyle="#e8c832";
+      ctx.fillRect(-3,-3.4,2,6.8); ctx.fillRect(0.8,-3.2,2,6.4);
+      ctx.restore();
+    }
+  }
+
+  // golden bee
+  if (goldenBee){
+    const gb = goldenBee;
+    gb.t += 1/60;
+    gb.x += 1.6; gb.y += Math.sin(gb.t*2.2)*1.4;
+    if (gb.x > W+30) goldenBee = null;
+    else {
+      ctx.save(); ctx.translate(gb.x,gb.y);
+      ctx.shadowColor="rgba(255,215,102,.8)"; ctx.shadowBlur=22;
+      ctx.fillStyle="rgba(255,255,255,"+(0.4+0.3*Math.sin(t*42))+")";
+      ctx.beginPath(); ctx.ellipse(-2,-7,7,3.4,-0.5,0,7); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-2,7,7,3.4,0.5,0,7); ctx.fill();
+      ctx.fillStyle="#ffd766";
+      ctx.beginPath(); ctx.ellipse(0,0,10,6,0,0,7); ctx.fill();
+      ctx.fillStyle="#8a5a1e";
+      ctx.fillRect(-3.5,-5.5,2.4,11); ctx.fillRect(1.5,-5,2.4,10);
+      ctx.restore();
+      ctx.fillStyle="rgba(255,215,102,.5)";
+      for (let s2=0;s2<3;s2++) ctx.fillRect(gb.x-14-s2*9+Math.sin(t*9+s2)*3, gb.y+Math.cos(t*7+s2*2)*5, 2.5,2.5);
+    }
+  }
+
+  // winter snow
+  if (isWinter()){
+    ctx.fillStyle="rgba(230,240,255,.7)";
+    for (let i=0;i<40;i++){
+      ctx.fillRect((i*97+t*20+Math.sin(t+i)*30)%W, (i*61+t*35)%H, 2,2);
+    }
+  }
+  requestAnimationFrame(drawFrame);
+}
+
+// canvas clicks: wasps & golden bee
+canvas.addEventListener("click",(e)=>{
+  const rc = canvas.getBoundingClientRect();
+  const mx = e.clientX-rc.left, my = e.clientY-rc.top;
+  if (raid){
+    for (const w of raid.wasps){
+      if (w.alive && Math.hypot(mx-w.x,my-w.y) < 26){
+        w.alive = false;
+        updateUI();
+        return;
+      }
+    }
+  }
+  if (goldenBee && Math.hypot(mx-goldenBee.x,my-goldenBee.y) < 34){
+    goldenBee = null;
+    S.goldenClicked++;
+    if (Math.random()<0.5){
+      S.frenzy = 25;
+      log("<b>Golden bee!</b> Honey frenzy — ×7 for 25s!", "good");
+    } else {
+      const gain = Math.max(20, hps()*45);
+      gainHoney(gain);
+      log(`<b>Golden bee!</b> She shares a hidden trove: <b>+${fmtH(gain)}</b>`, "good");
+    }
+    updateUI();
+  }
+});
+
+/* ============================================================
+   Boot
+   ============================================================ */
+UPGRADE_LIST.push(...allUpgrades());
+const loaded = loadGame();
+if (!S) S = defaultState();
+if (loaded) checkAch(true);
+resize();
+renderStore();
+updateUI();
+if (!loaded){
+  log("<b>A queen finds an empty hollow.</b> Make honey — as much as the world has ever seen.", "info");
+  log("Click the golden comb. Everything else follows.", "info");
+}
+setInterval(()=>tick(0.1,false), 100);
+setInterval(updateUI, 250);
+setInterval(maybeRenderStore, 800);
+setInterval(saveGame, 15000);
+window.addEventListener("beforeunload", saveGame);
+requestAnimationFrame(drawFrame);
+</script>
+</body>
+</html>
+    background:linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.34));
+    border:1px solid rgba(255,182,30,.25); border-radius:6px;
+    font-family:Georgia,'Times New Roman',serif; font-size:17px; color:#fff;
+    letter-spacing:.5px; cursor:pointer; text-shadow:0 2px 4px #000;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #hiveName:hover{border-color:var(--honey);}
+  #bigVal{
+    margin-top:10px; font-family:Georgia,'Times New Roman',serif;
+    font-size:32px; font-weight:700; color:#fff; line-height:1.05; text-align:center;
+    font-variant-numeric:tabular-nums; text-shadow:0 2px 8px #000, 0 0 24px rgba(255,182,30,.5);
+  }
+  #bigVal small{font-size:19px;}
+  #hpsLine{font-size:12.5px; color:var(--text); text-shadow:0 1px 3px #000; margin-bottom:2px;}
+  #hpsLine b{color:var(--amber);}
+  #combWrap{position:relative; margin-top:14px; width:196px; height:196px;
+    display:flex; align-items:center; justify-content:center;}
+  #beeRing{
+    position:absolute; inset:0; pointer-events:none;
+    animation:orbit 70s linear infinite;
+  }
+  @keyframes orbit{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+  .orbBee{position:absolute; left:50%; top:50%; width:22px; height:22px; margin:-11px;}
+
+  #combBtn{
+    background:none; border:none; cursor:pointer; padding:0;
+    transition:transform .07s; filter:drop-shadow(0 8px 22px rgba(255,182,30,.4));
+    -webkit-tap-highlight-color:transparent;
+  }
+  #combBtn:hover{transform:scale(1.045);}
+  #combBtn:active{transform:scale(.93);}
+  #combBtn svg{display:block;}
+  #clickHint{
+    font-size:12px; color:var(--amber); margin-top:12px; text-align:center;
+    animation:bob 1.4s ease-in-out infinite;
+  }
+  #combTip{
+    display:none; position:absolute; top:52%; left:50%; transform:translateX(-50%);
+    width:230px; background:rgba(20,12,3,.96); border:2px solid #6b4c1d; border-radius:8px;
+    padding:9px 12px; z-index:9; font-size:11px; line-height:1.7; color:var(--text);
+    box-shadow:0 6px 18px rgba(0,0,0,.6); pointer-events:none;
+  }
+  #combTip b{color:var(--amber);}
+  #combTip .tot{border-top:1px solid #503a1a; margin-top:4px; padding-top:4px; color:#fff; font-weight:600;}
+  #combWrap:hover ~ #combTip, #combTip.show{display:block;}
+  #buildWrap{
+    display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:10px; width:100%;
+  }
+  #buildBtn{
+    background:none; border:none; cursor:pointer; padding:0;
+    transition:transform .07s; filter:drop-shadow(0 6px 16px rgba(0,0,0,.55));
+    -webkit-tap-highlight-color:transparent;
+  }
+  #buildBtn:hover{transform:scale(1.045);}
+  #buildBtn:active{transform:scale(.93);}
+  #buildSide{width:86%; text-align:center;}
+  #buildLbl{font-size:10px; color:var(--muted); letter-spacing:1.8px; font-weight:700; margin-top:4px;}
+  #buildInfo{font-size:11px; color:var(--text); margin:2px 0 4px;}
+  #buildInfo b{color:var(--amber);}
+  #buildBar{height:8px; background:rgba(0,0,0,.5); border:1px solid #5a3f1c; border-radius:4px; overflow:hidden;}
+  #buildFill{height:100%; width:0%; background:linear-gradient(90deg,#8a6528,#cdd97a); transition:width .15s;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+  #frenzyTag{
+    display:none; margin-top:10px; padding:5px 14px; border-radius:16px;
+    background:linear-gradient(180deg,#ffd766,#e8a812); color:#4a2f05;
+    font-size:13px; font-weight:700; animation:pulse .8s infinite alternate;
+  }
+  @keyframes pulse{from{transform:scale(1);}to{transform:scale(1.08);}}
+  #leftStats{margin-top:auto; width:100%; font-size:11.5px; color:var(--muted); line-height:1.9; padding:0 6px;}
+  #leftStats b{color:var(--amber); font-weight:600;}
+  .floatText{
+    position:absolute; color:var(--amber); font-weight:700; pointer-events:none;
+    animation:floatUp 1s ease-out forwards; z-index:6; font-size:15px; text-shadow:0 1px 4px #000;
+  }
+  @keyframes floatUp{from{opacity:1; transform:translateY(0);}to{opacity:0; transform:translateY(-46px);}}
+
+  /* ============ CENTER: the hive ============ */
+  #hiveWrap{flex:1.2; position:relative; min-width:0;}
+  #hiveCanvas{position:absolute; inset:0; width:100%; height:100%; display:block;}
+  #badges{position:absolute; top:10px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:4;}
+  .badge{
+    background:rgba(58,39,8,.9); border:1px solid #5a3f1c; border-radius:16px;
+    padding:3px 12px; font-size:11.5px; white-space:nowrap; color:var(--text);
+    display:none; align-items:center; gap:6px;
+  }
+  #banner{
+    position:absolute; top:44px; left:50%; transform:translateX(-50%);
+    background:rgba(160,40,20,.94); border:1px solid #ff9b7a; color:#fff;
+    padding:6px 18px; border-radius:9px; font-size:13.5px; display:none; z-index:5;
+    box-shadow:0 2px 12px rgba(0,0,0,.5); text-align:center; font-weight:600;
+  }
+  #banner.info{background:rgba(30,80,120,.94); border-color:var(--info); font-weight:normal;}
+
+  /* ============ RIGHT: the store (Boutique) ============ */
+  #side{
+    flex:0 0 330px; display:flex; flex-direction:column;
+    background:var(--panel); border-left:6px solid transparent;
+    border-image:linear-gradient(180deg,#7a5423,#4a3009) 1;
+  }
+  #tabs{display:none; border-bottom:1px solid #503a1a;}
+  #tabs button{
+    flex:1; background:none; border:none; color:var(--muted); padding:8px 4px; font-size:11.5px;
+    cursor:pointer; border-bottom:2px solid transparent; font-family:inherit;
+    text-transform:uppercase; letter-spacing:1px; font-weight:600;
+  }
+  #tabs button.active{color:var(--honey); border-bottom-color:var(--honey);}
+  #storeTitle{
+    padding:10px 12px 8px; text-align:center;
+    font-family:Georgia,'Times New Roman',serif; font-size:26px; font-weight:700; color:#fff;
+    text-shadow:0 2px 6px #000; letter-spacing:1px;
+    background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
+  }
+  #qtyRow{
+    display:flex; align-items:center; gap:6px; padding:4px 12px 8px;
+    border-bottom:2px solid #5a3f1c; font-size:10.5px; color:var(--muted);
+  }
+  #qtyRow .lbl{text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-right:auto;}
+  #qtyRow button{
+    background:var(--panel2); border:1px solid #5a3f1c; border-radius:5px; color:var(--muted);
+    padding:3px 12px; cursor:pointer; font-family:inherit; font-size:11.5px; font-weight:700;
+  }
+  #qtyRow button.active{color:#fff; border-color:var(--honey); background:#5a3f14;}
+  #tabContent{flex:1; overflow-y:auto; min-height:0; padding:8px;}
+  #tabContent::-webkit-scrollbar{width:6px;}
+  #tabContent::-webkit-scrollbar-thumb{background:#5a3f1c; border-radius:3px;}
+
+  /* upgrade squares */
+  #upsRow{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:4px;}
+  .upSq{
+    width:44px; height:44px; border-radius:8px; border:2px solid var(--honey-dark);
+    background:linear-gradient(180deg,#4a330e,#3a2708); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .upSq .ic{width:20px; height:20px; color:var(--amber);}
+  .upSq:hover{border-color:var(--honey); background:#5a3f14;}
+  .upSq.cant{opacity:.45; border-color:#5a3f1c; cursor:default;}
+  #upTip{
+    font-size:11px; color:var(--muted); min-height:30px; line-height:1.4;
+    padding:2px 2px 8px; border-bottom:1px dashed #503a1a; margin-bottom:8px;
+  }
+  #upTip b{color:var(--amber);}
+  #upTip .price{color:var(--good);}
+
+  /* building rows — CC boutique style */
+  .bRow{
+    display:flex; align-items:center; gap:10px; width:100%;
+    background:linear-gradient(180deg,#54390f,#3f2b0c);
+    border:1px solid #6b4c1d; border-top-color:#8a6528; border-radius:4px;
+    padding:7px 10px; margin-bottom:4px;
+    cursor:pointer; text-align:left; font-family:inherit; color:var(--text);
+    transition:filter .1s; position:relative; overflow:hidden;
+  }
+  .bRow:hover:not(.cant){filter:brightness(1.18);}
+  .bRow.cant{opacity:.55; cursor:default;}
+  .bRow .bIcon{
+    width:42px; height:42px; border-radius:6px; background:rgba(0,0,0,.35);
+    border:1px solid rgba(255,182,30,.2);
+    display:flex; align-items:center; justify-content:center; color:var(--honey); flex:0 0 auto;
+  }
+  .bRow .bIcon .ic{width:25px; height:25px;}
+  .bRow .bInfo{flex:1; min-width:0;}
+  .bRow .bName{
+    font-family:Georgia,'Times New Roman',serif; font-size:16.5px; font-weight:700; color:#fff;
+    text-shadow:0 1px 3px #000;
+  }
+  .bRow .bMeta{font-size:10.5px; color:var(--muted); margin-top:1px;}
+  .bRow .bMeta .price{color:var(--good); font-weight:700;}
+  .bRow.cant .bMeta .price{color:var(--bad);}
+  .bRow .bCount{
+    font-family:Georgia,serif; font-size:34px; font-weight:700;
+    color:rgba(0,0,0,.45); text-shadow:0 1px 0 rgba(255,215,102,.25);
+    min-width:40px; text-align:right; line-height:1;
+  }
+  .bRow.mystery{filter:brightness(.6);}
+  .bRow.mystery .bName{color:#9a825a;}
+  .bRow.mystery .bIcon{color:#1c1206;}
+  .bRow.hiveRow{
+    background:linear-gradient(180deg,#3f4a17,#2e360f);
+    border-color:#5f6b28; border-top-color:#7e8c3a;
+  }
+  .bRow.hiveRow .bIcon{color:#cdd97a; border-color:rgba(205,217,122,.25);}
+  .bRow.hiveRow .bMeta .price{color:#cdd97a;}
+  .bRow.hiveRow.cant .bMeta .price{color:var(--bad);}
+  #capBar{
+    width:82%; height:9px; border-radius:5px; margin-top:8px;
+    background:rgba(0,0,0,.5); border:1px solid #5a3f1c; overflow:hidden;
+  }
+  #capFill{
+    height:100%; width:0%; border-radius:4px;
+    background:linear-gradient(90deg,#c98a0b,#ffd766);
+    transition:width .25s;
+  }
+  #capBar.full #capFill{background:linear-gradient(90deg,#ff7a5c,#ffb61e); animation:pulse .5s infinite alternate;}
+  #capLine{font-size:10.5px; color:var(--muted); margin-top:3px;}
+  #capLine b{color:var(--amber);}
+  /* the big score in the middle */
+  #madeCounter{
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    text-align:center; z-index:4; pointer-events:none;
+  }
+  #madeCounter .mVal{
+    font-family:Georgia,'Times New Roman',serif; font-size:34px; font-weight:700; color:#fff;
+    text-shadow:0 2px 8px #000, 0 0 26px rgba(255,182,30,.55); line-height:1.05;
+  }
+  #madeCounter .mLbl{
+    font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:2.5px;
+    text-shadow:0 1px 3px #000;
+  }
+  /* achievement toasts */
+  #toasts{
+    position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; gap:6px; z-index:8; width:300px;
+  }
+  .toast{
+    display:flex; align-items:center; gap:10px;
+    background:linear-gradient(180deg,#241708,#180f05);
+    border:2px solid #6b4c1d; border-radius:6px; padding:8px 12px;
+    box-shadow:0 4px 14px rgba(0,0,0,.6); animation:toastIn .3s ease-out;
+  }
+  @keyframes toastIn{from{opacity:0; transform:translateY(14px);}to{opacity:1; transform:translateY(0);}}
+  .toast .tIcon{
+    width:34px; height:34px; border-radius:50%; flex:0 0 auto;
+    background:radial-gradient(circle at 35% 30%, #ffd766, #c98a0b);
+    display:flex; align-items:center; justify-content:center; color:#4a2f05;
+  }
+  .toast .tIcon .ic{width:18px; height:18px;}
+  .toast .tSub{font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px;}
+  .toast .tName{font-family:Georgia,serif; font-size:14.5px; color:#fff; font-weight:700;}
+  .toast .tX{margin-left:auto; color:var(--muted); cursor:pointer; font-size:13px; padding:2px 5px;}
+  .toast .tX:hover{color:#fff;}
+
+  /* swarm */
+  .swarmBig{
+    width:100%; padding:12px; font-size:14px; font-weight:700; border-radius:9px;
+    border:1px solid var(--honey); background:linear-gradient(180deg,#6b4a12,#4a3009);
+    color:var(--amber); cursor:pointer; margin:10px 0; font-family:inherit; letter-spacing:.5px;
+  }
+  .swarmBig:disabled{opacity:.4; cursor:default;}
+  .statLine{font-size:12px; margin-bottom:5px; color:var(--text);}
+  .statLine b{color:var(--amber); font-weight:600;}
+  .hint{font-size:11px; color:var(--muted); margin-bottom:8px; line-height:1.55;}
+
+  /* log */
+  #log{
+    flex:0 0 92px; overflow-y:auto; border-top:1px solid #503a1a; padding:6px 10px;
+    font-size:10.5px; line-height:1.6; background:#2b1c07;
+  }
+  #log::-webkit-scrollbar{width:6px;}
+  #log::-webkit-scrollbar-thumb{background:#5a3f1c; border-radius:3px;}
+  #log .good{color:var(--good);} #log .bad{color:var(--bad);} #log .info{color:var(--info);}
+</style>
+</head>
+<body>
+
+<div id="main">
+  <div id="left">
+    <div id="hiveName" title="Click to rename your hive">Honeyfall Hive</div>
+    <div id="bigVal">0 g</div>
+    <div id="hpsLine">&nbsp;</div>
+    <div id="capBar"><div id="capFill"></div></div>
+    <div id="capLine">&nbsp;</div>
+    <div id="combWrap">
+    <div id="beeRing"></div>
+    <button id="combBtn" aria-label="Harvest honey">
+      <svg width="160" height="160" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="combGrad" cx="42%" cy="36%" r="75%">
+            <stop offset="0%" stop-color="#ffd766"/>
+            <stop offset="55%" stop-color="#f2a71b"/>
+            <stop offset="100%" stop-color="#b87708"/>
+          </radialGradient>
+        </defs>
+        <path d="M100 8l76 44v88l-76 44-76-44V52z" fill="url(#combGrad)" stroke="#8a5a1e" stroke-width="6" stroke-linejoin="round"/>
+        <g fill="none" stroke="rgba(138,90,30,.55)" stroke-width="3.5" stroke-linejoin="round">
+          <path d="M100 47l30 17v34l-30 17-30-17V64z"/>
+          <path d="M100 8v39M24 52l46 12M176 52l-46 12M100 200v-85M24 140l46-25M176 140l-46-25"/>
+        </g>
+        <path d="M84 122c0 14 4 26 9 34 3 5 11 5 14 0 5-8 9-20 9-34z" fill="#ffd766" opacity=".9"/>
+        <ellipse cx="72" cy="60" rx="16" ry="9" fill="rgba(255,255,255,.28)" transform="rotate(-24 72 60)"/>
+      </svg>
+    </button>
+    </div>
+    <div id="combTip"></div>
+    <div id="frenzyTag">HONEY FRENZY ×7</div>
+    <div id="clickHint">▲ click the comb for honey</div>
+    <div id="buildWrap" style="display:none">
+      <button id="buildBtn" aria-label="Build comb">
+        <svg width="160" height="160" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 8l76 44v88l-76 44-76-44V52z" fill="#6b4c1d" stroke="#3a2708" stroke-width="7" stroke-linejoin="round"/>
+          <g fill="none" stroke="rgba(36,22,5,.6)" stroke-width="4">
+            <path d="M100 47l30 17v34l-30 17-30-17V64z"/>
+            <path d="M100 8v39M24 52l46 12M176 52l-46 12M100 200v-85M24 140l46-25M176 140l-46-25"/>
+          </g>
+          <path d="M100 66v68M66 100h68" stroke="#ffd766" stroke-width="14" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div id="buildSide">
+        <div id="buildLbl">BUILD COMB</div>
+        <div id="buildInfo">&nbsp;</div>
+        <div id="buildBar"><div id="buildFill"></div></div>
+      </div>
+    </div>
+    <div id="leftStats"></div>
+  </div>
+
+  <div id="hiveWrap">
+    <canvas id="hiveCanvas"></canvas>
+    <div id="madeCounter"><div class="mVal" id="madeVal">0 g</div><div class="mLbl">honey made</div></div>
+    <div id="badges" style="top:74px">
+      <span class="badge" id="seasonBadge"></span>
+      <span class="badge" id="lineageBadge"></span>
+    </div>
+    <div id="banner"></div>
+    <div id="toasts"></div>
+  </div>
+
+  <div id="side">
+    <div id="storeTitle">Store</div>
+    <div id="tabs" style="display:flex">
+      <button data-tab="bees" class="active">Bees</button>
+      <button data-tab="build" id="tabBuild" style="display:none">Build</button>
+      <button data-tab="swarm" id="tabSwarm" style="display:none">Swarm</button>
+    </div>
+    <div id="qtyRow">
+      <span class="lbl">Buy</span>
+      <button data-qty="1" class="active">1</button>
+      <button data-qty="10">10</button>
+      <button data-qty="100">100</button>
+    </div>
+    <div id="tabContent"></div>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   HIVE MANAGER v3 — a honey-drenched idle clicker
+   One number matters: honey. Everything you buy makes honey.
+   ============================================================ */
+
+// ---------- Icons ----------
+const ICONS = {
+  bee: '<g fill="currentColor"><ellipse cx="12" cy="14" rx="7" ry="5"/><circle cx="7" cy="8" r="3" opacity=".5"/><circle cx="17" cy="8" r="3" opacity=".5"/></g>',
+  flower: '<g fill="currentColor"><circle cx="12" cy="5.5" r="3.4"/><circle cx="12" cy="18.5" r="3.4"/><circle cx="5.5" cy="12" r="3.4"/><circle cx="18.5" cy="12" r="3.4"/><circle cx="12" cy="12" r="2.6"/></g>',
+  drop: '<path fill="currentColor" d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2z"/>',
+  hexicon: '<path fill="none" stroke="currentColor" stroke-width="2.4" d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/>',
+  heart: '<path fill="currentColor" d="M12 21C7 16.5 3 13 3 8.8A4.8 4.8 0 0 1 12 6a4.8 4.8 0 0 1 9 2.8C21 13 17 16.5 12 21z"/>',
+  crown: '<path fill="currentColor" d="M2 8l5.5 3.5L12 4l4.5 7.5L22 8l-2 9.5H4z"/>',
+  sun: '<g stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></g>',
+  leaf: '<path fill="currentColor" d="M20 4C10 4 4 10 4 20c10 0 16-6 16-16z"/>',
+  snow: '<g stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></g>',
+  wind: '<g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M3 8h9a3 3 0 1 0-3-3M3 13h14a3 3 0 1 1-3 3M3 18h7"/></g>',
+  cursor: '<path fill="currentColor" d="M6 3l12 9-5.2 1.2L15 20l-2.6 1.2-2.2-6.8L6 17z"/>',
+  shield: '<path fill="currentColor" d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5z"/>',
+  star: '<path fill="currentColor" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/>',
+};
+function icon(name){ return `<svg class="ic" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">${ICONS[name]||""}</svg>`; }
+
+// ---------- Bees: every bee is an auto-clicker ----------
+// Each clicks the comb once per second and brings `perClick` grams.
+const BUILDINGS = [
+  {id:"worker", name:"Worker Bee",   desc:"A humble worker", icon:"bee",    cost:15,    perClick:0.1},
+  {id:"drone",  name:"Drone",        desc:"Bigger, lazier, stronger", icon:"cursor",  cost:100,  perClick:0.5},
+  {id:"forager",name:"Forager",      desc:"Knows every flower for miles", icon:"flower", cost:700, perClick:2.5},
+  {id:"nurse",  name:"Nurse",        desc:"Her brood helps her harvest", icon:"heart", cost:5200, perClick:10},
+  {id:"fanner", name:"Fanner",       desc:"Fans nectar into thick honey", icon:"wind", cost:42000, perClick:45},
+  {id:"field",  name:"Flower Field", desc:"A meadow that blooms just for you", icon:"sun", cost:350000, perClick:200},
+  {id:"press",  name:"Honey Press",  desc:"Squeezes the comb day and night", icon:"hexicon", cost:3e6, perClick:900},
+  {id:"court",  name:"Queen's Court",desc:"Royal bees bless the whole harvest", icon:"crown", cost:2.6e7, perClick:4200},
+];
+// Endless late-game species: each ~x8 the cost, ~x5 the output of the last.
+(function(){
+  const names = ["Royal Apiary","Amber Ziggurat","Golden Grove","Honey Cathedral","Nectar River",
+    "Sunlit Vale","Pollen Citadel","Celestial Meadow","Amber Moon","Queen Mother's Throne",
+    "Hive Eternal","Meadow of Legend","Honeystar","The Great Bloom","World Comb"];
+  const descs = ["A palace of wax and gold","Ancient bees hum old songs","Every branch drips honey",
+    "Choirs of wings in the nave","It flows amber to the sea","Warm light, endless flowers",
+    "A fortress dusted gold","Bees among the stars","A second harvest by night","She blesses every cell"];
+  const icons = ["crown","sun","hexicon","flower","star","drop","heart","wind","bee","leaf"];
+  let cost = 2.6e7, per = 4200;
+  for (let i=0;i<25;i++){
+    cost *= 8; per *= 5;
+    const name = i<names.length ? names[i] : "World Comb "+(i-names.length+2);
+    BUILDINGS.push({id:"t"+i, name, desc:descs[i%descs.length], icon:icons[i%icons.length], cost, perClick:per});
+  }
+})();
 // Mason bees live in the Build tab: they click the build-hex once per second.
 const MASON = {id:"mason", name:"Mason Bee", desc:"Clicks the build-hex for you, once a second", icon:"hexicon", cost:250};
 const COST_GROWTH = 1.16;
