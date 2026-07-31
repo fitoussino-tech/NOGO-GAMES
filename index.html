@@ -170,7 +170,7 @@
   .modal h2 { font-family: var(--px-font); font-size: 12px; line-height: 1.9; margin-bottom: 15px; color: var(--fg); }
   .modal p { font-size: 14px; color: var(--grey); line-height: 1.8; margin-bottom: 26px; }
   .modal .btn { width: 100%; margin-bottom: 15px; }
-  .modal .close { font-size: 14px; color: var(--grey); cursor: pointer; background: none; border: none; font-family: var(--body-font); }
+  .modal .close { font-size: 14px; color: var(--grey); cursor: pointer; background: none; border: none; font-family: var(--body-font); display: block; width: 100%; margin-top: 4px; }
   .modal .close:hover { color: var(--fg); }
   .auth-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
   .auth-tab {
@@ -389,7 +389,15 @@
       </div>
       <div class="auth-msg" id="auth-msg"></div>
       <button class="btn" id="auth-submit" onclick="submitAuth()">LOG IN</button>
+      <button class="close" onclick="forgotPassword()">forgot your password?</button>
       <button class="close" onclick="closeAccount()">close</button>
+    </div>
+    <div id="reset-view" style="display:none;">
+      <h2>NEW PASSWORD</h2>
+      <p>Choose a new password for your account.</p>
+      <input class="auth-input" id="reset-password" type="password" placeholder="new password (6+ characters)">
+      <div class="auth-msg" id="reset-msg"></div>
+      <button class="btn" onclick="submitNewPassword()">SAVE PASSWORD</button>
     </div>
     <div id="account-view" style="display:none;">
       <h2>YOUR ACCOUNT</h2>
@@ -582,6 +590,46 @@
 
   let authMode = 'login';
   let captchaAnswer = null;
+  let recoveryMode = false;
+
+  // Quand l'utilisateur revient depuis le lien reçu par e-mail
+  sb.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      recoveryMode = true;
+      document.getElementById('auth-modal').classList.add('open');
+      refreshAccountUI();
+    }
+  });
+
+  // Envoi du lien de réinitialisation
+  async function forgotPassword() {
+    const msg = document.getElementById('auth-msg');
+    msg.classList.remove('ok');
+    const email = document.getElementById('auth-email').value.trim();
+    if (!email) { msg.textContent = 'Type your email above first, then click again.'; return; }
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + location.pathname
+    });
+    if (error) { msg.textContent = error.message; return; }
+    msg.textContent = 'Reset link sent — check your inbox.';
+    msg.classList.add('ok');
+  }
+
+  // Enregistrement du nouveau mot de passe
+  async function submitNewPassword() {
+    const msg = document.getElementById('reset-msg');
+    const pwd = document.getElementById('reset-password').value;
+    if (pwd.length < 6) { msg.textContent = 'Password must be 6+ characters.'; return; }
+    const { error } = await sb.auth.updateUser({ password: pwd });
+    if (error) { msg.textContent = error.message; return; }
+    recoveryMode = false;
+    msg.textContent = '';
+    document.getElementById('reset-password').value = '';
+    const { data: { session } } = await sb.auth.getSession();
+    await onLoggedIn(session);
+    closeAccount();
+  }
+
   function newCaptcha() {
     const a = 2 + Math.floor(Math.random() * 8);
     const b = 2 + Math.floor(Math.random() * 8);
@@ -642,7 +690,12 @@
         await onLoggedIn(data.session);
       } else {
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) { msg.textContent = 'Wrong email or password.'; return; }
+        if (error) {
+          msg.textContent = /confirm/i.test(error.message)
+            ? 'Confirm your email first — check your inbox.'
+            : 'Wrong email or password.';
+          return;
+        }
         await onLoggedIn(data.session);
       }
       msg.textContent = '';
@@ -698,6 +751,14 @@
       el.innerHTML = (isMember ? '<span class="nav-badge">★ MEMBER</span>' : '') +
         'Hi ' + escapeHtml(first) + ' · ★ ' + points + ' pts';
     });
+    // écran "nouveau mot de passe" après un clic sur le lien reçu par e-mail
+    if (recoveryMode) {
+      document.getElementById('auth-forms').style.display = 'none';
+      document.getElementById('account-view').style.display = 'none';
+      document.getElementById('reset-view').style.display = 'block';
+      return;
+    }
+    document.getElementById('reset-view').style.display = 'none';
     document.getElementById('auth-forms').style.display = logged ? 'none' : 'block';
     document.getElementById('account-view').style.display = logged ? 'block' : 'none';
     if (logged) {
@@ -840,7 +901,6 @@
     ".....X................",
     ".....XX..............."
   ];
-  // Couronne affichée au-dessus de la tête, uniquement pour les membres
   const DINO_CROWN = [
     "..............X.X.X...",
     "..............XXXXX..."
