@@ -54,18 +54,18 @@
   .lvl-card .open-tag { font-size:9px; color:#4dabf7; font-weight:700; letter-spacing:.5px; }
 
   #hud { position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-start; padding:14px 16px; pointer-events:none; z-index:10; }
-  .card { background:linear-gradient(160deg,rgba(22,52,77,.92),rgba(16,41,60,.92)); border:2px solid #3c729f; border-radius:16px; padding:10px 16px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
-  #holeInfo .hnum { font-size:20px; font-weight:800; color:var(--yellow); }
-  #holeInfo .hname { font-size:13px; color:#bcd9f2; font-weight:600; }
-  #holeInfo .hpar { font-size:13px; color:#69db7c; font-weight:700; }
-  #turnCard { text-align:center; min-width:170px; }
-  #turnName { font-weight:800; font-size:19px; text-shadow:0 2px 4px rgba(0,0,0,.4); }
-  #strokeInfo { font-size:12px; color:#9fc6e8; font-weight:600; margin-top:1px; }
-  #miniScore { font-size:13px; }
+  .card { background:linear-gradient(160deg,rgba(22,52,77,.82),rgba(16,41,60,.82)); border:2px solid #3c729f; border-radius:13px; padding:6px 11px; box-shadow:0 5px 14px rgba(0,0,0,.3); }
+  #holeInfo .hnum { font-size:15px; font-weight:800; color:var(--yellow); }
+  #holeInfo .hname { font-size:11px; color:#bcd9f2; font-weight:600; }
+  #holeInfo .hpar { font-size:11px; color:#69db7c; font-weight:700; }
+  #turnCard { text-align:center; min-width:110px; }
+  #turnName { font-weight:800; font-size:14px; text-shadow:0 2px 4px rgba(0,0,0,.4); }
+  #strokeInfo { font-size:10px; color:#9fc6e8; font-weight:600; margin-top:1px; }
+  #miniScore { font-size:11px; }
   #miniScore .ms-row { display:flex; align-items:center; gap:6px; font-weight:700; padding:1px 0; }
   .dot { display:inline-block; width:11px; height:11px; border-radius:50%; box-shadow:inset 0 -2px 3px rgba(0,0,0,.3); }
 
-  #hint { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:#eaf6ff; font-size:14px; font-weight:600; background:rgba(16,41,60,.85); border:2px solid #3c729f; padding:7px 18px; border-radius:14px; z-index:10; pointer-events:none; }
+  #hint { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); color:#eaf6ff; font-size:12px; font-weight:600; background:rgba(16,41,60,.8); border:2px solid #3c729f; padding:5px 14px; border-radius:12px; z-index:10; pointer-events:none; }
   #powerWrap { position:absolute; bottom:54px; left:50%; transform:translateX(-50%); width:260px; z-index:10; display:none; pointer-events:none; }
   #powerWrap .pw-label { text-align:center; font-size:12px; font-weight:800; color:var(--yellow); text-shadow:0 2px 3px rgba(0,0,0,.5); margin-bottom:3px; }
   #powerTrack { height:16px; background:rgba(0,0,0,.55); border-radius:8px; overflow:hidden; border:2px solid rgba(255,255,255,.25); }
@@ -118,9 +118,10 @@
 <div class="overlay" id="menuOverlay" style="background:rgba(6,20,32,.35)">
   <div class="panel" style="text-align:center">
     <div class="title"><span data-ic="flag" data-s="44"></span> <span class="putt">Tee</span> <span class="pals">Smash!</span></div>
-    <div class="subtitle">30-hole mini golf · hotseat & CPU rivals</div>
+    <div class="subtitle">40-hole mini golf · hotseat & CPU rivals</div>
     <div class="menu-col">
       <button class="btn" id="btnPlay"><span data-ic="play" data-s="18"></span>&nbsp; Play a Round</button>
+      <button class="btn" id="btnSolo" style="background:linear-gradient(180deg,#ffd43b,#f59f00); color:#4a3300; box-shadow:0 5px 0 #b37400, 0 8px 18px rgba(0,0,0,.3)"><span data-ic="target" data-s="18"></span>&nbsp; Solo Mode</button>
       <button class="btn blue" id="btnLevels"><span data-ic="grid" data-s="18"></span>&nbsp; Level Select</button>
       <button class="btn ghost" id="btnCollide"><span data-ic="collide" data-s="17"></span>&nbsp; Ball Collisions: <b id="collideState">OFF</b></button>
       <button class="btn ghost" id="btnHow"><span data-ic="help" data-s="17"></span>&nbsp; How to play</button>
@@ -147,14 +148,23 @@
         <button data-c="all">Full 18</button>
         <button data-c="bonus">Bonus 3</button>
         <button data-c="crazy">Crazy 9</button>
-        <button data-c="all30">All 30</button>
+        <button data-c="hardcore">Hardcore 5</button>
+        <button data-c="insane">Insane 5</button>
+        <button data-c="all40">All 40</button>
       </div>
     </div>
-    <div class="row"><label>Human players</label>
+    <div class="row" id="humansRow"><label>Human players</label>
       <select id="selHumans"><option>1</option><option>2</option><option>3</option><option>4</option></select>
     </div>
-    <div class="row"><label>CPU players</label>
+    <div class="row" id="cpusRow"><label>CPU players</label>
       <select id="selCpus"><option>0</option><option selected>1</option><option>2</option><option>3</option></select>
+    </div>
+    <div class="row" id="diffRow"><label>CPU difficulty</label>
+      <div class="seg" id="diffSeg">
+        <button data-d="easy">Easy</button>
+        <button data-d="medium" class="on">Medium</button>
+        <button data-d="hard">Hard</button>
+      </div>
     </div>
     <div id="nameRows"></div>
     <div class="center" style="margin-top:18px">
@@ -427,9 +437,9 @@ const LEVELS = [
   "#################",
   "#...............#",
   "#...............#",
-  "#...............#",
-  "#S.............H#",
-  "#...............#",
+  "#.......#.......#",
+  "#S.....###.....H#",
+  "#.......#.......#",
   "#...............#",
   "#...............#",
   "#################"],
@@ -440,9 +450,9 @@ const LEVELS = [
  { par:4, name:"Glacier Run", map:[
   "##################",
   "#S..IIIIIIIIIII..#",
-  "#...IIWWIIIWWII..#",
-  "#...IIIIBIIIII..H#",
-  "#...IIWWIIIWWII..#",
+  "#...IIWWII#WWII..#",
+  "#...III#IIIIBI...#",
+  "#...IIWWIIIWWII.H#",
   "##################"]},
  { par:4, name:"Leap of Faith", open:true, map:[
   "........   ......",
@@ -458,7 +468,7 @@ const LEVELS = [
   "###############"]},
  { par:5, name:"Masterpiece", map:[
   "###################",
-  "#S....#.....#..t..#",
+  "#S....#..t..#.....#",
   "#.....#..B..#.....#",
   "#..~..#.....#..H..#",
   "#.....#.....#.....#",
@@ -469,6 +479,90 @@ const LEVELS = [
   "###################"],
   obstacles:[{type:'windmill', col:8, row:7, speed:1.6},
              {type:'slider', col:13, speed:1.5, range:2.2, phase:0}]},
+ /* ---- HARDCORE ---- */
+ { par:4, name:"The Needle", open:true, map:[
+  "......        ......",
+  ".S..............B.H.",
+  "......        ......"],
+  obstacles:[{type:'windmill', col:10, row:1, speed:2.2, len:3}]},
+ { par:4, name:"Airlock", map:[
+  "###############",
+  "#S....#III##t.#",
+  "#......IIT##..#",
+  "#.....#III##.H#",
+  "###############"],
+  obstacles:[{type:'slider', col:6, speed:2.0, range:1.2, hz:1.0, phase:0}]},
+ { par:4, name:"Clockwork", map:[
+  "###################",
+  "#S................#",
+  "#.................#",
+  "#................H#",
+  "###################"],
+  obstacles:[{type:'slider', col:5,  speed:2.2, range:1.5, phase:0},
+             {type:'slider', col:9,  speed:2.2, range:1.5, phase:2.09},
+             {type:'slider', col:13, speed:2.2, range:1.5, phase:4.19},
+             {type:'windmill', col:16, row:2, speed:2.5}]},
+ { par:5, name:"Pressure Chamber", map:[
+  "#################",
+  "#S....#....WWW..#",
+  "#......>J..WWW..#",
+  "#.~...#....WWW.H#",
+  "#..B..#....WWW..#",
+  "#..........WWW..#",
+  "#################"]},
+ { par:6, name:"Final Exam", map:[
+  "#####################",
+  "#S...#.....#t...#...#",
+  "#....#.WW..#.I..#...#",
+  "#.~..#.WW..#.I..#.H.#",
+  "#....#.....#.I..#...#",
+  "##.###..B..#.I..##.##",
+  "#.......~..#.I......#",
+  "#..T........>>......#",
+  "#...........>>...B..#",
+  "#...................#",
+  "#####################"],
+  obstacles:[{type:'windmill', col:8, row:8, speed:1.8},
+             {type:'slider', col:18, speed:2.0, range:1.8, hz:1.2, phase:0}]},
+ /* ---- INSANE ---- */
+ { par:5, name:"Hairpin", map:[
+  "############",
+  "#S.........#",
+  "##########.#",
+  "#~.........#",
+  "#.##########",
+  "#.........~#",
+  "##########.#",
+  "#........H.#",
+  "############"]},
+ { par:4, name:"Tightrope", open:true, map:[
+  ".....          .....",
+  ".S...IIIIIIIIII.B.H.",
+  ".....          ....."]},
+ { par:3, name:"Keyhole", map:[
+  "###############",
+  "#.......#.....#",
+  "#S......#..B..#",
+  "#............H#",
+  "#.......#..B..#",
+  "#.......#.....#",
+  "###############"]},
+ { par:4, name:"Sniper Alley", map:[
+  "#####################",
+  "#S..~~...~~...~~...H#",
+  "#####################"],
+  obstacles:[{type:'windmill', col:12, row:1, speed:2.0}]},
+ { par:5, name:"The Trial", open:true, map:[
+  ".....       ....",
+  ".S...IIIIIII....",
+  ".....       ....",
+  "             .  ",
+  "             .  ",
+  "             .  ",
+  "           .....",
+  "           ..H..",
+  "           ....."],
+  obstacles:[{type:'slider', col:13, speed:1.0, range:2.5, hz:1.0, phase:0}]},
 ];
 
 const CS = 2, BALL_R = 0.30, HOLE_R = 0.48;
@@ -591,7 +685,8 @@ const matCloud = new THREE.MeshLambertMaterial({color:0xffffff, fog:false});
 /* ============================== GAME STATE =============================== */
 const G = {
   players: [], round: [], roundPos: 0, holeIdx: 0, cur: -1,
-  state: 'menu', collide: false, open:false,
+  state: 'menu', collide: false, open:false, cpuDiff:'medium',
+  portals:[], jumpPads:[],
   grid:null, cols:0, rows:0, holePos:{x:0,z:0}, startPos:{x:0,z:0},
   group:null, envGroup:null, obstacles:[], waterMeshes:[], flagMesh:null,
   camYaw:0, camPitch:0.72, camDist:13, camTarget:new THREE.Vector3(),
@@ -690,12 +785,12 @@ function buildHole(idx){
   G.open = !!L.open;
   G.grid = L.map; G.rows = L.map.length; G.cols = L.map[0].length;
   G.group = new THREE.Group();
-  G.obstacles = []; G.waterMeshes = []; G.portals = [];
+  G.obstacles = []; G.waterMeshes = []; G.portals = []; G.jumpPads = [];
 
   const tileGeo = new THREE.BoxGeometry(CS, .34, CS);
   const cliffGeo = new THREE.BoxGeometry(CS, 2.3, CS);
-  const wallGeo = new THREE.BoxGeometry(CS, 1.15, CS);
-  const wallTop = new THREE.BoxGeometry(CS*1.04, .22, CS*1.04);
+  const wallGeo = new THREE.BoxGeometry(CS, .8, CS);
+  const wallTop = new THREE.BoxGeometry(CS*1.04, .16, CS*1.04);
 
   for(let r=0;r<G.rows;r++) for(let c=0;c<G.cols;c++){
     const ch = G.grid[r][c]; if(ch===' ') continue;
@@ -708,10 +803,10 @@ function buildHole(idx){
       }
       if(!nearFloor) continue;
       const m = new THREE.Mesh(wallGeo, matWall);
-      m.position.set(p.x,.4,p.z); m.castShadow = true; m.receiveShadow = true;
+      m.position.set(p.x,.23,p.z); m.castShadow = true; m.receiveShadow = true;
       G.group.add(m);
       const t = new THREE.Mesh(wallTop, matWallT);
-      t.position.set(p.x,1.07,p.z); t.castShadow = true;
+      t.position.set(p.x,.68,p.z); t.castShadow = true;
       G.group.add(t);
     } else {
       let mat = matGrassA;
@@ -754,6 +849,7 @@ function buildHole(idx){
         G.obstacles.push({type:'bumper', x:p.x, z:p.z, r:.48});
       }
       if(ch==='J'){
+        G.jumpPads.push({x:p.x, z:p.z});
         const chev = new THREE.Mesh(new THREE.ConeGeometry(.34,.6,4),
           new THREE.MeshLambertMaterial({color:0xffffff}));
         chev.position.set(p.x,.32,p.z);
@@ -990,7 +1086,7 @@ function microStep(pl, dt){
     b.y += b.vy*dt;
     if(b.y<=0){ b.y=0; b.vy=0; sfx.land(); }
   }
-  const high = b.y > 0.95;   // flying above the walls
+  const high = b.y > 0.72;   // flying above the walls
 
   // walls
   const {col,row} = worldToCell(b.x,b.z);
@@ -1017,19 +1113,31 @@ function microStep(pl, dt){
   // obstacles
   if(!high) for(const ob of G.obstacles){
     if(ob.type==='windmill'){
-      const ca=Math.cos(-ob.angle), sa=Math.sin(-ob.angle);
+      // exact same transform as the visible blade (mesh.rotation.y = angle)
+      const A = ob.angle;
+      const ca=Math.cos(A), sa=Math.sin(A);
       const dx=b.x-ob.x, dz=b.z-ob.z;
-      const lx=dx*ca-dz*sa, lz=dx*sa+dz*ca;
+      const lx = dx*ca - dz*sa;      // world -> blade local
+      const lz = dx*sa + dz*ca;
       const hx=ob.len/2, hz=ob.w/2;
-      if(Math.abs(lx)<hx+BALL_R && Math.abs(lz)<hz+BALL_R){
-        const px=hx+BALL_R-Math.abs(lx), pz=hz+BALL_R-Math.abs(lz);
-        let nlx=0,nlz=0;
-        if(pz<px) nlz = lz>=0?1:-1; else nlx = lx>=0?1:-1;
-        const cb=Math.cos(ob.angle), sb=Math.sin(ob.angle);
-        const nx=nlx*cb-nlz*sb, nz=nlx*sb+nlz*cb;
-        const pen = Math.min(px,pz);
-        b.x += nx*pen; b.z += nz*pen;
-        const vn = b.vx*nx+b.vz*nz;
+      // closest point on the blade rectangle (accurate corners & tips)
+      const qx = Math.max(-hx, Math.min(lx, hx));
+      const qz = Math.max(-hz, Math.min(lz, hz));
+      let ddx=lx-qx, ddz=lz-qz, d=Math.hypot(ddx,ddz);
+      if(d < BALL_R){
+        let nlx, nlz;
+        if(d>1e-6){ nlx=ddx/d; nlz=ddz/d; }
+        else {
+          const px=hx-Math.abs(lx), pz=hz-Math.abs(lz);
+          if(pz<px){ nlx=0; nlz=lz>=0?1:-1; } else { nlx=lx>=0?1:-1; nlz=0; }
+        }
+        // place ball exactly on the blade surface, back in world space
+        const sxl = qx + nlx*BALL_R, szl = qz + nlz*BALL_R;
+        b.x = ob.x + sxl*ca + szl*sa;
+        b.z = ob.z - sxl*sa + szl*ca;
+        const nx =  nlx*ca + nlz*sa;
+        const nz = -nlx*sa + nlz*ca;
+        const vn = b.vx*nx + b.vz*nz;
         if(vn<0){ b.vx-=(1+RESTITUTION)*vn*nx; b.vz-=(1+RESTITUTION)*vn*nz; }
         const tang = Math.abs(ob.speed)*Math.hypot(lx,lz);
         const cap = 2 + ob.len; // long sweeper arms shove much harder
@@ -1101,7 +1209,7 @@ function microStep(pl, dt){
       b.vy = 8.8;
       b.y = 0.01;
       const sp = Math.hypot(b.vx,b.vz);
-      const target = Math.max(sp*1.15, 12);
+      const target = Math.min(15.5, Math.max(sp*1.1, 12)); // capped: no more sailing past the landing zone
       if(sp>0.1){ b.vx*=target/sp; b.vz*=target/sp; }
       else { b.vx = target; b.vz = 0; }
       sfx.jump();
@@ -1214,9 +1322,15 @@ function clearLine(x1,z1,x2,z2){
   }
   return true;
 }
+const CPU_DIFF = {
+  easy:   {ang:.13,  pow:.28, cap:.72},
+  medium: {ang:.05,  pow:.13, cap:.85},
+  hard:   {ang:.016, pow:.05, cap:1},
+};
 function cpuShoot(pl){
   const b=pl.ball;
-  let target={x:G.holePos.x,z:G.holePos.z}, holeShot=true;
+  const D = CPU_DIFF[G.cpuDiff] || CPU_DIFF.medium;
+  let target={x:G.holePos.x,z:G.holePos.z}, holeShot=true, padShot=false;
   if(!clearLine(b.x,b.z,target.x,target.z)){
     holeShot=false;
     const path=bfsPath(b.x,b.z);
@@ -1224,6 +1338,14 @@ function cpuShoot(pl){
       for(let i=path.length-1;i>=0;i--){
         if(clearLine(b.x,b.z,path[i].x,path[i].z)){ target=path[i]; break; }
       }
+    } else if(G.jumpPads.length){
+      // no walking path — line up a jump-pad launch toward the hole
+      let bestP=null, bd=1e9;
+      for(const jp of G.jumpPads){
+        const dd = Math.hypot(jp.x-b.x, jp.z-b.z) + Math.hypot(jp.x-G.holePos.x, jp.z-G.holePos.z)*0.6;
+        if(dd<bd){ bd=dd; bestP=jp; }
+      }
+      if(bestP){ target={x:bestP.x, z:bestP.z}; padShot=true; }
     } else if(G.portals.length>=2){
       // no walking path — head for the nearest portal
       let bestP=null, bd=1e9;
@@ -1236,14 +1358,16 @@ function cpuShoot(pl){
   }
   let dx=target.x-b.x, dz=target.z-b.z;
   const dist=Math.hypot(dx,dz)||1; dx/=dist; dz/=dist;
-  const na=(Math.random()-.5)*0.085;
+  const na=(Math.random()-.5)*2*D.ang;
   const ca=Math.cos(na), sa=Math.sin(na);
   const ax=dx*ca-dz*sa, az=dx*sa+dz*ca;
-  let power = dist*FRICTION*(holeShot?1.04:1.3);
-  power *= 1+(Math.random()-.5)*0.13;
+  let power = holeShot ? dist*FRICTION*1.04
+            : padShot  ? dist*FRICTION + 10   // arrive at the pad with real speed; launch cap does the rest
+            : dist*FRICTION*1.3;
+  power *= 1+(Math.random()-.5)*2*D.pow;
   // on open courses the CPU putts more carefully
-  if(G.open) power = Math.min(power, dist*FRICTION*1.1);
-  power = Math.min(MAX_POWER*.85, Math.max(2.2, power));
+  if(G.open && !padShot) power = Math.min(power, dist*FRICTION*1.1);
+  power = Math.min(MAX_POWER*D.cap, Math.max(2.2, power));
   shoot(pl, ax, az, power);
 }
 
@@ -1392,9 +1516,18 @@ function banner(h,n){
 
 /* ================================ MENUS ================================= */
 const $ = id=>document.getElementById(id);
-let courseChoice='front', roundPreset=null;
+let courseChoice='front', roundPreset=null, soloMode=false;
 
-$('btnPlay').onclick = ()=>{ sfx.click(); roundPreset=null; openSetup(); };
+$('btnPlay').onclick = ()=>{ sfx.click(); soloMode=false; roundPreset=null; openSetup(); };
+$('btnSolo').onclick = ()=>{ sfx.click(); soloMode=true; roundPreset=null; openSetup(); };
+document.querySelectorAll('#diffSeg button').forEach(b=>{
+  b.onclick = ()=>{
+    sfx.click();
+    document.querySelectorAll('#diffSeg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    G.cpuDiff = b.dataset.d;
+  };
+});
 $('btnLevels').onclick = ()=>{ sfx.click(); buildLevelGrid(); $('menuOverlay').classList.add('hidden'); $('levelOverlay').classList.remove('hidden'); };
 $('btnHow').onclick = ()=>{ sfx.click(); $('howBox').classList.toggle('hidden'); };
 $('btnCollide').onclick = ()=>{
@@ -1420,9 +1553,13 @@ function openSetup(){
   $('levelOverlay').classList.add('hidden');
   $('setupOverlay').classList.remove('hidden');
   $('courseRow').style.display = roundPreset ? 'none' : 'flex';
+  if(soloMode){ selH.value='1'; selC.value='0'; }
+  $('humansRow').style.display = soloMode ? 'none' : 'flex';
+  $('cpusRow').style.display = soloMode ? 'none' : 'flex';
+  $('diffRow').style.display = soloMode ? 'none' : 'flex';
   $('setupCourseLabel').textContent = roundPreset
-    ? `Course: Hole ${roundPreset[0]+1} — ${LEVELS[roundPreset[0]].name}`
-    : 'Choose your course & players';
+    ? `Course: Hole ${roundPreset[0]+1} — ${LEVELS[roundPreset[0]].name}${soloMode?' · Solo':''}`
+    : (soloMode ? 'Solo round — beat your best scores' : 'Choose your course & players');
   refreshNameRows();
 }
 
@@ -1471,7 +1608,9 @@ $('btnStart').onclick = ()=>{
     courseChoice==='back'  ? [9,10,11,12,13,14,15,16,17] :
     courseChoice==='bonus' ? [18,19,20] :
     courseChoice==='crazy' ? [21,22,23,24,25,26,27,28,29] :
-    courseChoice==='all30' ? Array.from({length:30},(_,i)=>i) :
+    courseChoice==='hardcore' ? [30,31,32,33,34] :
+    courseChoice==='insane' ? [35,36,37,38,39] :
+    courseChoice==='all40' ? Array.from({length:40},(_,i)=>i) :
     Array.from({length:18},(_,i)=>i);
   G.roundPos = 0;
   $('setupOverlay').classList.add('hidden');
