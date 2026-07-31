@@ -82,7 +82,7 @@
   .big-card.primary:hover { box-shadow: 0 0 26px rgba(255, 94, 168, 0.35); }
   .big-card.secondary { border-color: var(--amber); box-shadow: 0 0 18px rgba(255, 200, 87, 0.2); }
   .big-card.secondary:hover { box-shadow: 0 0 26px rgba(255, 200, 87, 0.35); }
-  .big-card .icon { font-size: 28px; color: var(--fg); letter-spacing: 8px; }
+  .big-card .icon { font-size: 34px; color: var(--fg); letter-spacing: 8px; }
   .big-card .title { font-family: var(--px-font); font-size: 12px; line-height: 1.8; }
   .big-card.primary .title { color: var(--rose); }
   .big-card.secondary .title { color: var(--amber); }
@@ -136,6 +136,7 @@
   .game-loading {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     font-family: var(--px-font); font-size: 11px; color: var(--grey); letter-spacing: 2px;
+    text-align: center; padding: 20px; line-height: 2;
   }
   .sub-box {
     max-width: 460px; margin: 0 auto; background: var(--card);
@@ -186,12 +187,30 @@
   .auth-input:focus { border-color: var(--accent); }
   .auth-msg { font-size: 13px; color: var(--rose); min-height: 20px; margin-bottom: 8px; }
   .auth-msg.ok { color: var(--amber); }
+  .oauth-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px 16px; margin-bottom: 10px; border-radius: 10px; cursor: pointer;
+    font-family: var(--body-font); font-size: 15px; font-weight: 500;
+    background: var(--fg); color: var(--card-deep); border: 2px solid var(--fg);
+  }
+  .oauth-btn:hover { background: transparent; color: var(--fg); }
+  .oauth-btn svg { width: 18px; height: 18px; }
+  .oauth-sep {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--grey); font-size: 12px; letter-spacing: 2px; margin: 18px 0 16px;
+  }
+  .oauth-sep::before, .oauth-sep::after { content: ''; flex: 1; height: 1px; background: var(--line); }
   .member-pill {
     display: inline-block; font-family: var(--px-font); font-size: 9px;
     padding: 8px 12px; border-radius: 6px; margin-bottom: 10px;
   }
   .member-pill.yes { background: var(--amber); color: var(--card-deep); }
   .member-pill.no { color: var(--grey); border: 1px solid var(--line); }
+  #ad-slot {
+    background: var(--card-deep); border: 1px dashed var(--line); border-radius: 10px;
+    min-height: 180px; display: flex; align-items: center; justify-content: center;
+    color: var(--grey); font-size: 13px; margin-bottom: 22px; text-align: center; padding: 16px;
+  }
   footer {
     background: var(--card-deep);
     padding: 20px 30px; text-align: center;
@@ -199,8 +218,7 @@
   }
   #dino-wrap {
     position: fixed; bottom: 66px; right: 28px;
-    width: 68px; z-index: 500; cursor: pointer;
-    user-select: none;
+    width: 68px; z-index: 500; cursor: pointer; user-select: none;
   }
   #dino-wrap svg { width: 100%; height: auto; display: block; }
   #dino-wrap.jump { animation: dino-jump 0.75s cubic-bezier(0.3, 0, 0.4, 1); }
@@ -228,30 +246,29 @@
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
-      <a class="nav-link" onclick="go('vault')">Previous games</a>
+      <a class="nav-link" onclick="go('vault')">All games</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
   </header>
   <div class="hero">
-    <div class="badge"><span class="star">★</span> NEW GAME EVERY MONDAY <span class="star">★</span></div>
+    <div class="badge"><span class="star">★</span> A NEW GAME EVERY DAY <span class="star">★</span></div>
     <div class="slogan">BORED?<br><span class="dim">GOOD.</span></div>
     <div class="cta-row">
-      <div class="big-card primary" onclick="playCurrent()">
-        <div class="icon">▶</div>
-        <div class="title">PLAY THIS WEEK'S GAME</div>
-        <span class="tag-free">FREE</span>
+      <div class="big-card primary" onclick="playDaily()">
+        <div class="icon" id="daily-emoji">▶</div>
+        <div class="title" id="daily-title">LOADING…</div>
+        <span class="tag-free">FREE TODAY</span>
       </div>
       <div class="big-card secondary" onclick="go('vault')">
         <div class="icon">◼ ◼ ◼</div>
-        <div class="title">PLAY PREVIOUS GAMES</div>
+        <div class="title">PLAY ANY GAME<br>ANYTIME</div>
         <span class="tag-members">MEMBERS</span>
-        <div class="meta">vault opens next Monday</div>
+        <div class="meta" id="vault-count">the whole catalogue</div>
       </div>
     </div>
-    <div class="countdown-label">NEXT GAME DROPS IN</div>
+    <div class="countdown-label">TOMORROW'S GAME DROPS IN</div>
     <div class="countdown-row">
-      <div class="count-box"><div class="num" id="cd-d">--</div><div class="unit">DAYS</div></div>
       <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
       <div class="count-box"><div class="num" id="cd-m">--</div><div class="unit">MIN</div></div>
       <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
@@ -259,6 +276,7 @@
   </div>
   <footer>NOGO GAMES © 2026 — where bored people go</footer>
 </div>
+
 <div class="screen" id="screen-vault">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -269,41 +287,43 @@
     </div>
   </header>
   <div class="page">
-    <h1>THE VAULT</h1>
-    <div class="desc">Every game from previous weeks. This week's game is free — the rest is for members.</div>
+    <h1>ALL GAMES</h1>
+    <div class="desc">One game is free every day — the roll of the dice decides which. Members play whatever they want, whenever they want.</div>
     <div class="grid" id="vault-grid"></div>
   </div>
   <footer>NOGO GAMES © 2026 — where bored people go</footer>
 </div>
+
 <div class="screen" id="screen-game">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
-      <a class="nav-link" onclick="go('vault')">Previous games</a>
+      <a class="nav-link" onclick="go('vault')">All games</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
   </header>
   <div class="game-full" id="game-frame"></div>
 </div>
+
 <div class="screen" id="screen-subscribe">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
-      <a class="nav-link" onclick="go('vault')">Previous games</a>
+      <a class="nav-link" onclick="go('vault')">All games</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
     </div>
   </header>
   <div class="page">
     <div class="sub-box">
-      <h1>UNLOCK THE VAULT</h1>
+      <h1>UNLOCK EVERYTHING</h1>
       <div class="price">€2.99<small> / month</small></div>
       <ul class="perks">
-        <li>Access every past game</li>
-        <li>New game every Monday, forever</li>
-        <li>No ads, no install, plays in your browser</li>
+        <li>Play any game, any time — no waiting for the daily roll</li>
+        <li>The entire catalogue, forever</li>
+        <li>No ads, ever</li>
         <li>Cancel anytime, one click</li>
       </ul>
       <button class="btn" id="subscribe-btn" onclick="subscribeClick()">SUBSCRIBE</button>
@@ -312,19 +332,39 @@
   </div>
   <footer>NOGO GAMES © 2026 — where bored people go</footer>
 </div>
+
 <div class="modal-overlay" id="paywall">
   <div class="modal">
     <div class="lock-icon">🔒</div>
-    <h2>THIS GAME IS IN<br>THE VAULT</h2>
-    <p>Past weeks' games are for members only. This week's game is always free.</p>
+    <h2>MEMBERS ONLY</h2>
+    <p>This game isn't today's free pick. Members play anything, any time — or come back tomorrow and try your luck.</p>
     <button class="btn" onclick="closePaywall(); go('subscribe')">UNLOCK — €2.99/MONTH</button>
     <button class="close" onclick="closePaywall()">no thanks, back to being bored</button>
   </div>
 </div>
+
+<div class="modal-overlay" id="ad-modal">
+  <div class="modal">
+    <h2>ONE AD,<br>THEN YOU PLAY</h2>
+    <div id="ad-slot">emplacement publicitaire</div>
+    <button class="btn" id="ad-continue" onclick="adFinished()" disabled>WAIT…</button>
+    <button class="close" onclick="closeAd()">cancel</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="auth-modal">
   <div class="modal">
     <div id="auth-forms">
       <h2>JOIN NOGO GAMES</h2>
+      <button class="oauth-btn" onclick="oauthLogin('google')">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1a11 11 0 0 0-9.82 6.05l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+        Continue with Google
+      </button>
+      <button class="oauth-btn" onclick="oauthLogin('apple')">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 12.54c-.03-2.7 2.2-4 2.3-4.06-1.25-1.83-3.2-2.08-3.89-2.11-1.65-.17-3.23.97-4.07.97-.84 0-2.13-.95-3.5-.92-1.8.03-3.46 1.05-4.39 2.66-1.87 3.25-.48 8.06 1.34 10.7.89 1.29 1.95 2.74 3.34 2.69 1.34-.05 1.85-.87 3.47-.87 1.62 0 2.08.87 3.5.84 1.44-.02 2.36-1.31 3.24-2.61 1.02-1.5 1.44-2.95 1.46-3.03-.03-.01-2.8-1.07-2.8-4.26zM14.4 4.6c.74-.9 1.24-2.15 1.1-3.4-1.07.04-2.36.71-3.12 1.6-.68.79-1.28 2.06-1.12 3.28 1.19.09 2.4-.6 3.14-1.48z"/></svg>
+        Continue with Apple
+      </button>
+      <div class="oauth-sep">OR</div>
       <div class="auth-tabs">
         <button class="auth-tab active" id="tab-login" onclick="setAuthTab('login')">LOG IN</button>
         <button class="auth-tab" id="tab-signup" onclick="setAuthTab('signup')">SIGN UP</button>
@@ -354,30 +394,32 @@
     </div>
   </div>
 </div>
+
 <div id="dino-wrap" title="rawr">
   <div id="dino-bubble">RAWR!</div>
   <svg id="dino-svg" viewBox="0 0 22 22" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
-<script src="games/current.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // ============================================================
-  // CONFIG — remplace COLLE_TA_CLE_ICI par ta clé Supabase
-  // (Supabase → roue dentée ⚙️ en bas à gauche → API Keys → clé "anon public")
+  // CONFIG
   // ============================================================
   const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZGZ2dGd1YXZiYmlkZ3BqeGR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MjAxNzQsImV4cCI6MjEwMTA5NjE3NH0.S4Aku-Lbn-N-3r8o4JsqwJAPX5OP6_Y0GeMUKm6XWjI';
+
+  const ADS_ENABLED = false;   // passe à true le jour où tu auras une régie pub
+  const AD_SECONDS = 15;
   // ============================================================
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const GAMES = window.GAMES || [];
-  const CURRENT_INDEX = (typeof window.CURRENT_INDEX === 'number') ? window.CURRENT_INDEX : 0;
-  const CURRENT_GAME = GAMES[CURRENT_INDEX] || {};
-
+  let ALL_GAMES = [];
+  let DAILY = null;
   let loggedUser = null;
   let isMember = false;
   let points = 0;
+  let pendingGame = null;
 
   function go(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -387,27 +429,96 @@
     window.scrollTo(0, 0);
   }
 
-  function loadPublicGame(game) {
-    const frame = document.getElementById('game-frame');
-    frame.innerHTML = '';
-    const iframe = document.createElement('iframe');
-    iframe.src = game.path;
-    iframe.title = game.title || 'Game';
-    frame.appendChild(iframe);
-    go('game');
+  async function loadCatalogue() {
+    const [gamesRes, dailyRes] = await Promise.all([
+      sb.from('games').select('id, title, emoji, file').eq('is_active', true).order('created_at', { ascending: false }),
+      sb.rpc('get_daily_game')
+    ]);
+    ALL_GAMES = gamesRes.data || [];
+    DAILY = (dailyRes.data && dailyRes.data[0]) || null;
+
+    const emojiEl = document.getElementById('daily-emoji');
+    const titleEl = document.getElementById('daily-title');
+    if (DAILY) {
+      emojiEl.textContent = DAILY.emoji || '▶';
+      titleEl.textContent = DAILY.title || "TODAY'S GAME";
+    } else {
+      emojiEl.textContent = '…';
+      titleEl.textContent = 'NO GAME YET';
+    }
+    document.getElementById('vault-count').textContent =
+      ALL_GAMES.length ? ALL_GAMES.length + ' games in the catalogue' : 'catalogue coming soon';
+    renderVault();
   }
 
-  async function loadVaultGame(game) {
+  function renderVault() {
+    const grid = document.getElementById('vault-grid');
+    if (!grid) return;
+    if (!ALL_GAMES.length) {
+      grid.innerHTML =
+        '<div class="vault-empty">' +
+          '<div class="big">NOTHING HERE… YET</div>' +
+          'The first games are on their way.<br>Come back very soon.' +
+        '</div>';
+      return;
+    }
+    let html = '';
+    ALL_GAMES.forEach(function (g) {
+      const isToday = DAILY && g.id === DAILY.id;
+      const locked = !isMember && !isToday;
+      html +=
+        '<div class="card' + (isToday ? ' free' : '') + '" onclick="playGameById(\'' + g.id + '\')">' +
+          '<div class="thumb">' + (locked ? '🔒' : (g.emoji || '🎮')) + '</div>' +
+          '<div class="name">' + escapeHtml(g.title || 'GAME') + '</div>' +
+          '<div class="week">' + (isToday ? 'Free today' : (isMember ? 'Members' : 'Locked')) + '</div>' +
+          '<span class="tag"' + (isToday ? '' : ' style="background:var(--amber);"') + '>' +
+            (isToday ? 'PLAY FREE' : (isMember ? 'PLAY' : 'MEMBERS')) +
+          '</span>' +
+        '</div>';
+    });
+    grid.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function playDaily() {
+    if (!DAILY) return;
+    startGame(DAILY);
+  }
+
+  function playGameById(id) {
+    const g = ALL_GAMES.find(x => x.id === id);
+    if (!g) return;
+    startGame(g);
+  }
+
+  function startGame(game) {
+    const isToday = DAILY && game.id === DAILY.id;
+    if (isMember) { loadGame(game); return; }
+    if (!isToday) { openPaywall(); return; }
+    if (ADS_ENABLED) { openAd(game); return; }
+    loadGame(game);
+  }
+
+  async function loadGame(game) {
     const frame = document.getElementById('game-frame');
     frame.innerHTML = '<div class="game-loading">LOADING…</div>';
     go('game');
     try {
       const { data: { session } } = await sb.auth.getSession();
+      const token = session ? session.access_token : SUPABASE_ANON_KEY;
       const res = await fetch(
-        SUPABASE_URL + '/functions/v1/serve-game?file=' + encodeURIComponent(game.vaultFile),
-        { headers: { 'Authorization': 'Bearer ' + session.access_token, 'apikey': SUPABASE_ANON_KEY } }
+        SUPABASE_URL + '/functions/v1/serve-game?file=' + encodeURIComponent(game.file),
+        { headers: { 'Authorization': 'Bearer ' + token, 'apikey': SUPABASE_ANON_KEY } }
       );
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) {
+        frame.innerHTML = '<div class="game-loading">' +
+          (res.status === 403 || res.status === 401 ? 'MEMBERS ONLY' : 'ERROR — TRY AGAIN') + '</div>';
+        return;
+      }
       const html = await res.text();
       frame.innerHTML = '';
       const iframe = document.createElement('iframe');
@@ -419,52 +530,35 @@
     }
   }
 
-  function playCurrent() {
-    if (CURRENT_GAME.path) loadPublicGame(CURRENT_GAME);
+  let adTimer = null;
+  function openAd(game) {
+    pendingGame = game;
+    document.getElementById('ad-modal').classList.add('open');
+    const btn = document.getElementById('ad-continue');
+    let left = AD_SECONDS;
+    btn.disabled = true;
+    btn.textContent = 'WAIT… ' + left;
+    clearInterval(adTimer);
+    adTimer = setInterval(() => {
+      left--;
+      if (left <= 0) {
+        clearInterval(adTimer);
+        btn.disabled = false;
+        btn.textContent = 'PLAY NOW';
+      } else {
+        btn.textContent = 'WAIT… ' + left;
+      }
+    }, 1000);
   }
-
-  function playIndex(i) {
-    const g = GAMES[i];
-    if (!g) return;
-    if (i === CURRENT_INDEX && g.path) { loadPublicGame(g); return; }
-    if (!loggedUser) { openAccount('Log in first — vault games are for members.'); return; }
-    if (!isMember) { openPaywall(); return; }
-    if (g.vaultFile) { loadVaultGame(g); }
-    else if (g.path) { loadPublicGame(g); }
+  function closeAd() {
+    clearInterval(adTimer);
+    document.getElementById('ad-modal').classList.remove('open');
+    pendingGame = null;
   }
-
-  function renderVault() {
-    let html = '';
-    if (CURRENT_GAME.path) {
-      html +=
-        '<div class="card free" onclick="playIndex(' + CURRENT_INDEX + ')">' +
-          '<div class="thumb">' + (CURRENT_GAME.emoji || '') + '</div>' +
-          '<div class="name">' + (CURRENT_GAME.title || "THIS WEEK'S GAME") + '</div>' +
-          '<div class="week">This week</div>' +
-          '<span class="tag">FREE</span>' +
-        '</div>';
-    }
-    let previous = 0;
-    GAMES.forEach(function (g, i) {
-      if (i === CURRENT_INDEX || !g || (!g.path && !g.vaultFile)) return;
-      previous++;
-      const locked = !isMember;
-      html +=
-        '<div class="card" onclick="playIndex(' + i + ')">' +
-          '<div class="thumb">' + (locked ? '🔒' : (g.emoji || '')) + '</div>' +
-          '<div class="name">' + (g.title || 'GAME') + '</div>' +
-          '<div class="week">Previous game</div>' +
-          '<span class="tag" style="background:var(--amber);">' + (locked ? 'MEMBERS' : 'PLAY') + '</span>' +
-        '</div>';
-    });
-    if (previous === 0) {
-      html +=
-        '<div class="vault-empty">' +
-          '<div class="big">THE VAULT IS EMPTY… FOR NOW</div>' +
-          'Every Monday, the previous game moves in here.<br>Come back next week.' +
-        '</div>';
-    }
-    document.getElementById('vault-grid').innerHTML = html;
+  function adFinished() {
+    const g = pendingGame;
+    closeAd();
+    if (g) loadGame(g);
   }
 
   function openPaywall() { document.getElementById('paywall').classList.add('open'); }
@@ -496,6 +590,16 @@
     document.getElementById('auth-lastname').style.display = signup ? 'block' : 'none';
     document.getElementById('auth-captcha-row').style.display = signup ? 'block' : 'none';
     if (signup) newCaptcha();
+  }
+
+  async function oauthLogin(provider) {
+    const msg = document.getElementById('auth-msg');
+    msg.classList.remove('ok');
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: provider,
+      options: { redirectTo: location.origin + location.pathname }
+    });
+    if (error) msg.textContent = error.message;
   }
 
   async function submitAuth() {
@@ -561,198 +665,4 @@
     if (data) {
       points = data.points || 0;
       isMember = !!data.is_member;
-      const n = ((data.first_name || '') + ' ' + (data.last_name || '')).trim();
-      if (n) loggedUser.name = n;
-    }
-    document.body.classList.toggle('is-member', isMember);
-  }
-
-  async function logout() {
-    await sb.auth.signOut();
-    loggedUser = null; isMember = false; points = 0;
-    document.body.classList.remove('is-member');
-    refreshAccountUI();
-    renderVault();
-    closeAccount();
-  }
-
-  function refreshAccountUI() {
-    const logged = !!loggedUser;
-    document.querySelectorAll('.nav-account').forEach(el => {
-      el.textContent = logged ? ('★ ' + points + ' pts') : 'Log in';
-    });
-    document.getElementById('auth-forms').style.display = logged ? 'none' : 'block';
-    document.getElementById('account-view').style.display = logged ? 'block' : 'none';
-    if (logged) {
-      document.getElementById('account-name').textContent = loggedUser.name;
-      document.getElementById('account-email').textContent = loggedUser.email;
-      document.getElementById('account-points').textContent = points;
-      document.getElementById('account-member-pill').innerHTML = isMember
-        ? '<span class="member-pill yes">★ MEMBER</span>'
-        : '<span class="member-pill no">FREE ACCOUNT</span>';
-      document.getElementById('portal-btn').style.display = isMember ? 'inline-block' : 'none';
-    }
-  }
-
-  (async function restoreSession() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) await onLoggedIn(session);
-    const params = new URLSearchParams(location.search);
-    if (params.get('checkout') === 'success') {
-      history.replaceState({}, '', location.pathname);
-      setTimeout(async () => {
-        await fetchProfile(); refreshAccountUI(); renderVault();
-        if (isMember) openAccount();
-      }, 2000);
-    }
-  })();
-
-  async function subscribeClick() {
-    const msg = document.getElementById('subscribe-msg');
-    if (!loggedUser) {
-      openAccount('Create an account first, then subscribe.');
-      return;
-    }
-    if (isMember) { msg.textContent = "You're already a member!"; return; }
-    const btn = document.getElementById('subscribe-btn');
-    btn.disabled = true; msg.textContent = '';
-    try {
-      const { data: { session } } = await sb.auth.getSession();
-      const res = await fetch(SUPABASE_URL + '/functions/v1/create-checkout', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + session.access_token,
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ returnUrl: location.origin + location.pathname })
-      });
-      const out = await res.json();
-      if (out.url) { location.href = out.url; }
-      else { msg.textContent = out.error || 'Payment error, try again.'; }
-    } catch (e) {
-      msg.textContent = 'Network error, try again.';
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  async function openPortal() {
-    try {
-      const { data: { session } } = await sb.auth.getSession();
-      const res = await fetch(SUPABASE_URL + '/functions/v1/customer-portal', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + session.access_token,
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ returnUrl: location.origin + location.pathname })
-      });
-      const out = await res.json();
-      if (out.url) location.href = out.url;
-    } catch (e) { /* silencieux */ }
-  }
-
-  let saveTimer = null;
-  function savePointsSoon() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      if (!loggedUser) return;
-      await sb.from('profiles').update({ points: points }).eq('id', loggedUser.id);
-    }, 1500);
-  }
-  window.addEventListener('message', (e) => {
-    if (!e.data || e.data.type !== 'nogo-score') return;
-    if (!loggedUser) return;
-    points += Math.max(0, Math.floor(Number(e.data.points) || 0));
-    refreshAccountUI();
-    savePointsSoon();
-  });
-
-  function nextMonday() {
-    const now = new Date();
-    const d = new Date(now);
-    d.setDate(now.getDate() + ((8 - now.getDay()) % 7 || 7));
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
-  const targetDate = nextMonday();
-  const p = n => String(n).padStart(2, '0');
-  function tick() {
-    let diff = Math.max(0, targetDate - new Date());
-    document.getElementById('cd-d').textContent = Math.floor(diff / 86400000);
-    document.getElementById('cd-h').textContent = p(Math.floor(diff / 3600000) % 24);
-    document.getElementById('cd-m').textContent = p(Math.floor(diff / 60000) % 60);
-    document.getElementById('cd-s').textContent = p(Math.floor(diff / 1000) % 60);
-  }
-  tick();
-  setInterval(tick, 1000);
-
-  const DINO_BODY = [
-    "............XXXXXXXX..",
-    "............XoXXXXXX..",
-    "............XXXXXXXX..",
-    "............XXXXXXXX..",
-    "............XXXX......",
-    "............XXXXXXX...",
-    "............XXXX......",
-    "X...........XXXX......",
-    "X..........XXXXX......",
-    "XX........XXXXXXXXX...",
-    "XXX......XXXXXXXX.....",
-    "XXXX....XXXXXXXXX.....",
-    "XXXXX..XXXXXXXXX......",
-    "XXXXXXXXXXXXXXXX......",
-    ".XXXXXXXXXXXXXXX......",
-    "..XXXXXXXXXXXXX.......",
-    "...XXXXXXXXXXX........",
-    "....XXXXXXXXX........."
-  ];
-  const DINO_LEGS_A = [
-    ".....XXX..XXX.........",
-    ".....XXX...XX.........",
-    "...........X..........",
-    "...........XX........."
-  ];
-  const DINO_LEGS_B = [
-    ".....XXX..XXX.........",
-    ".....XX...XXX.........",
-    ".....X................",
-    ".....XX..............."
-  ];
-  const dinoSvg = document.getElementById('dino-svg');
-  const dinoWrap = document.getElementById('dino-wrap');
-  let eyeOpen = true;
-  function drawDino(legsFrame) {
-    const rows = DINO_BODY.concat(legsFrame);
-    let s = '';
-    rows.forEach((row, y) => {
-      for (let x = 0; x < row.length; x++) {
-        const c = row[x];
-        if (c === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#e8eaf6"/>`;
-        if (c === 'o') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${eyeOpen ? '#080c20' : '#e8eaf6'}"/>`;
-      }
-    });
-    dinoSvg.innerHTML = s;
-  }
-  let legFlip = false;
-  drawDino(DINO_LEGS_A);
-  setInterval(() => { legFlip = !legFlip; drawDino(legFlip ? DINO_LEGS_B : DINO_LEGS_A); }, 160);
-  setInterval(() => { eyeOpen = false; setTimeout(() => { eyeOpen = true; }, 150); }, 3400);
-  function dinoJump(shout) {
-    if (dinoWrap.classList.contains('jump')) return;
-    dinoWrap.classList.add('jump');
-    if (shout) dinoWrap.classList.add('talk');
-    setTimeout(() => {
-      dinoWrap.classList.remove('jump');
-      setTimeout(() => dinoWrap.classList.remove('talk'), 400);
-    }, 750);
-  }
-  dinoWrap.addEventListener('click', () => dinoJump(true));
-  (function autoJump() {
-    setTimeout(() => { dinoJump(false); autoJump(); }, 6000 + Math.random() * 8000);
-  })();
-</script>
-</body>
-</html>
+      const n = ((data.first_name || '')
