@@ -388,6 +388,17 @@ const ICONS = {
   snow: '<g stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></g>',
   wind: '<g stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"><path d="M3 8h9a3 3 0 1 0-3-3M3 13h14a3 3 0 1 1-3 3M3 18h7"/></g>',
   cursor: '<path fill="currentColor" d="M6 3l12 9-5.2 1.2L15 20l-2.6 1.2-2.2-6.8L6 17z"/>',
+  drone: '<g fill="currentColor">'+
+    '<path d="M9.6 3.4L8.2 1.2M14.4 3.4L15.8 1.2" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/>'+
+    '<ellipse cx="5.6" cy="10.5" rx="4.2" ry="2.1" opacity=".5" transform="rotate(-38 5.6 10.5)"/>'+
+    '<ellipse cx="18.4" cy="10.5" rx="4.2" ry="2.1" opacity=".5" transform="rotate(38 18.4 10.5)"/>'+
+    '<ellipse cx="12" cy="15.2" rx="7.2" ry="6.4"/>'+
+    '<rect x="5.6" y="12.4" width="12.8" height="1.9" rx=".95" opacity=".38"/>'+
+    '<rect x="6.4" y="16.2" width="11.2" height="1.9" rx=".95" opacity=".38"/>'+
+    '<circle cx="12" cy="6.6" r="4.5"/>'+
+    '<circle cx="10.1" cy="6.2" r="1.9" opacity=".45"/>'+
+    '<circle cx="13.9" cy="6.2" r="1.9" opacity=".45"/>'+
+  '</g>',
   shield: '<path fill="currentColor" d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5z"/>',
   star: '<path fill="currentColor" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/>',
 };
@@ -398,7 +409,7 @@ function icon(name){ return `<svg class="ic" viewBox="0 0 24 24" xmlns="http://w
 // Early species inflate gently so you can semi-spam them; late ones inflate normally.
 const BUILDINGS = [
   {id:"worker", name:"Worker Bee",   desc:"A humble worker", icon:"bee",    cost:15,    perClick:0.1, growth:1.07},
-  {id:"drone",  name:"Drone",        desc:"Bigger, lazier, stronger", icon:"cursor",  cost:100,  perClick:0.5, growth:1.08},
+  {id:"drone",  name:"Drone",        desc:"The big male — finally put to work", icon:"drone",  cost:100,  perClick:0.5, growth:1.08},
   {id:"forager",name:"Forager",      desc:"Knows every flower for miles", icon:"flower", cost:700, perClick:2.5, growth:1.10},
   {id:"nurse",  name:"Nurse",        desc:"Her brood helps her harvest", icon:"heart", cost:5200, perClick:10, growth:1.12},
   {id:"fanner", name:"Fanner",       desc:"Fans nectar into thick honey", icon:"wind", cost:42000, perClick:45, growth:1.13},
@@ -471,7 +482,7 @@ const ACHIEVEMENTS = [
   {id:"h100",     name:"Sweet Hundred",    icon:"hexicon",cond:()=>S.lifetimeAll>=100},
   {id:"h1k",      name:"Kilo Club",        icon:"hexicon",cond:()=>S.lifetimeAll>=1000},
   {id:"h1t",      name:"A Ton of Fun",     icon:"hexicon",cond:()=>S.lifetimeAll>=1e6},
-  {id:"drone10",  name:"Automation",       icon:"cursor", cond:()=>S.b.drone>=10},
+  {id:"drone10",  name:"Automation",       icon:"drone", cond:()=>S.b.drone>=10},
   {id:"gold1",    name:"Golden Touch",     icon:"star",   cond:()=>S.goldenClicked>=1},
   {id:"raid1",    name:"Pest Control",     icon:"shield", cond:()=>S.raidsWon>=1},
   {id:"winter1",  name:"Winter Survivor",  icon:"snow",   cond:()=>S.winters>=1},
@@ -674,7 +685,7 @@ function hps(){
 function buildClickPower(){ return 1 * buildClickMult(); }
 function builderClickRate(bd){ return bd.bRate*builderMult(bd.id); }           // per builder, per second
 function masonRate(){ return BUILDERS.reduce((a,bd)=>a+S.b[bd.id]*builderClickRate(bd),0); } // total build clicks /s
-function cellBuildCost(){ return Math.ceil(6*Math.pow(1.10, S.cells-8)); } // build clicks for the next cell
+function cellBuildCost(){ return Math.ceil(6*Math.pow(1.075, S.cells-8)); } // build clicks for the next cell
 function gainHoney(g){
   const a = Math.min(g, Math.max(0, capacity()-S.honey));
   if (a<=0) return 0;
