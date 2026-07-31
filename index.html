@@ -206,6 +206,16 @@
   }
   .member-pill.yes { background: var(--amber); color: var(--card-deep); }
   .member-pill.no { color: var(--grey); border: 1px solid var(--line); }
+  /* ---- signes distinctifs des membres ---- */
+  .nav-badge {
+    font-family: var(--px-font); font-size: 8px;
+    background: var(--amber); color: var(--card-deep);
+    padding: 5px 7px; border-radius: 5px; margin-right: 9px;
+  }
+  body.is-member .nav-account { color: var(--amber); }
+  body.is-member .card { border-color: rgba(255, 200, 87, 0.4); }
+  body.is-member .card:hover { border-color: var(--amber); box-shadow: 0 0 14px rgba(255, 200, 87, 0.2); }
+  body.is-member .card.free { border-color: var(--rose); }
   #ad-slot {
     background: var(--card-deep); border: 1px dashed var(--line); border-radius: 10px;
     min-height: 180px; display: flex; align-items: center; justify-content: center;
@@ -406,9 +416,9 @@
   // CONFIG
   // ============================================================
   const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZGZ2dGd1YXZiYmlkZ3BqeGR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MjAxNzQsImV4cCI6MjEwMTA5NjE3NH0.S4Aku-Lbn-N-3r8o4JsqwJAPX5OP6_Y0GeMUKm6XWjI';
+  const SUPABASE_ANON_KEY = 'COLLE_TA_CLE_ICI';
 
-  const ADS_ENABLED = false;   // passe à true le jour où tu auras une régie pub
+  const ADS_ENABLED = false;
   const AD_SECONDS = 15;
   // ============================================================
 
@@ -683,7 +693,10 @@
   function refreshAccountUI() {
     const logged = !!loggedUser;
     document.querySelectorAll('.nav-account').forEach(el => {
-      el.textContent = logged ? ('★ ' + points + ' pts') : 'Log in';
+      if (!logged) { el.textContent = 'Log in'; return; }
+      const first = (loggedUser.name || 'Player').split(' ')[0];
+      el.innerHTML = (isMember ? '<span class="nav-badge">★ MEMBER</span>' : '') +
+        'Hi ' + escapeHtml(first) + ' · ★ ' + points + ' pts';
     });
     document.getElementById('auth-forms').style.display = logged ? 'none' : 'block';
     document.getElementById('account-view').style.display = logged ? 'block' : 'none';
@@ -827,17 +840,34 @@
     ".....X................",
     ".....XX..............."
   ];
+  // Couronne affichée au-dessus de la tête, uniquement pour les membres
+  const DINO_CROWN = [
+    "..............X.X.X...",
+    "..............XXXXX..."
+  ];
   const dinoSvg = document.getElementById('dino-svg');
   const dinoWrap = document.getElementById('dino-wrap');
   let eyeOpen = true;
   function drawDino(legsFrame) {
     const rows = DINO_BODY.concat(legsFrame);
+    const color = isMember ? '#ffc857' : '#e8eaf6';
     let s = '';
+    if (isMember) {
+      dinoSvg.setAttribute('viewBox', '0 -3 22 25');
+      DINO_CROWN.forEach((row, i) => {
+        const y = i - 3;
+        for (let x = 0; x < row.length; x++) {
+          if (row[x] === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#ffc857"/>`;
+        }
+      });
+    } else {
+      dinoSvg.setAttribute('viewBox', '0 0 22 22');
+    }
     rows.forEach((row, y) => {
       for (let x = 0; x < row.length; x++) {
         const c = row[x];
-        if (c === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#e8eaf6"/>`;
-        if (c === 'o') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${eyeOpen ? '#080c20' : '#e8eaf6'}"/>`;
+        if (c === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${color}"/>`;
+        if (c === 'o') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${eyeOpen ? '#080c20' : color}"/>`;
       }
     });
     dinoSvg.innerHTML = s;
