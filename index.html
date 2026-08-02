@@ -356,7 +356,12 @@
         <li>No ads, ever</li>
         <li>Cancel anytime, one click</li>
       </ul>
-      <button class="btn" id="subscribe-btn" onclick="subscribeClick()">SUBSCRIBE</button>
+      <div style="font-size:13px;color:var(--grey);margin-bottom:16px;line-height:1.7;">
+        €2.99 per month, billed automatically.<br>Cancel anytime in one click from your account.
+      </div>
+      <div id="express-checkout"></div>
+      <div class="oauth-sep" id="pay-sep" style="display:none;">OR</div>
+      <button class="btn" id="subscribe-btn" onclick="subscribeClick()">PAY BY CARD</button>
       <div class="auth-msg" id="subscribe-msg" style="margin-top:14px;"></div>
     </div>
   </div>
@@ -439,13 +444,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 <script>
   // ============================================================
   // CONFIG
   // ============================================================
   const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZGZ2dGd1YXZiYmlkZ3BqeGR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MjAxNzQsImV4cCI6MjEwMTA5NjE3NH0.S4Aku-Lbn-N-3r8o4JsqwJAPX5OP6_Y0GeMUKm6XWjI';
-
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TzN5NJkXpRG54Qt8FtStynHb2BLRkebc2Y0Du3ZFFaQG1AIw1vROF9Cr6KvQhqTD48s7f8Uu43kGenD89D1lPIY00rE12BwbX';
   const ADS_ENABLED = false;
   const AD_SECONDS = 15;
   // ============================================================
@@ -463,7 +469,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     document.getElementById('dino-wrap').style.display = name === 'game' ? 'none' : 'block';
-    if (name === 'vault') renderVault();
+    if (name === 'vault') renderVault(); if (name === 'subscribe') setupExpressCheckout();
     window.scrollTo(0, 0);
   }
 
@@ -818,6 +824,74 @@
   })();
 
   async function subscribeClick() {
+    let expressReady = false;
+  let stripeJs = null;
+
+  async function setupExpressCheckout() {
+    const holder = document.getElementById('express-checkout');
+    const sep = document.getElementById('pay-sep');
+    if (!holder || expressReady) return;
+    if (!loggedUser || isMember) return;
+    if (!window.Stripe || STRIPE_PUBLISHABLE_KEY.indexOf('pk_') !== 0) return;
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      });
+      const out = await res.json();
+      if (!out.clientSecret) return;
+
+      stripeJs = window.Stripe(STRIPE_PUBLISHABLE_KEY);
+      const elements = stripeJs.elements({
+        clientSecret: out.clientSecret,
+        appearance: { theme: 'night', variables: { colorPrimary: '#ffc857' } }
+      });
+
+      const express = elements.create('expressCheckout', {
+        buttonTheme: { applePay: 'white-outline', googlePay: 'white' },
+        buttonHeight: 48
+      });
+
+      express.on('ready', (ev) => {
+        if (ev && ev.availablePaymentMethods) { sep.style.display = 'flex'; }
+      });
+
+      express.on('confirm', async () => {
+        const msg = document.getElementById('subscribe-msg');
+        msg.classList.remove('ok');
+        msg.textContent = '';
+        const { error } = await stripeJs.confirmPayment({
+          elements,
+          clientSecret: out.clientSecret,
+          confirmParams: { return_url: location.origin + location.pathname + '?checkout=success' },
+          redirect: 'if_required'
+        });
+        if (error) { msg.textContent = error.message || 'Payment failed, try again.'; return; }
+        msg.classList.add('ok');
+        msg.textContent = 'Payment received — unlocking your account…';
+        waitForMembership();
+      });
+
+      express.mount('#express-checkout');
+      expressReady = true;
+    } catch (e) { /* le bouton carte reste disponible */ }
+  }
+
+  async function waitForMembership(tries) {
+    tries = tries || 0;
+    await fetchProfile();
+    refreshAccountUI();
+    renderVault();
+    if (isMember) { go('home'); openAccount(); return; }
+    if (tries < 10) setTimeout(() => waitForMembership(tries + 1), 1500);
+  }
     const msg = document.getElementById('subscribe-msg');
     if (!loggedUser) { openAccount('Create an account first, then subscribe.'); return; }
     if (isMember) { msg.textContent = "You're already a member!"; return; }
