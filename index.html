@@ -241,7 +241,10 @@
     background: var(--card); border: 1px solid var(--line); border-radius: 10px;
     padding: 13px 16px; margin-bottom: 8px;
   }
+  .board-row { cursor: pointer; }
+  .board-row:hover { border-color: var(--accent); }
   .board-row.me { border-color: var(--amber); }
+  .board-dino { width: 26px; height: auto; display: block; flex: 0 0 auto; }
   .board-pos { font-family: var(--px-font); font-size: 11px; color: var(--grey); width: 34px; }
   .board-row.top .board-pos { color: var(--amber); }
   .board-name { flex: 1; color: var(--fg); font-size: 15px; }
@@ -578,6 +581,25 @@
     <div id="ad-slot">emplacement publicitaire</div>
     <button class="btn" id="ad-continue" onclick="adFinished()" disabled>WAIT…</button>
     <button class="close" onclick="closeAd()">cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="player-modal">
+  <div class="modal">
+    <svg id="player-svg" class="reveal-svg" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="player-pill" style="margin-top:14px;"></div>
+    <div id="player-name" style="font-family:var(--px-font);font-size:13px;color:var(--fg);margin:6px 0 6px;"></div>
+    <div id="player-rank" style="font-family:var(--px-font);font-size:10px;color:var(--amber);margin-bottom:20px;"></div>
+    <div class="stat-row">
+      <div class="stat"><b id="p-streak">0</b><span>STREAK</span></div>
+      <div class="stat"><b id="p-points">0</b><span>POINTS</span></div>
+      <div class="stat"><b id="p-games">0</b><span>GAMES</span></div>
+    </div>
+    <div class="stat-row" style="margin-top:0;">
+      <div class="stat"><b id="p-best">0</b><span>BEST STREAK</span></div>
+      <div class="stat"><b id="p-dinos">1/13</b><span>DINOS</span></div>
+    </div>
+    <button class="close" onclick="closePlayer()">close</button>
   </div>
 </div>
 
@@ -1151,21 +1173,56 @@
   }
 
   // ---------- classements ----------
+  let boardSeq = 0;
   function boardRows(rows) {
     if (!rows || !rows.length) {
       return '<div class="board-empty">Nobody yet. Be the first — the bar is on the floor.</div>';
     }
-    return rows.map(function (r, i) {
+    const painters = [];
+    const html = rows.map(function (r, i) {
       const me = username && r.username === username;
-      return '<div class="board-row' + (i < 3 ? ' top' : '') + (me ? ' me' : '') + '">' +
+      const id = 'bd' + (boardSeq++);
+      painters.push({ id: id, dino: r.dino || 'egg' });
+      return '<div class="board-row' + (i < 3 ? ' top' : '') + (me ? ' me' : '') +
+        '" onclick="openPlayer(\'' + escapeHtml(r.username) + '\')">' +
         '<div class="board-pos">#' + (i + 1) + '</div>' +
+        '<svg class="board-dino" id="' + id + '" shape-rendering="crispEdges"></svg>' +
         '<div class="board-name">' + escapeHtml(r.username) +
           (r.streak ? ' <span style="color:var(--grey);font-size:13px;">· 🔥 ' + r.streak + '</span>' : '') +
         '</div>' +
         '<div class="board-pts">' + r.points + '</div>' +
       '</div>';
     }).join('');
+    setTimeout(function () {
+      painters.forEach(function (p) {
+        const el = document.getElementById(p.id);
+        if (el) paintDino(el, p.dino, false, true);
+      });
+    }, 0);
+    return html;
   }
+
+  // ---------- fiche d'un joueur ----------
+  async function openPlayer(name) {
+    const modal = document.getElementById('player-modal');
+    document.getElementById('player-name').textContent = name;
+    document.getElementById('player-rank').textContent = '…';
+    modal.classList.add('open');
+    const { data } = await sb.rpc('player_profile', { p_username: name });
+    const p = data && data[0];
+    if (!p) { document.getElementById('player-rank').textContent = 'Player not found.'; return; }
+    paintDino(document.getElementById('player-svg'), p.dino || 'egg', false, true);
+    document.getElementById('player-name').textContent = p.username;
+    document.getElementById('player-rank').textContent = rankFor(p.points).name;
+    document.getElementById('player-pill').innerHTML = p.is_member
+      ? '<span class="member-pill yes">★ MEMBER</span>' : '';
+    document.getElementById('p-streak').textContent = p.streak;
+    document.getElementById('p-points').textContent = p.points;
+    document.getElementById('p-games').textContent = p.games_played;
+    document.getElementById('p-best').textContent = p.best_streak;
+    document.getElementById('p-dinos').textContent = p.dinos + '/' + DINOS.length;
+  }
+  function closePlayer() { document.getElementById('player-modal').classList.remove('open'); }
 
   async function renderLeaderboards() {
     const todayEl = document.getElementById('board-today');
