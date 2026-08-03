@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOGO GAMES — nothing here</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#080c20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#080c20; --card:#10142e; --card-deep:#05081a; --line:#1e2447;
+    --fg:#f4f6ff; --rose:#ff5ea8; --amber:#ffc857; --accent:#8b98ff; --grey:#7c86b0;
+    --px:'Press Start 2P','Courier New',monospace;
+    --body:'Space Grotesk',system-ui,sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:var(--bg); color:var(--fg); font-family:var(--body);
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  body::after {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:9;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px);
+  }
+  header { padding:20px 30px; background:var(--card-deep); display:flex; justify-content:space-between; align-items:center; }
+  .logo { font-family:var(--px); font-size:14px; color:var(--fg); text-decoration:none; letter-spacing:1px; }
+  .logo span { color:var(--rose); }
+  .nav { color:var(--grey); text-decoration:none; font-size:15px; }
+  .nav:hover { color:var(--fg); }
+  main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px 60px; text-align:center; }
+  h1 { font-family:var(--px); font-size:46px; color:var(--amber); margin-bottom:18px; }
+  .sub { font-family:var(--px); font-size:12px; line-height:2; color:var(--fg); margin-bottom:12px; }
+  .hint { color:var(--grey); font-size:14px; margin-bottom:26px; }
+  #wrap { position:relative; width:100%; max-width:640px; }
+  canvas {
+    width:100%; height:auto; display:block; image-rendering:pixelated;
+    background:var(--card-deep); border:2px solid var(--line); border-radius:14px;
+  }
+  #hud {
+    position:absolute; top:12px; right:16px; font-family:var(--px);
+    font-size:10px; color:var(--grey); letter-spacing:1px;
+  }
+  #over {
+    position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    flex-direction:column; gap:14px; background:rgba(5,8,26,.82); border-radius:14px;
+  }
+  #over.on { display:flex; }
+  #over .big { font-family:var(--px); font-size:14px; color:var(--rose); }
+  #over .small { font-size:14px; color:var(--grey); }
+  .btn {
+    font-family:var(--px); font-size:11px; cursor:pointer; margin-top:28px;
+    padding:16px 22px; border-radius:10px;
+    background:var(--amber); color:var(--card-deep); border:2px solid var(--amber);
+    text-decoration:none; display:inline-block;
+  }
+  .btn:hover { background:transparent; color:var(--amber); }
+  footer { background:var(--card-deep); padding:22px 30px; text-align:center; color:rgba(124,134,176,.55); font-size:11px; }
+  footer a { color:rgba(124,134,176,.55); text-decoration:none; margin:0 7px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="/">NOGO<span>GAMES</span></a>
+  <a class="nav" href="/">← Back to the site</a>
+</header>
+
+<main>
+  <h1>404</h1>
+  <div class="sub">THIS PAGE DOES NOT EXIST</div>
+  <div class="hint">But since you're already here and clearly not busy — space to jump.</div>
+
+  <div id="wrap">
+    <canvas id="cv" width="320" height="120"></canvas>
+    <div id="hud">0</div>
+    <div id="over">
+      <div class="big">CAUGHT BY A CACTUS</div>
+      <div class="small" id="over-score"></div>
+      <div class="small">press space to try again</div>
+    </div>
+  </div>
+
+  <a class="btn" href="/">GO SOMEWHERE REAL</a>
+</main>
+
+<footer>
+  <a href="/">Home</a>·<a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+  <div style="margin-top:10px;">NOGO GAMES © 2026 — where bored people go</div>
+</footer>
+
+<script>
+  const DINO = [
+    "............XXXXXXXX..","............XoXXXXXX..","............XXXXXXXX..",
+    "............XXXXXXXX..","............XXXX......","............XXXXXXX...",
+    "............XXXX......","X...........XXXX......","X..........XXXXX......",
+    "XX........XXXXXXXXX...","XXX......XXXXXXXX.....","XXXX....XXXXXXXXX.....",
+    "XXXXX..XXXXXXXXX......","XXXXXXXXXXXXXXXX......",".XXXXXXXXXXXXXXX......",
+    "..XXXXXXXXXXXXX.......","...XXXXXXXXXXX........","....XXXXXXXXX........."
+  ];
+  const LEGS_A = ["....XXX..XXX..........","....XXX...XX..........","..........X...........","..........XX.........."];
+  const LEGS_B = ["....XXX..XXX..........","....XX...XXX..........","....X.................","....XX................"];
+  const CACTUS = [
+    "..X..","..X..","X.X..","X.X.X","XXX.X","..XXX","..X..","..X..","..X..","..X.."
+  ];
+
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const GROUND = H - 14;
+  const SCALE = 0.62;                       // le dino fait ~14 px de haut
+
+  let y = 0, vy = 0, jumping = false;
+  let obstacles = [], speed = 2.1, score = 0, best = 0, dead = false, frame = 0;
+
+  function drawArt(art, px, py, s, color, eye) {
+    for (let r = 0; r < art.length; r++) {
+      for (let c = 0; c < art[r].length; c++) {
+        const ch = art[r][c];
+        if (ch === '.') continue;
+        ctx.fillStyle = (ch === 'o') ? (eye || '#080c20') : color;
+        ctx.fillRect(Math.round(px + c * s), Math.round(py + r * s), Math.ceil(s), Math.ceil(s));
+      }
+    }
+  }
+
+  function reset() {
+    y = 0; vy = 0; jumping = false; obstacles = []; speed = 2.1; score = 0; dead = false;
+    document.getElementById('over').classList.remove('on');
+  }
+
+  function jump() {
+    if (dead) { reset(); return; }
+    if (!jumping) { vy = -4.15; jumping = true; }
+  }
+
+  function loop() {
+    frame++;
+    ctx.clearRect(0, 0, W, H);
+
+    // sol
+    ctx.fillStyle = '#1e2447';
+    ctx.fillRect(0, GROUND + 12, W, 2);
+
+    if (!dead) {
+      score += 0.12;
+      speed = 2.1 + score / 90;
+
+      vy += 0.24;
+      y += vy;
+      if (y > 0) { y = 0; vy = 0; jumping = false; }
+
+      if (!obstacles.length || obstacles[obstacles.length - 1].x < W - (90 + Math.random() * 130)) {
+        obstacles.push({ x: W + 10 });
+      }
+      obstacles.forEach(o => o.x -= speed);
+      obstacles = obstacles.filter(o => o.x > -20);
+    }
+
+    // dino
+    const legs = (Math.floor(frame / 6) % 2) ? LEGS_A : LEGS_B;
+    const art = DINO.concat(legs);
+    const dh = art.length * SCALE;
+    const dinoX = 26, dinoY = GROUND - dh + 12 + y;
+    drawArt(art, dinoX, dinoY, SCALE, dead ? '#6a7099' : '#f4f6ff', '#080c20');
+
+    // cactus + collision
+    obstacles.forEach(o => {
+      const ch = CACTUS.length * SCALE * 1.15;
+      drawArt(CACTUS, o.x, GROUND - ch + 12, SCALE * 1.15, '#5BA85C');
+      const dw = 13 * SCALE * 1.6;
+      if (!dead &&
+          o.x < dinoX + dw && o.x + 5 * SCALE * 1.15 > dinoX + 4 &&
+          dinoY + dh > GROUND - ch + 14) {
+        dead = true;
+        best = Math.max(best, Math.floor(score));
+        document.getElementById('over-score').textContent =
+          'score ' + Math.floor(score) + '  ·  best ' + best;
+        document.getElementById('over').classList.add('on');
+      }
+    });
+
+    document.getElementById('hud').textContent = Math.floor(score);
+    requestAnimationFrame(loop);
+  }
+
+  addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
+  });
+  cv.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+  document.getElementById('over').addEventListener('pointerdown', () => reset());
+
+  reset();
+  loop();
+</script>
+</body>
+</html>
