@@ -346,6 +346,13 @@
   .board-name { flex: 1; color: var(--fg); font-size: 15px; }
   .board-pts { font-family: var(--px-font); font-size: 11px; color: var(--accent); }
   .board-empty { color: var(--grey); font-size: 15px; text-align: center; padding: 30px 10px; }
+  .board-rule {
+    display: none; background: rgba(255, 200, 87, 0.07);
+    border: 1px solid rgba(255, 200, 87, 0.35); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 14px;
+    color: var(--grey); font-size: 13.5px; line-height: 1.7;
+  }
+  .board-rule.on { display: block; }
   .nav-badge {
     font-family: var(--px-font); font-size: 8px;
     background: var(--amber); color: var(--card-deep);
@@ -788,6 +795,7 @@
     <div class="desc">Proof that other people are wasting their time too.</div>
     <div class="board">
       <h2 id="board-today-title">TODAY'S GAME</h2>
+      <div class="board-rule" id="board-rule"></div>
       <div id="board-today"></div>
       <h2>ALL-TIME BOREDOM</h2>
       <div id="board-alltime"></div>
@@ -1127,7 +1135,7 @@
   // ---------- catalogue ----------
   async function loadCatalogue() {
     const [gamesRes, dailyRes] = await Promise.all([
-      sb.from('games').select('id, title, emoji, file, color_a, color_b, image_url, score_kind, score_order, score_unit').eq('is_active', true).order('created_at', { ascending: false }),
+      sb.from('games').select('id, title, emoji, file, color_a, color_b, image_url, score_kind, score_order, score_unit, score_rule').eq('is_active', true).order('created_at', { ascending: false }),
       sb.rpc('get_daily_game')
     ]);
     ALL_GAMES = gamesRes.data || [];
@@ -1634,6 +1642,10 @@
     const g = dailyGameFull();
     document.getElementById('board-today-title').textContent =
       DAILY ? ('TODAY · ' + (DAILY.title || 'DAILY GAME') + scoreLabel(g)) : 'TODAY';
+    // règle d'entrée au classement, si le jeu du jour en a une (games.score_rule)
+    const ruleEl = document.getElementById('board-rule');
+    ruleEl.textContent = (g && g.score_rule) ? g.score_rule : '';
+    ruleEl.classList.toggle('on', !!(g && g.score_rule));
     todayEl.innerHTML = '<div class="board-empty">Loading…</div>';
     allEl.innerHTML = '<div class="board-empty">Loading…</div>';
     // le classement du jour : scores bruts du jeu du jour, tous les joueurs
