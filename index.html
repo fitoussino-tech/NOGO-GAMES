@@ -215,6 +215,14 @@
     font-family: var(--body-font); font-size: 15px; outline: none;
   }
   .auth-input:focus { border-color: var(--accent); }
+  .check-row {
+    display: flex; align-items: flex-start; gap: 10px; text-align: left;
+    font-size: 12.5px; color: var(--grey); line-height: 1.65; margin: 4px 0 16px; cursor: pointer;
+  }
+  .check-row input { margin-top: 3px; flex: 0 0 auto; accent-color: var(--amber); width: 16px; height: 16px; }
+  .check-row a { color: var(--accent); }
+  #pay-gate { opacity: 0.35; pointer-events: none; transition: opacity 0.2s; }
+  #pay-gate.on { opacity: 1; pointer-events: auto; }
   .auth-msg { font-size: 13px; color: var(--rose); min-height: 20px; margin-bottom: 8px; }
   .auth-msg.ok { color: var(--amber); }
   .oauth-btn {
@@ -281,6 +289,11 @@
     padding: 20px 30px; text-align: center;
     color: var(--grey); font-size: 13px;
   }
+  .legal-links { margin-top: 8px; font-size: 11px; }
+  .legal-links a {
+    color: rgba(124, 134, 176, 0.5); text-decoration: none; margin: 0 6px;
+  }
+  .legal-links a:hover { color: var(--grey); }
   #dino-wrap {
     position: fixed; bottom: 66px; right: 28px;
     width: 68px; z-index: 500; cursor: pointer; user-select: none;
@@ -472,7 +485,12 @@
       <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
     </div>
   </div>
-  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+  <footer>
+    NOGO GAMES © 2026 — where bored people go
+    <div class="legal-links">
+      <a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+    </div>
+  </footer>
 </div>
 
 <div class="screen" id="screen-vault">
@@ -491,7 +509,12 @@
     <div class="desc">One game is free every day — the roll of the dice decides which. Members play whatever they want, whenever they want.</div>
     <div class="grid" id="vault-grid"></div>
   </div>
-  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+  <footer>
+    NOGO GAMES © 2026 — where bored people go
+    <div class="legal-links">
+      <a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+    </div>
+  </footer>
 </div>
 
 <div class="screen" id="screen-lab">
@@ -510,7 +533,12 @@
     <div class="lab-count" id="lab-count">1 / 13 DISCOVERED</div>
     <div class="lab-grid" id="lab-grid"></div>
   </div>
-  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+  <footer>
+    NOGO GAMES © 2026 — where bored people go
+    <div class="legal-links">
+      <a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+    </div>
+  </footer>
 </div>
 
 <div class="screen" id="screen-leaders">
@@ -533,7 +561,12 @@
       <div id="board-alltime"></div>
     </div>
   </div>
-  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+  <footer>
+    NOGO GAMES © 2026 — where bored people go
+    <div class="legal-links">
+      <a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+    </div>
+  </footer>
 </div>
 
 <div class="screen" id="screen-game">
@@ -573,15 +606,29 @@
         <li>Cancel anytime, one click</li>
       </ul>
       <div style="font-size:13px;color:var(--grey);margin-bottom:16px;line-height:1.7;">
-        €2.99 per month, billed automatically.<br>Cancel anytime in one click from your account.
+        €2.99 per month, billed automatically.<br>Cancel anytime in one click from your account.<br>
+        <a href="/legal.html#terms" style="color:var(--grey);text-decoration:underline;">Terms of sale</a>
       </div>
-      <div id="express-checkout"></div>
-      <div class="oauth-sep" id="pay-sep" style="display:none;">OR</div>
-      <button class="btn" id="subscribe-btn" onclick="subscribeClick()">PAY BY CARD</button>
+      <label class="check-row">
+        <input type="checkbox" id="accept-waiver" onchange="updatePayGate()">
+        <span>I ask for <b>immediate access</b> to the full catalogue and acknowledge that
+        I therefore <b>lose my 14-day right of withdrawal</b>, as set out in the
+        <a href="/legal.html#terms" target="_blank">terms of sale</a>.</span>
+      </label>
+      <div id="pay-gate">
+        <div id="express-checkout"></div>
+        <div class="oauth-sep" id="pay-sep" style="display:none;">OR</div>
+        <button class="btn" id="subscribe-btn" onclick="subscribeClick()">PAY BY CARD</button>
+      </div>
       <div class="auth-msg" id="subscribe-msg" style="margin-top:14px;"></div>
     </div>
   </div>
-  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+  <footer>
+    NOGO GAMES © 2026 — where bored people go
+    <div class="legal-links">
+      <a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+    </div>
+  </footer>
 </div>
 
 <div class="modal-overlay" id="paywall">
@@ -672,6 +719,12 @@
         <div style="font-size:13px;color:var(--grey);text-align:left;margin-bottom:8px;">Anti-robot check: <span id="captcha-question" style="color:var(--fg);"></span></div>
         <input class="auth-input" id="auth-captcha" type="text" inputmode="numeric" placeholder="answer">
       </div>
+      <label class="check-row" id="terms-row" style="display:none;">
+        <input type="checkbox" id="accept-terms">
+        <span>I have read and accept the <a href="/legal.html#terms" target="_blank">terms of sale</a>
+        and the <a href="/legal.html#privacy" target="_blank">privacy policy</a>.
+        I am at least 15 years old.</span>
+      </label>
       <div class="auth-msg" id="auth-msg"></div>
       <button class="btn" id="auth-submit" onclick="submitAuth()">LOG IN</button>
       <button class="close" onclick="forgotPassword()">forgot your password?</button>
@@ -779,7 +832,7 @@
     document.getElementById('screen-' + name).classList.add('active');
     document.getElementById('dino-wrap').style.display = name === 'game' ? 'none' : 'block';
     if (name === 'vault') renderVault();
-    if (name === 'subscribe') setupExpressCheckout();
+    if (name === 'subscribe') updatePayGate();
     if (name === 'leaders') renderLeaderboards();
     if (name === 'lab') renderDinoLab();
     window.scrollTo(0, 0);
@@ -1009,6 +1062,7 @@
     document.getElementById('auth-firstname').style.display = signup ? 'block' : 'none';
     document.getElementById('auth-lastname').style.display = signup ? 'block' : 'none';
     document.getElementById('auth-username').style.display = signup ? 'block' : 'none';
+    document.getElementById('terms-row').style.display = signup ? 'flex' : 'none';
     document.getElementById('auth-captcha-row').style.display = signup ? 'block' : 'none';
     if (signup) newCaptcha();
   }
@@ -1039,6 +1093,9 @@
         if (!fn || !ln) { msg.textContent = 'First name and last name required.'; return; }
         if (!/^[a-zA-Z0-9_]{3,16}$/.test(un)) {
           msg.textContent = 'Username: 3-16 characters, letters, numbers and _ only.'; return;
+        }
+        if (!document.getElementById('accept-terms').checked) {
+          msg.textContent = 'You need to accept the terms to create an account.'; return;
         }
         if (parseInt(document.getElementById('auth-captcha').value, 10) !== captchaAnswer) {
           msg.textContent = 'Wrong anti-robot answer, try again.'; newCaptcha(); return;
@@ -1084,6 +1141,11 @@
     };
     await fetchProfile();
     // pseudo choisi à l'inscription : on l'enregistre dès qu'on a une session
+    // trace horodatée de l'acceptation des CGV à l'inscription
+    if (pendingUsername) {
+      sb.from('profiles').update({ terms_accepted_at: new Date().toISOString() })
+        .eq('id', loggedUser.id).then(function () {});
+    }
     if (!username && pendingUsername) {
       const { data } = await sb.rpc('set_username', { p_username: pendingUsername });
       if (data === 'ok') username = pendingUsername;
@@ -1306,6 +1368,10 @@
       const out = await res.json();
       if (!out.clientSecret) return; // on garde simplement le bouton carte
 
+      // trace horodatée de la renonciation, conservée sur le profil
+      sb.from('profiles').update({ waiver_accepted_at: new Date().toISOString() })
+        .eq('id', loggedUser.id).then(function () {});
+
       stripeJs = window.Stripe(STRIPE_PUBLISHABLE_KEY);
       const elements = stripeJs.elements({
         clientSecret: out.clientSecret,
@@ -1355,8 +1421,18 @@
     if (tries < 10) setTimeout(() => waitForMembership(tries + 1), 1500);
   }
 
+  // Le paiement reste verrouillé tant que la renonciation n'est pas cochée.
+  function updatePayGate() {
+    const ok = document.getElementById('accept-waiver').checked;
+    document.getElementById('pay-gate').classList.toggle('on', ok);
+    if (ok && loggedUser && !isMember) setupExpressCheckout();
+  }
+
   async function subscribeClick() {
     const msg = document.getElementById('subscribe-msg');
+    if (!document.getElementById('accept-waiver').checked) {
+      msg.textContent = 'Tick the box above first.'; return;
+    }
     if (!loggedUser) { openAccount('Create an account first, then subscribe.'); return; }
     if (isMember) { msg.textContent = "You're already a member!"; return; }
     const btn = document.getElementById('subscribe-btn');
