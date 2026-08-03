@@ -141,7 +141,7 @@
 
   #players-today { font-size: 12.5px; color: rgba(124,134,176,.7); margin-top: 26px; }
   .spin-btn {
-    margin: 0 auto 30px; display: block; min-width: 210px;
+    margin: 0 auto 30px; display: block; width: fit-content; min-width: 190px;
     background: var(--rose); border-color: var(--rose); color: var(--card-deep);
   }
   .spin-btn:hover { background: transparent; color: var(--rose); }
@@ -708,7 +708,7 @@
     <h1>ALL GAMES</h1>
     <div class="desc">One game is free every day — the roll of the dice decides which. Members play whatever they want, whenever they want.</div>
     <button class="btn spin-btn" id="spin-btn" style="display:none;" onclick="spinRandom()">
-      <span id="spin-label">🎰  SPIN</span>
+      <span id="spin-label">SPIN</span>
     </button>
     <div class="grid" id="vault-grid"></div>
   </div>
@@ -2230,11 +2230,11 @@
     const pick = pool[Math.floor(Math.random() * pool.length)];
     (function roll() {
       const g = pool[Math.floor(Math.random() * pool.length)];
-      label.textContent = (g.emoji || '🎮') + '  ' + (g.title || 'GAME');
+      label.textContent = (g.title || 'GAME');
       t++;
       delay *= 1.13;                       // ça ralentit, comme une vraie roue
       if (delay < 340) return setTimeout(roll, delay);
-      label.textContent = (pick.emoji || '🎮') + '  ' + (pick.title || 'GAME');
+      label.textContent = (pick.title || 'GAME');
       sparks(30);
       // le serveur compte les tours : vingt-cinq débloquent GAMBLER
       sb.rpc('bump_spins').then(function (r) {
@@ -2243,7 +2243,7 @@
           setTimeout(function () { revealDino('gambler'); }, 1400);
         }
       });
-      setTimeout(() => { spinning = false; label.textContent = '🎰  SPIN'; startGame(pick); }, 750);
+      setTimeout(() => { spinning = false; label.textContent = 'SPIN'; startGame(pick); }, 750);
     })();
   }
 
@@ -2415,24 +2415,26 @@
   // ============================================================
   //  LES 13 FORMES DU DINO
   // ============================================================
+  // La tête du dino occupe x = 12 à 19, centre 15,5.
+  // Tous les accessoires sont alignés là-dessus, sinon ils flottent à côté.
   const ACC = {
     none:   ["......................","......................","......................"],
-    horns:  ["......................","...........a.....a....","...........aa...aa...."],
-    crown:  ["......................","............a.a.a.....","...........aaaaaa....."],
-    flames: ["............a..a......","..........aa.aa.a.....",".........aaaaaaaaa...."],
+    horns:  ["......................","............a......a..","............aa....aa.."],
+    crown:  ["......................",".............a.a.a....",".............aaaaaa..."],
+    flames: ["..............a..a....","............aa.aa.a...","...........aaaaaaaaa.."],
     moon:   ["..aaa.................",".aa...................","..aaa................."],
-    laurel: ["......................","..........a.......a...","...........aa...aa...."],
-    gold:   ["........a...a...a.....","............a.a.a.....","...........aaaaaa....."],
+    laurel: ["......................","...........a........a.","............aa....aa.."],
+    gold:   ["..........a....a....a.",".............a.a.a....",".............aaaaaa..."],
     spark:  ["........a.........a...","......................","........a.........a..."],
     speed:  ["..aa..aa..............","....aa..aa............","..aa..aa.............."],
-    mini:   ["..............aaa.....",".............aaaa.....","............aa.a......"],
-    sun:    [".............aaa......","...........a.aaa.a....",".............aaa......"],
-    parasol:["..........aaaaa.......",".........aaaaaaa......","............a........."],
+    mini:   ["..............aaa.....",".............aaaa.....",".............aa.a....."],
+    sun:    ["..............aaa.....","............a.aaa.a...","..............aaa....."],
+    parasol:[".............aaaaa....","............aaaaaaa...","...............a......"],
     bolt:   ["...............aa.....",".............aaaa.....","..............aa......"],
     plume:  [".............aaaaa....","............aaaaaaa...","............aaaaaaa..."],
     wings:  ["........aa.....aa.....",".......aaaa...aaaa....","......aaaaa...aaaaa..."],
-    chips:  ["..........aaa.aaa.....","..........a.a.a.a.....","..........aaa.aaa....."],
-    stars:  ["..........a...a...a...","............a...a.....","..........a...a...a..."]
+    chips:  ["............aaa.aaa...","............a.a.a.a...","............aaa.aaa..."],
+    stars:  ["...........a...a...a..",".............a...a....","...........a...a...a.."]
   };
 
   // Les transformations : c'est elles qui créent des silhouettes réellement différentes
