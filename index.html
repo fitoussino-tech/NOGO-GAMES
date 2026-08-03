@@ -375,6 +375,12 @@
   .reveal.on { animation: reveal-in .5s cubic-bezier(.2,.9,.3,1.2) forwards; }
   @keyframes reveal-in { to { opacity: 1; transform: translateY(0); } }
 
+  .share-block {
+    background: var(--card-deep); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 16px; margin-bottom: 20px; text-align: left;
+    font-family: var(--body-font); font-size: 14px; line-height: 1.85;
+    color: var(--fg); white-space: pre-wrap; word-break: break-word;
+  }
   .burst-px {
     position: fixed; width: 11px; height: 11px; z-index: 1300; pointer-events: none;
     animation: burst-out 1.15s cubic-bezier(.12,.75,.3,1) forwards;
@@ -715,9 +721,8 @@
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link" onclick="go('vault')">All games</a>
-      <a class="nav-link" onclick="go('lab')">Dino lab</a>
-      <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+      <button class="nav-btn" id="share-btn" style="display:none;background:var(--rose);" onclick="openShare()">SHARE</button>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
   </header>
@@ -789,6 +794,17 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <h2>BRAG ABOUT IT</h2>
+    <p>Paste this wherever your friends pretend to be busy.</p>
+    <pre class="share-block" id="share-block"></pre>
+    <button class="btn" id="share-copy" onclick="copyShare()">COPY</button>
+    <button class="btn" id="share-native" style="display:none;background:transparent;color:var(--accent);border-color:var(--accent);" onclick="nativeShare()">SHARE…</button>
+    <button class="close" onclick="closeShare()">close</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="player-modal">
   <div class="modal">
     <svg id="player-svg" class="reveal-svg" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -827,7 +843,8 @@
     <div class="week-strip" id="week-strip"></div>
     <div id="streak-msg"></div>
     <div id="streak-warn"></div>
-    <button class="btn" onclick="closeStreak()">FINE</button>
+    <button class="btn" onclick="closeStreak(); openShare();">SHARE THIS</button>
+    <button class="close" onclick="closeStreak()">fine</button>
   </div>
 </div>
 
@@ -899,6 +916,7 @@
       </div>
       <div class="streak-note" id="account-streak-note"></div>
 
+      <button class="btn" onclick="closeAccount(); lastResult = null; openShare();">SHARE MY RÉSUMÉ</button>
       <button class="btn" id="portal-btn" style="display:none;" onclick="openPortal()">MANAGE SUBSCRIPTION</button>
       <button class="btn" style="background:transparent;color:var(--grey);border-color:var(--line);" onclick="logout()">LOG OUT</button>
       <button class="close" onclick="closeAccount()">close</button>
@@ -1089,6 +1107,8 @@
 
   async function loadGame(game) {
     currentGame = game;
+    lastResult = null;
+    document.getElementById('share-btn').style.display = 'none';
     const frame = document.getElementById('game-frame');
     frame.innerHTML = '<div class="game-loading">LOADING…</div>';
     go('game');
@@ -1612,6 +1632,74 @@
       'Payment received. Your account will unlock in a moment — refresh if needed.';
   }
 
+  // ============================================================
+  //  LE BLOC DE PARTAGE
+  // ============================================================
+  let lastResult = null;   // { title, points, rank } de la dernière partie
+
+  function flameBar(n) {
+    const filled = Math.max(0, Math.min(7, n));
+    return '🔥'.repeat(filled) + '⬛'.repeat(7 - filled);
+  }
+
+  function buildShareText() {
+    const lines = [];
+    if (lastResult) {
+      lines.push('NOGO GAMES — ' + lastResult.title);
+      lines.push(lastResult.points + ' pts' + (lastResult.rank ? ' · #' + lastResult.rank + ' today' : ''));
+    } else {
+      lines.push('NOGO GAMES');
+      lines.push(points + ' pts · ' + rankFor(points).name);
+    }
+    lines.push('');
+    lines.push(flameBar(streak) + '  ' + streak + (streak === 1 ? ' day' : ' days') + ' in a row');
+    const d = DINO_BY_KEY[currentDino];
+    if (d) lines.push('🦕 ' + d.name + '  ·  ' + myDinos.length + '/' + DINOS.length + ' forms');
+    lines.push('');
+    lines.push('nogo-games.com');
+    return lines.join('\n');
+  }
+
+  async function openShare() {
+    // on cherche le rang du jour si on vient de jouer
+    if (lastResult && !lastResult.rank && currentGame) {
+      try {
+        const { data } = await sb.rpc('leaderboard_today', { p_game_id: currentGame.id, p_limit: 100 });
+        const i = (data || []).findIndex(r => r.username === username);
+        if (i >= 0) lastResult.rank = i + 1;
+      } catch (e) { /* tant pis, on partage sans le rang */ }
+    }
+    document.getElementById('share-block').textContent = buildShareText();
+    document.getElementById('share-copy').textContent = 'COPY';
+    document.getElementById('share-native').style.display =
+      (navigator.share ? 'block' : 'none');
+    document.getElementById('share-modal').classList.add('open');
+  }
+  function closeShare() { document.getElementById('share-modal').classList.remove('open'); }
+
+  async function copyShare() {
+    const btn = document.getElementById('share-copy');
+    const text = buildShareText();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      // repli pour les navigateurs qui refusent le presse-papier
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      ta.remove();
+    }
+    btn.textContent = 'COPIED ✓';
+    sparks(18);
+    setTimeout(() => { btn.textContent = 'COPY'; }, 2200);
+  }
+
+  async function nativeShare() {
+    try {
+      await navigator.share({ text: buildShareText(), url: 'https://nogo-games.com' });
+    } catch (e) { /* annulé par l'utilisateur */ }
+  }
+
   // ---------- la cérémonie ----------
   function pixelBurst(x, y, count, power) {
     for (let i = 0; i < count; i++) {
@@ -1791,6 +1879,8 @@
     streak = data.streak;
     bestStreak = data.best_streak;
     gamesPlayed += 1;
+    lastResult = { title: currentGame.title || 'GAME', points: gained, rank: null };
+    document.getElementById('share-btn').style.display = 'inline-block';
     refreshAccountUI();
 
     // dinos débloqués par le serveur pendant cette partie
