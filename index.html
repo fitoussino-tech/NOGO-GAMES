@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<!--
+        .-.
+       (o o)   NOGO GAMES
+       | O \   you found the source. of course you did.
+        \   \
+         `~~~'   there are twenty dinosaurs, not nineteen.
+                 one of them only exists for one minute a day.
+
+                 type  hello  anywhere on the site.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -112,6 +122,38 @@
   .hs-num { font-family: var(--px-font); font-size: 26px; color: var(--amber); line-height: 1.2; text-align: left; }
   #home-streak:not(.alive) .hs-num { color: var(--grey); }
   .hs-label { font-size: 11px; letter-spacing: 2px; color: var(--grey); margin-top: 8px; text-align: left; }
+  /* missions du jour */
+  #quests { max-width: 340px; margin: 0 auto 44px; text-align: left; }
+  .quests-title { font-family: var(--px-font); font-size: 9px; color: var(--grey);
+                  letter-spacing: 3px; margin-bottom: 14px; text-align: center; }
+  .quest {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px; margin-bottom: 7px;
+    background: var(--card-deep); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--grey); font-size: 13.5px;
+  }
+  .quest i {
+    width: 15px; height: 15px; border: 2px solid var(--line); border-radius: 4px;
+    flex: 0 0 auto; display: block;
+  }
+  .quest.done { color: var(--fg); border-color: rgba(255,200,87,.4); }
+  .quest.done i { background: var(--amber); border-color: var(--amber); }
+  .quest.done span { text-decoration: line-through; opacity: .65; }
+
+  #players-today { font-size: 12.5px; color: rgba(124,134,176,.7); margin-top: 26px; }
+  .spin-btn {
+    margin: 0 auto 30px; display: block; min-width: 210px;
+    background: var(--rose); border-color: var(--rose); color: var(--card-deep);
+  }
+  .spin-btn:hover { background: transparent; color: var(--rose); }
+
+  /* dernière minute avant minuit */
+  body.brink .count-box { border-color: var(--rose); animation: brink-pulse .9s ease-in-out infinite; }
+  body.brink .count-box .num { color: var(--rose); }
+  body.brink #cd-label { color: var(--rose); }
+  @keyframes brink-pulse {
+    0%,100% { box-shadow: 0 0 0 rgba(255,94,168,0); }
+    50%     { box-shadow: 0 0 22px rgba(255,94,168,.45); }
+  }
   .countdown-label { font-size: 14px; letter-spacing: 5px; color: var(--grey); margin-bottom: 20px; }
   .countdown-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .count-box {
@@ -530,6 +572,12 @@
            --rose:#ff2fd0; --amber:#ffee00; --accent:#00e5ff; --grey:#d6b3ff; }
   }
 
+  /* transition entre écrans, en gros pixels */
+  #wipe {
+    position: fixed; inset: 0; width: 100vw; height: 100vh;
+    z-index: 1400; pointer-events: none; display: none;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
   /* L'arc-en-ciel en gros pixels : canvas basse résolution étiré plein écran */
   #rainbow-veil {
     position: fixed; inset: 0; width: 100vw; height: 100vh;
@@ -610,12 +658,20 @@
       </div>
     </div>
 
-    <div class="countdown-label">TOMORROW'S GAME DROPS IN</div>
-    <div class="countdown-row">
+    <div id="quests" style="display:none;">
+      <div class="quests-title">TODAY'S THREE THINGS</div>
+      <div class="quest" id="q-play"><i></i><span>Play today's game</span></div>
+      <div class="quest" id="q-score"><i></i><span>Beat 500 points</span></div>
+      <div class="quest" id="q-look"><i></i><span>Look at the rankings and feel something</span></div>
+    </div>
+
+    <div class="countdown-label" id="cd-label">TOMORROW'S GAME DROPS IN</div>
+    <div class="countdown-row" id="cd-row">
       <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
       <div class="count-box"><div class="num" id="cd-m">--</div><div class="unit">MIN</div></div>
       <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
     </div>
+    <div id="players-today"></div>
   </div>
   <footer>
     NOGO GAMES © 2026 — where bored people go
@@ -639,6 +695,9 @@
   <div class="page">
     <h1>ALL GAMES</h1>
     <div class="desc">One game is free every day — the roll of the dice decides which. Members play whatever they want, whenever they want.</div>
+    <button class="btn spin-btn" id="spin-btn" style="display:none;" onclick="spinRandom()">
+      <span id="spin-label">🎰  SPIN</span>
+    </button>
     <div class="grid" id="vault-grid"></div>
   </div>
   <footer>
@@ -826,6 +885,17 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="midnight-modal">
+  <div class="modal">
+    <div style="font-family:var(--px-font);font-size:9px;color:var(--grey);letter-spacing:4px;margin-bottom:20px;">MIDNIGHT</div>
+    <svg id="midnight-dino" class="reveal-svg" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div style="font-size:14px;color:var(--grey);margin:20px 0 10px;">Today's free game is</div>
+    <div id="midnight-name" style="font-family:var(--px-font);font-size:17px;color:var(--amber);line-height:1.7;min-height:26px;margin-bottom:26px;"></div>
+    <button class="btn" onclick="closeMidnight(); playDaily();">PLAY IT NOW</button>
+    <button class="close" onclick="closeMidnight()">later</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="share-modal">
   <div class="modal">
     <h2>BRAG ABOUT IT</h2>
@@ -964,6 +1034,7 @@
 </div>
 
 <canvas id="rainbow-veil"></canvas>
+<canvas id="wipe"></canvas>
 
 <div id="dino-wrap" title="rawr">
   <div id="dino-bubble">RAWR!</div>
@@ -1022,15 +1093,58 @@
     return { name: RANKS[i][1], next: next, progress: progress, remaining: next ? next[0] - pts : 0 };
   } // jeu à lancer après la pub
 
-  function go(name) {
+  // ---------- transition en pixels entre les écrans ----------
+  function pixelWipe(then) {
+    const cv = document.getElementById('wipe');
+    const CELL = 34;
+    const W = Math.ceil(window.innerWidth / CELL);
+    const H = Math.ceil(window.innerHeight / CELL);
+    cv.width = W; cv.height = H;
+    cv.style.display = 'block';
+    const ctx = cv.getContext('2d');
+    const order = [];
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) order.push([x, y, Math.random()]);
+    order.sort((a, b) => (a[0] + a[1] * 0.6 + a[2] * 2.4) - (b[0] + b[1] * 0.6 + b[2] * 2.4));
+
+    let i = 0, swapped = false;
+    const perFrame = Math.ceil(order.length / 11);
+    (function fill() {
+      ctx.fillStyle = '#0b1030';
+      for (let k = 0; k < perFrame && i < order.length; k++, i++) {
+        ctx.fillRect(order[i][0], order[i][1], 1, 1);
+      }
+      if (i < order.length) return requestAnimationFrame(fill);
+      if (!swapped) { swapped = true; if (then) then(); }
+      // puis on révèle, dans le même ordre
+      let j = 0;
+      (function clear() {
+        for (let k = 0; k < perFrame && j < order.length; k++, j++) {
+          ctx.clearRect(order[j][0], order[j][1], 1, 1);
+        }
+        if (j < order.length) return requestAnimationFrame(clear);
+        cv.style.display = 'none';
+      })();
+    })();
+  }
+
+  function showScreen(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
     document.getElementById('dino-wrap').style.display = name === 'game' ? 'none' : 'block';
     if (name === 'vault') renderVault();
     if (name === 'subscribe') updatePayGate();
-    if (name === 'leaders') renderLeaderboards();
+    if (name === 'leaders') { renderLeaderboards(); localStorage.setItem('nogo-looked', todayKey()); }
     if (name === 'lab') renderDinoLab();
+    if (name === 'home') refreshQuests();
+    dinoMood(name);
     window.scrollTo(0, 0);
+  }
+
+  let currentScreen = 'home';
+  function go(name) {
+    if (name === currentScreen) return showScreen(name);
+    currentScreen = name;
+    pixelWipe(() => showScreen(name));
   }
 
   // ---------- catalogue ----------
@@ -1080,12 +1194,14 @@
     const n = ALL_GAMES.length;
     setText('vault-count', n ? n + ' games in the catalogue' : 'catalogue coming soon');
     setText('w-games', numWord(n, true));
-    setText('w-dinos', numWord(DINOS.length, true));
+    setText('w-dinos', numWord(publicTotal(), true));
   }
 
   function renderVault() {
     const grid = document.getElementById('vault-grid');
     if (!grid) return;
+    const spin = document.getElementById('spin-btn');
+    if (spin) spin.style.display = (isMember && ALL_GAMES.length) ? 'block' : 'none';
     if (!ALL_GAMES.length) {
       grid.innerHTML =
         '<div class="vault-empty">' +
@@ -1392,8 +1508,12 @@
     document.body.classList.toggle('is-member', isMember);
     await loadMyDinos();
     if (isMember) await claimDino('golden', true);
-    const h = new Date().getHours();
+    // déblocages liés à l'heure
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes();
     if (h >= 3 && h < 5) await claimDino('night', true);
+    if (h >= 5 && h < 7) await claimDino('earlybird', true);
+    if (h === 0 && m === 0) await claimDino('midnight', true);   // le vingtième
   }
 
   async function logout() {
@@ -1546,6 +1666,7 @@
     const { data: { session } } = await sb.auth.getSession();
     if (session) await onLoggedIn(session);
     await loadCatalogue();
+    refreshQuests();
 
     const params = new URLSearchParams(location.search);
     if (params.get('checkout') === 'success') {
@@ -1919,6 +2040,8 @@
     streak = data.streak;
     bestStreak = data.best_streak;
     gamesPlayed += 1;
+    playedToday = true;
+    bestToday = Math.max(bestToday, gained);
     lastResult = { title: currentGame.title || 'GAME', points: gained, rank: null };
     document.getElementById('share-btn').style.display = 'inline-block';
     refreshAccountUI();
@@ -1988,7 +2111,12 @@
     document.getElementById(targetId || 'flame-svg').innerHTML = s;
   }
 
-  // La flamme visible en permanence sur l'accueil
+  let playedToday = false;
+  let playersToday = 0;
+  let bestToday = 0;
+
+  // La flamme de l'accueil : elle rétrécit et s'affole à mesure que minuit approche
+  // tant que tu n'as pas joué. C'est la perte qui fait revenir, pas le gain.
   function updateHomeStreak() {
     const box = document.getElementById('home-streak');
     if (!box) return;
@@ -1996,10 +2124,117 @@
     box.classList.add('on');
     box.classList.toggle('alive', streak > 0);
     drawFlame(streak === 0, 'home-flame');
+
+    const flame = document.getElementById('home-flame');
+    const hoursLeft = msUntilParisMidnight() / 3600000;
+    let label;
+
+    if (streak === 0) {
+      flame.style.transform = 'scale(1)';
+      flame.style.animationDuration = '';
+      label = 'PLAY TODAY TO START A STREAK';
+    } else if (playedToday) {
+      flame.style.transform = 'scale(1)';
+      flame.style.animationDuration = '0.42s';
+      label = streak === 1 ? 'DAY BORED IN A ROW' : 'DAYS BORED IN A ROW';
+    } else {
+      // pas encore joué : la flamme s'étiole
+      const k = Math.max(0, Math.min(1, hoursLeft / 24));
+      flame.style.transform = 'scale(' + (0.45 + k * 0.55).toFixed(2) + ')';
+      flame.style.animationDuration = (0.12 + k * 0.30).toFixed(2) + 's';
+      label = hoursLeft < 1
+        ? Math.ceil(hoursLeft * 60) + ' MIN LEFT TO SAVE IT'
+        : Math.floor(hoursLeft) + 'H LEFT TO SAVE YOUR STREAK';
+    }
     document.getElementById('hs-num').textContent = streak;
-    document.getElementById('hs-label').textContent = streak === 0
-      ? 'PLAY TODAY TO START A STREAK'
-      : (streak === 1 ? 'DAY BORED IN A ROW' : 'DAYS BORED IN A ROW');
+    document.getElementById('hs-label').textContent = label;
+  }
+
+  // ---------- les trois missions du jour ----------
+  async function refreshQuests() {
+    const box = document.getElementById('quests');
+    try {
+      const { data } = await sb.rpc('day_stats');
+      if (data) {
+        playersToday = data.players_today || 0;
+        playedToday = (data.played_today || 0) > 0;
+        bestToday = data.best_today || 0;
+      }
+    } catch (e) { /* on affiche ce qu'on peut */ }
+
+    document.getElementById('players-today').textContent =
+      playersToday > 0
+        ? playersToday + (playersToday === 1 ? ' person has' : ' people have') + ' wasted time here today'
+        : '';
+
+    if (!loggedUser) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    const looked = localStorage.getItem('nogo-looked') === todayKey();
+    document.getElementById('q-play').classList.toggle('done', playedToday);
+    document.getElementById('q-score').classList.toggle('done', bestToday >= 500);
+    document.getElementById('q-look').classList.toggle('done', looked);
+    updateHomeStreak();
+  }
+
+  function todayKey() {
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
+  }
+
+  // ---------- les humeurs du dino, selon l'écran ----------
+  const MOODS = {
+    home:      ['bored yet?', 'hi', 'still here', 'nothing to do?'],
+    vault:     ['so many', 'pick one', 'take your time'],
+    subscribe: ['do it', 'go on', 'nice choice'],
+    leaders:   ['you are not first', 'someone is better', 'hm'],
+    lab:       ['that is me', 'many of me', 'pick a look'],
+    thanks:    ['welcome aboard', 'good call', 'shiny'],
+    game:      ['good luck', 'no pressure']
+  };
+  function dinoMood(screen) {
+    const list = MOODS[screen];
+    if (!list) return;
+    if (Math.random() > 0.45) return;         // pas à chaque fois, sinon c'est lourd
+    const bubble = document.getElementById('dino-bubble');
+    bubble.textContent = list[Math.floor(Math.random() * list.length)];
+    dinoWrap.classList.add('talk');
+    setTimeout(() => dinoWrap.classList.remove('talk'), 2600);
+  }
+
+  // ---------- la machine à sous des membres ----------
+  let spinning = false;
+  async function spinRandom() {
+    if (!isMember || spinning || !ALL_GAMES.length) return;
+    spinning = true;
+    const label = document.getElementById('spin-label');
+    const pool = ALL_GAMES;
+    let t = 0, delay = 55;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    (function roll() {
+      const g = pool[Math.floor(Math.random() * pool.length)];
+      label.textContent = (g.emoji || '🎮') + '  ' + (g.title || 'GAME');
+      t++;
+      delay *= 1.13;                       // ça ralentit, comme une vraie roue
+      if (delay < 340) return setTimeout(roll, delay);
+      label.textContent = (pick.emoji || '🎮') + '  ' + (pick.title || 'GAME');
+      sparks(30);
+      setTimeout(() => { spinning = false; label.textContent = '🎰  SPIN'; startGame(pick); }, 750);
+    })();
+  }
+
+  // ---------- le rituel de minuit ----------
+  function midnightReveal() {
+    const name = DAILY ? (DAILY.title || 'A NEW GAME') : 'A NEW GAME';
+    const el = document.getElementById('midnight-name');
+    document.getElementById('midnight-modal').classList.add('open');
+    paintDino(document.getElementById('midnight-dino'), currentDino, false, true);
+    el.textContent = '';
+    sparks(120);
+    setTimeout(() => sparks(80), 600);
+    typeInto(el, name, 95, () => { el.innerHTML = name; });
+  }
+  function closeMidnight() {
+    document.getElementById('midnight-modal').classList.remove('open');
+    go('home');
   }
 
   const STREAK_LINES = {
@@ -2096,10 +2331,24 @@
     document.getElementById('cd-h').textContent = p(Math.floor(diff / 3600000));
     document.getElementById('cd-m').textContent = p(Math.floor(diff / 60000) % 60);
     document.getElementById('cd-s').textContent = p(Math.floor(diff / 1000) % 60);
-    // minuit passé → on recharge le jeu du jour sans que l'utilisateur ait à rafraîchir
-    const dayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
-    if (lastDayShown && dayKey !== lastDayShown) loadCatalogue();
+
+    // dernière minute : le compte à rebours devient dramatique
+    document.body.classList.toggle('brink', diff < 60000);
+    const lab = document.getElementById('cd-label');
+    if (diff < 60000) lab.textContent = 'BRACE YOURSELF';
+    else if (diff < 3600000) lab.textContent = 'NEXT GAME IN UNDER AN HOUR';
+    else lab.textContent = "TOMORROW'S GAME DROPS IN";
+
+    // minuit passé → nouveau jeu, et on en fait tout un événement
+    const dayKey = todayKey();
+    if (lastDayShown && dayKey !== lastDayShown) {
+      playedToday = false;
+      loadCatalogue().then(function () { midnightReveal(); });
+      refreshQuests();
+    }
     lastDayShown = dayKey;
+
+    if (Math.floor(diff / 1000) % 60 === 0) updateHomeStreak();
   }
   tick();
   setInterval(tick, 1000);
@@ -2148,7 +2397,13 @@
     moon:   ["..aaa.................",".aa...................","..aaa................."],
     laurel: ["......................","..........a.......a...","...........aa...aa...."],
     gold:   ["........a...a...a.....","............a.a.a.....","...........aaaaaa....."],
-    spark:  ["........a.........a...","......................","........a.........a..."]
+    spark:  ["........a.........a...","......................","........a.........a..."],
+    speed:  ["..aa..aa..............","....aa..aa............","..aa..aa.............."],
+    mini:   ["..............aaa.....",".............aaaa.....","............aa.a......"],
+    sun:    [".............aaa......","...........a.aaa.a....",".............aaa......"],
+    parasol:["..........aaaaa.......",".........aaaaaaa......","............a........."],
+    bolt:   ["...............aa.....",".............aaaa.....","..............aa......"],
+    plume:  [".............aaaaa....","............aaaaaaa...","............aaaaaaa..."]
   };
 
   // Les transformations : c'est elles qui créent des silhouettes réellement différentes
@@ -2178,6 +2433,12 @@
       if (shift < 0) r = row.slice(-shift) + '.'.repeat(-shift);
       return r.split('').map((c, x) => (c === 'X' && (x + y) % 6 === 0) ? 'a' : c).join('');
     });
+  }
+  // une ligne sur deux atténuée : effet hologramme
+  function scanlineOf(rows) {
+    return rows.map((row, y) => y % 2 === 1
+      ? row.split('').map(c => c === '.' ? '.' : 'b').join('')
+      : row);
   }
   function starsOf(rows) {
     const out = outlineOf(rows).map(r => r.split(''));
@@ -2227,8 +2488,22 @@
     { key:'glitch',    name:'GLITCH',        legs:true, tf:glitchOf,  colors:{X:'#FF3DDA',a:'#35F0FF',o:'#35F0FF'}, hint:'An old code. A very old one.' },
     { key:'void',      name:'VOID',          legs:true, tf:starsOf,   colors:{X:'#8B98FF',b:'#0B0F26',a:'#FFFFFF',o:'#FFFFFF'}, hint:'25 000 points.' },
     { key:'champion',  name:'CHAMPION',      legs:true, acc:'laurel', colors:{X:'#FFF3C4',a:'#FFC857',o:'#3a2f00'}, hint:'Top of a daily ranking.' },
-    { key:'golden',    name:'GOLDEN',        legs:true, acc:'gold',   colors:{X:'#FFC857',a:'#FFF3C4',o:'#3a2f00'}, hint:'Members only. Obviously.' }
+    { key:'golden',    name:'GOLDEN',        legs:true, acc:'gold',    colors:{X:'#FFC857',a:'#FFF3C4',o:'#3a2f00'}, hint:'Members only. Obviously.' },
+    { key:'speedrun',  name:'SPEEDRUN',      legs:true, acc:'speed',   colors:{X:'#35F0FF',a:'#FFFFFF',o:'#062a33'}, hint:'Three games. One day.' },
+    { key:'earlybird', name:'EARLY BIRD',    legs:true, acc:'sun',     colors:{X:'#FF9E6D',a:'#FFE066',o:'#4a1c00'}, hint:'Awake before the rest of us.' },
+    { key:'weekender', name:'WEEKENDER',     legs:true, acc:'parasol', colors:{X:'#2EC4B6',a:'#FF6B6B',o:'#04302c'}, hint:'Saturday and Sunday. Same weekend.' },
+    { key:'marathon',  name:'MARATHON',      legs:true, acc:'bolt',    colors:{X:'#E63946',a:'#FFD166',o:'#3d0007'}, hint:'Thirty days. Thirty.' },
+    { key:'centurion', name:'CENTURION',     legs:true, acc:'plume',   colors:{X:'#C0C6D4',a:'#8B98FF',o:'#1b1f33'}, hint:'One hundred games played.' },
+    { key:'collector', name:'COLLECTOR',     legs:true, acc:'mini',    colors:{X:'#C77DFF',a:'#FFC857',o:'#25003d'}, hint:'Own ten forms.' }
   ];
+
+  // Le vingtième. Il n'apparaît nulle part tant qu'on ne l'a pas trouvé.
+  const SECRET_DINO = {
+    key:'midnight', name:'MIDNIGHT', legs:true, tf:scanlineOf,
+    colors:{X:'#8FA3FF', b:'#2b3566', a:'#FFFFFF', o:'#FFFFFF'},
+    hint:'You were not supposed to find this.', secret:true
+  };
+  DINOS.push(SECRET_DINO);
   const DINO_BY_KEY = {};
   DINOS.forEach(d => { DINO_BY_KEY[d.key] = d; });
 
@@ -2337,12 +2612,24 @@
     document.getElementById('reveal-modal').classList.remove('open');
   }
 
+  // Les formes secrètes ne sont listées qu'une fois trouvées, et ne comptent
+  // pas dans le total affiché : personne ne doit soupçonner leur existence.
+  function visibleDinos() {
+    return DINOS.filter(d => !d.secret || myDinos.indexOf(d.key) !== -1);
+  }
+  function publicTotal() {
+    return DINOS.filter(d => !d.secret).length;
+  }
+
   function renderDinoLab() {
     const grid = document.getElementById('lab-grid');
     if (!grid) return;
+    const list = visibleDinos();
+    const total = publicTotal();
+    const owned = myDinos.length;
     document.getElementById('lab-count').textContent =
-      myDinos.length + ' / ' + DINOS.length + ' DISCOVERED';
-    grid.innerHTML = DINOS.map(function (d) {
+      owned + ' / ' + total + ' DISCOVERED' + (owned > total ? '  ·  AND SOMETHING ELSE' : '');
+    grid.innerHTML = list.map(function (d) {
       const owned = myDinos.indexOf(d.key) !== -1;
       const worn = currentDino === d.key;
       return '<div class="lab-cell' + (owned ? ' owned' : '') + (worn ? ' worn' : '') + '"' +
@@ -2353,7 +2640,7 @@
         (worn ? '<div class="lab-worn">WEARING</div>' : '') +
       '</div>';
     }).join('');
-    DINOS.forEach(function (d) {
+    list.forEach(function (d) {
       const el = document.getElementById('lab-' + d.key);
       if (!el) return;
       if (myDinos.indexOf(d.key) !== -1) paintDino(el, d.key, false, true);
@@ -2397,6 +2684,10 @@
     document.getElementById('dino-bubble').textContent =
       DINO_MOODS[Math.min(dinoClicks, DINO_MOODS.length - 1)];
     dinoClicks++;
+    if (dinoClicks === 50)  document.getElementById('dino-bubble').textContent = 'fifty. wow.';
+    if (dinoClicks === 100) document.getElementById('dino-bubble').textContent = 'a hundred clicks';
+    if (dinoClicks === 250) document.getElementById('dino-bubble').textContent = 'we have been through a lot';
+    if (dinoClicks === 500) { document.getElementById('dino-bubble').textContent = 'i love you'; sparks(40); }
     if (dinoClicks === 15) {
       document.getElementById('dino-bubble').textContent = 'FINE. TAKE THIS.';
       rainbowWave();
@@ -2480,6 +2771,22 @@
       dinoWrap.classList.remove('talk');
     }, 5200);
   }
+
+  // Mot secret caché dans le code source de la page
+  let typedBuffer = '';
+  document.addEventListener('keydown', (e) => {
+    if (e.key.length !== 1) return;
+    if (document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    typedBuffer = (typedBuffer + e.key.toLowerCase()).slice(-12);
+    if (typedBuffer.endsWith('hello')) {
+      typedBuffer = '';
+      document.getElementById('dino-bubble').textContent = 'oh. hello.';
+      dinoWrap.classList.add('talk');
+      sparks(30);
+      setTimeout(() => dinoWrap.classList.remove('talk'), 3000);
+      claimDino('glitch');
+    }
+  });
 
   // Konami : ↑↑↓↓←→←→ B A
   const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
