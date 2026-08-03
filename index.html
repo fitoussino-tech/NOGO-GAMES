@@ -6,7 +6,6 @@
         \   \
          `~~~'   there are twenty dinosaurs, not nineteen.
                  one of them only exists for one minute a day.
-
                  type  hello  anywhere on the site.
 -->
 <html lang="en">
@@ -138,14 +137,12 @@
   .quest.done { color: var(--fg); border-color: rgba(255,200,87,.4); }
   .quest.done i { background: var(--amber); border-color: var(--amber); }
   .quest.done span { text-decoration: line-through; opacity: .65; }
-
   #players-today { font-size: 12.5px; color: rgba(124,134,176,.7); margin-top: 26px; }
   .spin-btn {
     margin: 0 auto 30px; display: block; width: fit-content; min-width: 190px;
     background: var(--rose); border-color: var(--rose); color: var(--card-deep);
   }
   .spin-btn:hover { background: transparent; color: var(--rose); }
-
   /* dernière minute avant minuit */
   body.brink .count-box { border-color: var(--rose); animation: brink-pulse .9s ease-in-out infinite; }
   body.brink .count-box .num { color: var(--rose); }
@@ -310,7 +307,6 @@
   }
   .acc-name { font-family: var(--px-font); font-size: 12px; color: var(--fg); margin-bottom: 8px; }
   .acc-mail { color: rgba(124, 134, 176, .7); font-size: 12.5px; margin-bottom: 22px; }
-
   .rank-name { font-family: var(--px-font); font-size: 12px; color: var(--amber); line-height: 1.8; margin-bottom: 12px; }
   .rank-bar {
     height: 10px; border-radius: 5px; background: var(--card-deep);
@@ -328,7 +324,6 @@
   .stat b { display: block; font-family: var(--px-font); font-size: 16px; color: var(--fg); }
   .stat span { display: block; font-size: 9.5px; letter-spacing: 1px; color: var(--grey); margin-top: 9px; }
   .streak-note { font-size: 12px; color: rgba(124,134,176,.8); line-height: 1.7; margin-bottom: 22px; }
-
   /* actions secondaires : volontairement effacées */
   .acc-minor { display: flex; gap: 20px; justify-content: center; margin-top: 16px; }
   .acc-minor a {
@@ -372,7 +367,6 @@
   }
   /* ---------- page de remerciement ---------- */
   .thanks-box { max-width: 480px; text-align: center; position: relative; z-index: 2; }
-
   /* rayons dorés qui tournent derrière le dino */
   .rays {
     position: absolute; width: 900px; height: 900px; left: 50%; top: -180px;
@@ -387,7 +381,6 @@
   .rays.on { animation: rays-in .9s ease-out forwards, rays-spin 22s linear infinite; }
   @keyframes rays-in { to { opacity: 1; } }
   @keyframes rays-spin { to { transform: translateX(-50%) rotate(360deg); } }
-
   .dino-stage { height: 150px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 20px; }
   .thanks-dino { width: 126px; height: auto; display: block; opacity: 0; }
   .thanks-dino.slam { animation: dino-slam .75s cubic-bezier(.2,.9,.3,1.3) forwards, dino-glow 2.4s ease-in-out 1s infinite; }
@@ -408,13 +401,11 @@
     30%,50%,70% { transform: translate(-9px,4px); }
     40%,60% { transform: translate(9px,-4px); }
   }
-
   .thanks-kicker { font-family: var(--px-font); font-size: 9px; color: var(--amber);
                    letter-spacing: 4px; margin-bottom: 16px; }
   .thanks-title { font-family: var(--px-font); font-size: 30px; color: var(--fg);
                   line-height: 1.4; margin-bottom: 14px; min-height: 42px; }
   .thanks-title .car { color: var(--amber); }
-
   .stamp {
     display: inline-block; font-family: var(--px-font); font-size: 10px;
     background: var(--amber); color: var(--card-deep);
@@ -425,7 +416,6 @@
   @keyframes stamp-in {
     to { opacity: 1; transform: scale(1) rotate(-4deg); }
   }
-
   .thanks-sub { color: var(--grey); font-size: 15px; line-height: 1.9; margin-bottom: 26px; }
   .thanks-counts { display: flex; gap: 10px; margin-bottom: 28px; }
   .thanks-counts div {
@@ -434,7 +424,6 @@
   }
   .thanks-counts b { display: block; font-family: var(--px-font); font-size: 19px; color: var(--amber); }
   .thanks-counts span { display: block; font-size: 9px; letter-spacing: 1px; color: var(--grey); margin-top: 9px; }
-
   .thanks-list { text-align: left; margin-bottom: 30px; }
   .thanks-list div {
     color: var(--grey); font-size: 14.5px; line-height: 1.7;
@@ -444,11 +433,9 @@
     content: '★'; position: absolute; left: 0; top: 13px; color: var(--amber); font-size: 12px;
   }
   .thanks-list div:last-child { border-bottom: none; }
-
   .reveal { opacity: 0; transform: translateY(18px); }
   .reveal.on { animation: reveal-in .5s cubic-bezier(.2,.9,.3,1.2) forwards; }
   @keyframes reveal-in { to { opacity: 1; transform: translateY(0); } }
-
   .share-block {
     background: var(--card-deep); border: 1px solid var(--line); border-radius: 10px;
     padding: 18px 16px; margin-bottom: 20px; text-align: left;
@@ -559,7 +546,6 @@
   }
   body.party { animation: party-hue 1.4s linear infinite; }
   @keyframes party-hue { to { filter: hue-rotate(360deg); } }
-
   /* ---------- L'ONDE ARC-EN-CIEL ---------- */
   /* Toute la palette du site est remplacée, puis défile. Rien n'y échappe. */
   body.rainbow { animation: rr-cycle 3.2s linear infinite; }
@@ -581,7 +567,6 @@
     100% { --bg:#1a0033; --card:#33005c; --card-deep:#0d0019; --line:#ff2fd0; --fg:#ffffff;
            --rose:#ff2fd0; --amber:#ffee00; --accent:#00e5ff; --grey:#d6b3ff; }
   }
-
   /* transition entre écrans, en gros pixels */
   #wipe {
     position: fixed; inset: 0; width: 100vw; height: 100vh;
@@ -644,14 +629,12 @@
   <div class="hero">
     <div class="badge"><span class="star">★</span> A NEW GAME EVERY DAY <span class="star">★</span></div>
     <div class="slogan">BORED?<br><span class="dim">GOOD.</span></div>
-
     <div class="countdown-label" id="cd-label">TOMORROW'S GAME DROPS IN</div>
     <div class="countdown-row" id="cd-row">
       <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
       <div class="count-box"><div class="num" id="cd-m">--</div><div class="unit">MIN</div></div>
       <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
     </div>
-
     <div class="cta-row">
       <div class="big-card primary" onclick="playDaily()">
         <div class="card-bg" id="daily-bg"></div>
@@ -675,14 +658,12 @@
         <div class="hs-label" id="hs-label">DAYS BORED IN A ROW</div>
       </div>
     </div>
-
     <div id="quests" style="display:none;">
       <div class="quests-title">TODAY'S THREE THINGS</div>
       <div class="quest" id="q-play"><i></i><span>Play today's game</span></div>
       <div class="quest" id="q-score"><i></i><span>Beat 500 points</span></div>
       <div class="quest" id="q-look"><i></i><span>Look at the rankings and feel something</span></div>
     </div>
-
     <div id="players-today"></div>
   </div>
   <footer>
@@ -692,7 +673,6 @@
     </div>
   </footer>
 </div>
-
 <div class="screen" id="screen-vault">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -719,7 +699,6 @@
     </div>
   </footer>
 </div>
-
 <div class="screen" id="screen-thanks">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -765,7 +744,6 @@
     </div>
   </footer>
 </div>
-
 <div class="screen" id="screen-lab">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -781,7 +759,6 @@
     <div class="desc"><span id="w-dinos">Thirteen</span> forms exist. Most of them are none of your business yet.</div>
     <div class="lab-count" id="lab-count">1 / 18 DISCOVERED</div>
     <div class="lab-grid" id="lab-grid"></div>
-
     <div class="member-shelf">
       <h2>THE MEMBERS' SHELF</h2>
       <div class="lab-count" id="lab-member-count">NOT YOURS. YET.</div>
@@ -796,7 +773,6 @@
     </div>
   </footer>
 </div>
-
 <div class="screen" id="screen-leaders">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -824,7 +800,6 @@
     </div>
   </footer>
 </div>
-
 <div class="screen" id="screen-game">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -838,7 +813,6 @@
   </header>
   <div class="game-full" id="game-frame"></div>
 </div>
-
 <div class="screen" id="screen-subscribe">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
@@ -883,7 +857,6 @@
     </div>
   </footer>
 </div>
-
 <div class="modal-overlay" id="paywall">
   <div class="modal">
     <div class="lock-icon">🔒</div>
@@ -893,7 +866,6 @@
     <button class="close" onclick="closePaywall()">no thanks, back to being bored</button>
   </div>
 </div>
-
 <!-- Écran pub : ne s'affiche que si ADS_ENABLED = true (voir tout en bas du script) -->
 <div class="modal-overlay" id="ad-modal">
   <div class="modal">
@@ -903,7 +875,6 @@
     <button class="close" onclick="closeAd()">cancel</button>
   </div>
 </div>
-
 <div class="modal-overlay" id="midnight-modal">
   <div class="modal">
     <div style="font-family:var(--px-font);font-size:9px;color:var(--grey);letter-spacing:4px;margin-bottom:20px;">MIDNIGHT</div>
@@ -914,7 +885,6 @@
     <button class="close" onclick="closeMidnight()">later</button>
   </div>
 </div>
-
 <div class="modal-overlay" id="share-modal">
   <div class="modal">
     <h2>BRAG ABOUT IT</h2>
@@ -925,7 +895,6 @@
     <button class="close" onclick="closeShare()">close</button>
   </div>
 </div>
-
 <div class="modal-overlay" id="player-modal">
   <div class="modal">
     <svg id="player-svg" class="reveal-svg" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -944,7 +913,6 @@
     <button class="close" onclick="closePlayer()">close</button>
   </div>
 </div>
-
 <div class="modal-overlay" id="reveal-modal">
   <div class="modal">
     <div style="font-family:var(--px-font);font-size:10px;color:var(--grey);letter-spacing:3px;margin-bottom:18px;">NEW FORM</div>
@@ -955,7 +923,6 @@
     <button class="close" onclick="closeReveal()">later</button>
   </div>
 </div>
-
 <div class="modal-overlay" id="streak-modal">
   <div class="modal">
     <div id="flame-wrap"><svg id="flame-svg" viewBox="0 0 14 18" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg></div>
@@ -968,7 +935,6 @@
     <button class="close" onclick="closeStreak()">fine</button>
   </div>
 </div>
-
 <div class="modal-overlay" id="auth-modal">
   <div class="modal">
     <div id="auth-forms">
@@ -1022,27 +988,22 @@
     </div>
     <div id="account-view" style="display:none;">
       <h2>BOREDOM RÉSUMÉ</h2>
-
       <div class="avatar" onclick="closeAccount(); go('lab');" title="Change your dino">
         <svg id="account-dino" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
       <div id="account-member-pill"></div>
       <p id="account-name" class="acc-name"></p>
       <p id="account-email" class="acc-mail"></p>
-
       <div class="rank-name" id="account-rank">FRESHLY BORED</div>
       <div class="rank-bar"><span id="account-rank-fill"></span></div>
       <div class="rank-next" id="account-rank-next"></div>
-
       <div class="stat-row">
         <div class="stat"><b id="account-streak">0</b><span>DAY STREAK</span></div>
         <div class="stat"><b id="account-points">0</b><span>POINTS</span></div>
         <div class="stat"><b id="account-played">0</b><span>GAMES</span></div>
       </div>
       <div class="streak-note" id="account-streak-note"></div>
-
       <button class="btn" onclick="closeAccount(); lastResult = null; openShare();">SHARE MY RÉSUMÉ</button>
-
       <div class="acc-minor">
         <a id="portal-link" style="display:none;" onclick="openPortal()">manage subscription</a>
         <a onclick="logout()">log out</a>
@@ -1051,15 +1012,12 @@
     </div>
   </div>
 </div>
-
 <canvas id="rainbow-veil"></canvas>
 <canvas id="wipe"></canvas>
-
 <div id="dino-wrap" title="rawr">
   <div id="dino-bubble">RAWR!</div>
   <svg id="dino-svg" viewBox="0 0 22 22" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
@@ -1068,19 +1026,25 @@
   // ============================================================
   const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZGZ2dGd1YXZiYmlkZ3BqeGR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MjAxNzQsImV4cCI6MjEwMTA5NjE3NH0.S4Aku-Lbn-N-3r8o4JsqwJAPX5OP6_Y0GeMUKm6XWjI';
-
   // Passe à true le jour où tu as une vraie régie publicitaire.
   // Tant que c'est false, personne ne voit d'écran de pub.
   // Clé publiable Stripe (Développeurs → Clés API → « Clé publiable »).
   // Elle commence par pk_live_ et peut figurer dans le code : elle est publique.
   const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TzN5NJkXpRG54Qt8FtStynHb2BLRkebc2Y0Du3ZFFaQG1AIw1vROF9Cr6KvQhqTD48s7f8Uu43kGenD89D1lPIY00rE12BwbX';
-
   const ADS_ENABLED = false;
   const AD_SECONDS = 15; // durée avant que le bouton "PLAY" se débloque
   // ============================================================
-
+  // LE CLASSEMENT DU JOUR — comment un jeu envoie son score :
+  //   parent.postMessage({ type:'nogo-score', points: 120, score: 47230 }, '*');
+  //   - points : les points « économie du site » (série, rangs, all-time)
+  //   - score  : la valeur brute pour le classement du jour, selon le jeu :
+  //       score_kind='points' → des points (score facultatif, points suffit)
+  //       score_kind='number' → un nombre (coups, vagues, étages…)
+  //       score_kind='time'   → un temps en MILLISECONDES (le plus petit gagne)
+  //   Le type de score de chaque jeu se règle en base, table `games`
+  //   (colonnes score_kind, score_order, score_unit).
+  // ============================================================
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   let ALL_GAMES = [];    // catalogue complet (table "games")
   let DAILY = null;      // le jeu gratuit du jour
   let loggedUser = null;
@@ -1092,7 +1056,6 @@
   let bestStreak = 0;
   let gamesPlayed = 0;
   let currentGame = null;
-
   // L'échelle des rangs — purement décorative, totalement essentielle.
   const RANKS = [
     [0, 'FRESHLY BORED'],
@@ -1111,7 +1074,6 @@
     const progress = next ? Math.min(100, ((pts - floor) / (next[0] - floor)) * 100) : 100;
     return { name: RANKS[i][1], next: next, progress: progress, remaining: next ? next[0] - pts : 0 };
   } // jeu à lancer après la pub
-
   // ---------- transition en pixels entre les écrans ----------
   function pixelWipe(then) {
     const cv = document.getElementById('wipe');
@@ -1124,7 +1086,6 @@
     const order = [];
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) order.push([x, y, Math.random()]);
     order.sort((a, b) => (a[0] + a[1] * 0.6 + a[2] * 2.4) - (b[0] + b[1] * 0.6 + b[2] * 2.4));
-
     let i = 0, swapped = false;
     const perFrame = Math.ceil(order.length / 11);
     (function fill() {
@@ -1145,7 +1106,6 @@
       })();
     })();
   }
-
   function showScreen(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
@@ -1158,23 +1118,20 @@
     dinoMood(name);
     window.scrollTo(0, 0);
   }
-
   let currentScreen = 'home';
   function go(name) {
     if (name === currentScreen) return showScreen(name);
     currentScreen = name;
     pixelWipe(() => showScreen(name));
   }
-
   // ---------- catalogue ----------
   async function loadCatalogue() {
     const [gamesRes, dailyRes] = await Promise.all([
-      sb.from('games').select('id, title, emoji, file, color_a, color_b, image_url').eq('is_active', true).order('created_at', { ascending: false }),
+      sb.from('games').select('id, title, emoji, file, color_a, color_b, image_url, score_kind, score_order, score_unit').eq('is_active', true).order('created_at', { ascending: false }),
       sb.rpc('get_daily_game')
     ]);
     ALL_GAMES = gamesRes.data || [];
     DAILY = (dailyRes.data && dailyRes.data[0]) || null;
-
     const emojiEl = document.getElementById('daily-emoji');
     const titleEl = document.getElementById('daily-title');
     if (DAILY) {
@@ -1194,7 +1151,6 @@
     refreshCounts();
     renderVault();
   }
-
   // Tous les nombres affichés en toutes lettres se mettent à jour tout seuls :
   // ajoute un jeu en base, et le site se corrige partout.
   const NUM_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
@@ -1215,7 +1171,6 @@
     setText('w-games', numWord(n, true));
     setText('w-dinos', numWord(publicTotal(), true));
   }
-
   function renderVault() {
     const grid = document.getElementById('vault-grid');
     if (!grid) return;
@@ -1252,24 +1207,21 @@
     });
     grid.innerHTML = html;
   }
-
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-
   // ---------- lancement d'un jeu ----------
   function playDaily() {
     if (!DAILY) return;
-    startGame(DAILY);
+    // on repart du catalogue : DAILY ne porte pas score_kind ni les couleurs
+    startGame(ALL_GAMES.find(g => g.id === DAILY.id) || DAILY);
   }
-
   function playGameById(id) {
     const g = ALL_GAMES.find(x => x.id === id);
     if (!g) return;
     startGame(g);
   }
-
   // Décide : accès direct, pub, ou paywall
   function startGame(game) {
     const isToday = DAILY && game.id === DAILY.id;
@@ -1278,7 +1230,6 @@
     if (ADS_ENABLED) { openAd(game); return; }       // gratuit + pubs activées : une pub d'abord
     loadGame(game);
   }
-
   async function loadGame(game) {
     currentGame = game;
     lastResult = null;
@@ -1308,7 +1259,6 @@
       frame.innerHTML = '<div class="game-loading">ERROR — TRY AGAIN</div>';
     }
   }
-
   // ---------- écran pub (inactif tant que ADS_ENABLED = false) ----------
   let adTimer = null;
   function openAd(game) {
@@ -1342,7 +1292,6 @@
     closeAd();
     if (g) loadGame(g);
   }
-
   // ---------- fenêtres ----------
   function openPaywall() { document.getElementById('paywall').classList.add('open'); }
   function closePaywall() { document.getElementById('paywall').classList.remove('open'); }
@@ -1352,13 +1301,11 @@
     if (msg) { const m = document.getElementById('auth-msg'); m.textContent = msg; m.classList.remove('ok'); }
   }
   function closeAccount() { document.getElementById('auth-modal').classList.remove('open'); }
-
   // ---------- authentification ----------
   let authMode = 'login';
   let captchaAnswer = null;
   let recoveryMode = false;
   let pendingUsername = null;
-
   // Quand l'utilisateur revient depuis le lien reçu par e-mail
   sb.auth.onAuthStateChange((event) => {
     if (event === 'PASSWORD_RECOVERY') {
@@ -1367,7 +1314,6 @@
       refreshAccountUI();
     }
   });
-
   // Envoi du lien de réinitialisation
   async function forgotPassword() {
     const msg = document.getElementById('auth-msg');
@@ -1381,7 +1327,6 @@
     msg.textContent = 'Reset link sent — check your inbox.';
     msg.classList.add('ok');
   }
-
   // Enregistrement du nouveau mot de passe
   async function submitNewPassword() {
     const msg = document.getElementById('reset-msg');
@@ -1396,7 +1341,6 @@
     await onLoggedIn(session);
     closeAccount();
   }
-
   function newCaptcha() {
     const a = 2 + Math.floor(Math.random() * 8);
     const b = 2 + Math.floor(Math.random() * 8);
@@ -1418,7 +1362,6 @@
     document.getElementById('auth-captcha-row').style.display = signup ? 'block' : 'none';
     if (signup) newCaptcha();
   }
-
   async function oauthLogin(provider) {
     const msg = document.getElementById('auth-msg');
     msg.classList.remove('ok');
@@ -1428,7 +1371,6 @@
     });
     if (error) msg.textContent = error.message;
   }
-
   async function submitAuth() {
     const msg = document.getElementById('auth-msg');
     msg.classList.remove('ok');
@@ -1481,7 +1423,6 @@
       btn.disabled = false;
     }
   }
-
   async function onLoggedIn(session) {
     if (!session) return;
     const u = session.user;
@@ -1506,7 +1447,6 @@
     refreshAccountUI();
     renderVault();
   }
-
   async function fetchProfile() {
     if (!loggedUser) return;
     const { data } = await sb.from('profiles')
@@ -1534,7 +1474,6 @@
     if (h >= 5 && h < 7) await claimDino('earlybird', true);
     if (h === 0 && m === 0) await claimDino('midnight', true);   // le vingtième
   }
-
   async function logout() {
     await sb.auth.signOut();
     loggedUser = null; isMember = false; points = 0;
@@ -1545,7 +1484,6 @@
     renderVault();
     closeAccount();
   }
-
   function refreshAccountUI() {
     const logged = !!loggedUser;
     updateHomeStreak();
@@ -1555,9 +1493,7 @@
       el.innerHTML = (isMember ? '<span class="nav-badge">★ MEMBER</span>' : '') +
         escapeHtml(who) + (streak > 0 ? ' · 🔥 ' + streak : '') + ' · ★ ' + points;
     });
-
     const show = (id, on) => { document.getElementById(id).style.display = on ? 'block' : 'none'; };
-
     if (recoveryMode) {
       show('auth-forms', false); show('account-view', false);
       show('username-view', false); show('reset-view', true);
@@ -1571,7 +1507,6 @@
     }
     show('reset-view', false); show('username-view', false);
     show('auth-forms', !logged); show('account-view', logged);
-
     if (logged) {
       const r = rankFor(points);
       document.getElementById('account-name').textContent = username || loggedUser.name;
@@ -1594,7 +1529,6 @@
       paintDino(document.getElementById('account-dino'), currentDino, false, true);
     }
   }
-
   // ---------- pseudo ----------
   async function submitUsername() {
     const msg = document.getElementById('pick-msg');
@@ -1611,10 +1545,42 @@
     document.getElementById('pick-username').value = '';
     refreshAccountUI();
   }
-
   // ---------- classements ----------
+  // Le jeu du jour, version complète (avec score_kind etc.)
+  function dailyGameFull() {
+    if (!DAILY) return null;
+    return ALL_GAMES.find(x => x.id === DAILY.id) || DAILY;
+  }
+  // Affiche un score selon le type du jeu :
+  //   'time'   → 1:23.45 (entrée en millisecondes)
+  //   'number' → 42 moves (si score_unit est défini)
+  //   'points' → 1,240
+  function formatScore(game, v) {
+    v = Number(v);
+    if (!isFinite(v)) return '—';
+    const kind = (game && game.score_kind) || 'points';
+    if (kind === 'time') {
+      const ms = Math.max(0, Math.round(v));
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor(ms / 1000) % 60;
+      const cs = Math.floor((ms % 1000) / 10);
+      return m > 0
+        ? m + ':' + String(s).padStart(2, '0') + '.' + String(cs).padStart(2, '0')
+        : s + '.' + String(cs).padStart(2, '0') + 's';
+    }
+    const unit = (game && game.score_unit) ? ' ' + game.score_unit : '';
+    return Math.round(v).toLocaleString('en-US') + unit;
+  }
+  function scoreLabel(game) {
+    if (!game) return '';
+    if (game.score_kind === 'time') return ' · BEST TIME';
+    if (game.score_kind === 'number') {
+      return game.score_unit ? ' · ' + String(game.score_unit).toUpperCase() : ' · BEST';
+    }
+    return '';
+  }
   let boardSeq = 0;
-  function boardRows(rows) {
+  function boardRows(rows, fmt) {
     if (!rows || !rows.length) {
       return '<div class="board-empty">Nobody yet. Be the first — the bar is on the floor.</div>';
     }
@@ -1630,7 +1596,7 @@
         '<div class="board-name">' + escapeHtml(r.username) +
           (r.streak ? ' <span style="color:var(--grey);font-size:13px;">· 🔥 ' + r.streak + '</span>' : '') +
         '</div>' +
-        '<div class="board-pts">' + r.points + '</div>' +
+        '<div class="board-pts">' + (fmt ? fmt(r) : r.points) + '</div>' +
       '</div>';
     }).join('');
     setTimeout(function () {
@@ -1641,7 +1607,6 @@
     }, 0);
     return html;
   }
-
   // ---------- fiche d'un joueur ----------
   async function openPlayer(name) {
     const modal = document.getElementById('player-modal');
@@ -1663,42 +1628,42 @@
     document.getElementById('p-dinos').textContent = p.dinos + '/' + DINOS.length;
   }
   function closePlayer() { document.getElementById('player-modal').classList.remove('open'); }
-
   async function renderLeaderboards() {
     const todayEl = document.getElementById('board-today');
     const allEl = document.getElementById('board-alltime');
+    const g = dailyGameFull();
     document.getElementById('board-today-title').textContent =
-      DAILY ? ('TODAY · ' + (DAILY.title || 'DAILY GAME')) : 'TODAY';
+      DAILY ? ('TODAY · ' + (DAILY.title || 'DAILY GAME') + scoreLabel(g)) : 'TODAY';
     todayEl.innerHTML = '<div class="board-empty">Loading…</div>';
     allEl.innerHTML = '<div class="board-empty">Loading…</div>';
-
-    const [t, a] = await Promise.all([
-      DAILY ? sb.rpc('leaderboard_today', { p_game_id: DAILY.id, p_limit: 10 })
-            : Promise.resolve({ data: [] }),
-      sb.rpc('leaderboard_alltime', { p_limit: 10 })
-    ]);
-    todayEl.innerHTML = boardRows(t.data);
+    // le classement du jour : scores bruts du jeu du jour, tous les joueurs
+    let t = { data: [] };
+    if (DAILY) {
+      t = await sb.rpc('daily_leaderboard', { p_game_id: DAILY.id, p_limit: 200 });
+      // repli sur l'ancien classement si la migration SQL n'est pas encore passée
+      if (t.error) t = await sb.rpc('leaderboard_today', { p_game_id: DAILY.id, p_limit: 10 });
+    }
+    const a = await sb.rpc('leaderboard_alltime', { p_limit: 10 });
+    todayEl.innerHTML = boardRows(t.data, function (r) {
+      return formatScore(g, r.score != null ? r.score : r.points);
+    });
     allEl.innerHTML = boardRows(a.data);
   }
-
   (async function start() {
     const { data: { session } } = await sb.auth.getSession();
     if (session) await onLoggedIn(session);
     await loadCatalogue();
     refreshQuests();
-
     const params = new URLSearchParams(location.search);
     if (params.get('checkout') === 'success') {
       history.replaceState({}, '', location.pathname);
       if (loggedUser) unlockNow();
     }
   })();
-
   // ---------- paiement ----------
   // ---------- Apple Pay / Google Pay, sans quitter le site ----------
   let expressReady = false;
   let stripeJs = null;
-
   async function setupExpressCheckout() {
     const holder = document.getElementById('express-checkout');
     const sep = document.getElementById('pay-sep');
@@ -1706,7 +1671,6 @@
     // rien à afficher si on n'est pas connecté, déjà membre, ou clé absente
     if (!loggedUser || isMember) return;
     if (!window.Stripe || STRIPE_PUBLISHABLE_KEY.indexOf('pk_') !== 0) return;
-
     try {
       const { data: { session } } = await sb.auth.getSession();
       // Attention : la fonction s'affiche « create-subscription » dans Supabase,
@@ -1722,27 +1686,22 @@
       });
       const out = await res.json();
       if (!out.clientSecret) return; // on garde simplement le bouton carte
-
       // trace horodatée de la renonciation, conservée sur le profil
       sb.from('profiles').update({ waiver_accepted_at: new Date().toISOString() })
         .eq('id', loggedUser.id).then(function () {});
-
       stripeJs = window.Stripe(STRIPE_PUBLISHABLE_KEY);
       const elements = stripeJs.elements({
         clientSecret: out.clientSecret,
         appearance: { theme: 'night', variables: { colorPrimary: '#ffc857' } }
       });
-
       const express = elements.create('expressCheckout', {
         buttonTheme: { applePay: 'white-outline', googlePay: 'white' },
         buttonHeight: 48
       });
-
       // ne s'affiche que si Apple Pay ou Google Pay est réellement disponible
       express.on('ready', (ev) => {
         if (ev && ev.availablePaymentMethods) { sep.style.display = 'flex'; }
       });
-
       // Blocage propre : sans acceptation des CGV, la feuille de paiement ne s'ouvre pas.
       express.on('click', (ev) => {
         if (!document.getElementById('accept-waiver').checked) {
@@ -1753,7 +1712,6 @@
         }
         ev.resolve();
       });
-
       express.on('confirm', async () => {
         const msg = document.getElementById('subscribe-msg');
         msg.classList.remove('ok');
@@ -1769,14 +1727,12 @@
         msg.textContent = 'Payment received — unlocking your account…';
         unlockNow();
       });
-
       express.mount('#express-checkout');
       expressReady = true;
     } catch (e) {
       // silencieux : le bouton carte reste disponible
     }
   }
-
   // le webhook Stripe met une seconde ou deux à activer le compte
   // On n'attend plus le webhook : on demande nous-mêmes à Stripe et on débloque.
   async function unlockNow(tries) {
@@ -1801,32 +1757,28 @@
         return;
       }
     } catch (e) { /* on retente */ }
-
     // Stripe met parfois une seconde à basculer l'abonnement en "active"
     if (tries < 8) return setTimeout(() => unlockNow(tries + 1), 900);
-
     // dernier recours : on relit simplement le profil
     await fetchProfile(); refreshAccountUI(); renderVault();
     if (isMember) showThanks();
     else document.getElementById('subscribe-msg').textContent =
       'Payment received. Your account will unlock in a moment — refresh if needed.';
   }
-
   // ============================================================
   //  LE BLOC DE PARTAGE
   // ============================================================
-  let lastResult = null;   // { title, points, rank } de la dernière partie
-
+  let lastResult = null;   // { title, points, rank, scoreText } de la dernière partie
   function flameBar(n) {
     const filled = Math.max(0, Math.min(7, n));
     return '🔥'.repeat(filled) + '⬛'.repeat(7 - filled);
   }
-
   function buildShareText() {
     const lines = [];
     if (lastResult) {
       lines.push('NOGO GAMES — ' + lastResult.title);
-      lines.push(lastResult.points + ' pts' + (lastResult.rank ? ' · #' + lastResult.rank + ' today' : ''));
+      lines.push((lastResult.scoreText || (lastResult.points + ' pts')) +
+        (lastResult.rank ? ' · #' + lastResult.rank + ' today' : ''));
     } else {
       lines.push('NOGO GAMES');
       lines.push(points + ' pts · ' + rankFor(points).name);
@@ -1839,13 +1791,13 @@
     lines.push('nogo-games.com');
     return lines.join('\n');
   }
-
   async function openShare() {
     // on cherche le rang du jour si on vient de jouer
     if (lastResult && !lastResult.rank && currentGame) {
       try {
-        const { data } = await sb.rpc('leaderboard_today', { p_game_id: currentGame.id, p_limit: 100 });
-        const i = (data || []).findIndex(r => r.username === username);
+        let res = await sb.rpc('daily_leaderboard', { p_game_id: currentGame.id, p_limit: 200 });
+        if (res.error) res = await sb.rpc('leaderboard_today', { p_game_id: currentGame.id, p_limit: 100 });
+        const i = (res.data || []).findIndex(r => r.username === username);
         if (i >= 0) lastResult.rank = i + 1;
       } catch (e) { /* tant pis, on partage sans le rang */ }
     }
@@ -1856,7 +1808,6 @@
     document.getElementById('share-modal').classList.add('open');
   }
   function closeShare() { document.getElementById('share-modal').classList.remove('open'); }
-
   async function copyShare() {
     const btn = document.getElementById('share-copy');
     const text = buildShareText();
@@ -1873,13 +1824,11 @@
     sparks(18);
     setTimeout(() => { btn.textContent = 'COPY'; }, 2200);
   }
-
   async function nativeShare() {
     try {
       await navigator.share({ text: buildShareText(), url: 'https://nogo-games.com' });
     } catch (e) { /* annulé par l'utilisateur */ }
   }
-
   // ---------- la cérémonie ----------
   function pixelBurst(x, y, count, power) {
     for (let i = 0; i < count; i++) {
@@ -1897,7 +1846,6 @@
       setTimeout(() => p.remove(), 1500);
     }
   }
-
   function typeInto(el, text, speed, done) {
     el.innerHTML = '';
     let i = 0;
@@ -1908,7 +1856,6 @@
       setTimeout(tick, speed);
     })();
   }
-
   function countTo(el, target, ms, suffix) {
     const t0 = performance.now();
     (function step(now) {
@@ -1918,7 +1865,6 @@
       if (k < 1) requestAnimationFrame(step);
     })(performance.now());
   }
-
   function showThanks() {
     go('thanks');
     const page = document.getElementById('thanks-page');
@@ -1926,65 +1872,52 @@
     const rays = document.getElementById('thanks-rays');
     const stamp = document.getElementById('thanks-stamp');
     const title = document.getElementById('thanks-title');
-
     // remise à zéro pour pouvoir rejouer la séquence
     [page, dino, rays, stamp].forEach(el => el.classList.remove('shake', 'slam', 'on'));
     document.querySelectorAll('#screen-thanks .reveal').forEach(el => el.classList.remove('on'));
     title.innerHTML = '';
     paintDino(dino, 'golden', false, true);
     void page.offsetWidth;  // force le navigateur à repartir de zéro
-
     const cx = window.innerWidth / 2, cy = window.innerHeight * 0.42;
-
     // 0,1 s — explosion de pixels au centre
     setTimeout(() => pixelBurst(cx, cy, 90, Math.max(window.innerWidth, 700) * 0.55), 100);
-
     // 0,15 s — le dino s'écrase à l'écran
     setTimeout(() => dino.classList.add('slam'), 150);
-
     // 0,55 s — impact : secousse + seconde explosion
     setTimeout(() => {
       page.classList.add('shake');
       pixelBurst(cx, cy + 40, 60, 420);
     }, 560);
-
     // 0,8 s — les rayons dorés apparaissent et se mettent à tourner
     setTimeout(() => rays.classList.add('on'), 800);
-
     // 1,0 s — le titre s'écrit
     setTimeout(() => typeInto(title, "YOU'RE IN.", 85, () => {
       setTimeout(() => { title.innerHTML = "YOU'RE IN."; }, 700);
     }), 1000);
-
     // 1,5 s — le tampon MEMBER s'abat
     setTimeout(() => {
       stamp.classList.add('on');
       pixelBurst(cx, cy + 120, 30, 260);
     }, 1500);
-
     // canons de confettis depuis les deux coins bas
     setTimeout(() => {
       pixelBurst(30, window.innerHeight - 20, 55, 900);
       pixelBurst(window.innerWidth - 30, window.innerHeight - 20, 55, 900);
     }, 1700);
-
     // 1,7 s et suivantes — le contenu se dévoile par paliers
     document.querySelectorAll('#screen-thanks .reveal').forEach(el => {
       const step = parseInt(el.dataset.step, 10) || 1;
       setTimeout(() => el.classList.add('on'), 1700 + step * 170);
     });
-
     // 2,6 s — les compteurs grimpent
     setTimeout(() => {
       countTo(document.getElementById('c-games'), ALL_GAMES.length || 11, 900);
       countTo(document.getElementById('c-days'), 1, 700);
       document.getElementById('c-ads').textContent = '0';
     }, 2600);
-
     // 3,2 s — dernière pluie, pour la route
     setTimeout(() => sparks(70), 3200);
   }
-
   // Le paiement reste verrouillé tant que la renonciation n'est pas cochée.
   function updatePayGate() {
     const ok = document.getElementById('accept-waiver').checked;
@@ -1993,7 +1926,6 @@
     // la fonction serveur démarre à froid et met plusieurs secondes.
     if (loggedUser && !isMember) setupExpressCheckout();
   }
-
   async function subscribeClick() {
     const msg = document.getElementById('subscribe-msg');
     if (!document.getElementById('accept-waiver').checked) {
@@ -2023,7 +1955,6 @@
       btn.disabled = false;
     }
   }
-
   async function openPortal() {
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -2040,15 +1971,32 @@
       if (out.url) location.href = out.url;
     } catch (e) { /* silencieux */ }
   }
-
   // ---------- points ----------
   // Les scores sont enregistrés par le serveur (record_score) : c'est lui qui
   // calcule les points, la série et les records. Le navigateur ne décide plus rien.
+  // En plus des points, le jeu peut envoyer un score brut (e.data.score) qui
+  // alimente le classement du jour : un temps, un nombre, ou des points.
   window.addEventListener('message', async (e) => {
     if (!e.data || e.data.type !== 'nogo-score') return;
     if (!loggedUser || !currentGame) return;
     const gained = Math.max(0, Math.floor(Number(e.data.points) || 0));
-    if (!gained) return;
+    // score brut pour le classement du jour ; à défaut, les points
+    let raw = Number(e.data.score);
+    if (!isFinite(raw) || raw < 0) raw = gained > 0 ? gained : null;
+    const hasKind = currentGame.score_kind && currentGame.score_kind !== 'points';
+    if (raw != null) {
+      sb.rpc('submit_daily_score', { p_game_id: currentGame.id, p_score: raw })
+        .then(function () {}, function () {});
+    }
+    if (!gained) {
+      // un jeu au temps peut n'envoyer que son chrono : on partage quand même
+      if (raw != null) {
+        lastResult = { title: currentGame.title || 'GAME', points: 0, rank: null,
+                       scoreText: hasKind ? formatScore(currentGame, raw) : null };
+        document.getElementById('share-btn').style.display = 'inline-block';
+      }
+      return;
+    }
     const { data, error } = await sb.rpc('record_score', {
       p_game_id: currentGame.id,
       p_points: gained
@@ -2061,14 +2009,13 @@
     gamesPlayed += 1;
     playedToday = true;
     bestToday = Math.max(bestToday, gained);
-    lastResult = { title: currentGame.title || 'GAME', points: gained, rank: null };
+    lastResult = { title: currentGame.title || 'GAME', points: gained, rank: null,
+                   scoreText: (hasKind && raw != null) ? formatScore(currentGame, raw) : null };
     document.getElementById('share-btn').style.display = 'inline-block';
     refreshAccountUI();
-
     // dinos débloqués par le serveur pendant cette partie
     const fresh = (data.unlocked || []).filter(k => myDinos.indexOf(k) === -1);
     fresh.forEach(k => myDinos.push(k));
-
     if (streak > before) {
       showStreakCelebration(streak);
       if (fresh.length) setTimeout(() => revealDino(fresh[0]), 400);
@@ -2076,7 +2023,6 @@
       revealDino(fresh[0]);
     }
   });
-
   // ---------- l'écran de série ----------
   // Flamme en pixel art, même grammaire visuelle que le dino.
   const FLAME_OUTER = [
@@ -2112,7 +2058,6 @@
     "......XX......",
     ""
   ];
-
   function drawFlame(dead, targetId) {
     const outer = dead ? '#3a3f5e' : '#ff7a2f';
     const inner = dead ? '#242840' : '#ffd166';
@@ -2129,11 +2074,9 @@
     });
     document.getElementById(targetId || 'flame-svg').innerHTML = s;
   }
-
   let playedToday = false;
   let playersToday = 0;
   let bestToday = 0;
-
   // La flamme de l'accueil : elle rétrécit et s'affole à mesure que minuit approche
   // tant que tu n'as pas joué. C'est la perte qui fait revenir, pas le gain.
   function updateHomeStreak() {
@@ -2143,11 +2086,9 @@
     box.classList.add('on');
     box.classList.toggle('alive', streak > 0);
     drawFlame(streak === 0, 'home-flame');
-
     const flame = document.getElementById('home-flame');
     const hoursLeft = msUntilParisMidnight() / 3600000;
     let label;
-
     if (streak === 0) {
       flame.style.transform = 'scale(1)';
       flame.style.animationDuration = '';
@@ -2168,7 +2109,6 @@
     document.getElementById('hs-num').textContent = streak;
     document.getElementById('hs-label').textContent = label;
   }
-
   // ---------- les trois missions du jour ----------
   async function refreshQuests() {
     const box = document.getElementById('quests');
@@ -2180,12 +2120,10 @@
         bestToday = data.best_today || 0;
       }
     } catch (e) { /* on affiche ce qu'on peut */ }
-
     document.getElementById('players-today').textContent =
       playersToday > 0
         ? playersToday + (playersToday === 1 ? ' person has' : ' people have') + ' wasted time here today'
         : '';
-
     if (!loggedUser) { box.style.display = 'none'; return; }
     box.style.display = 'block';
     const looked = localStorage.getItem('nogo-looked') === todayKey();
@@ -2194,11 +2132,9 @@
     document.getElementById('q-look').classList.toggle('done', looked);
     updateHomeStreak();
   }
-
   function todayKey() {
     return new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
   }
-
   // ---------- les humeurs du dino, selon l'écran ----------
   const MOODS = {
     home:      ['bored yet?', 'hi', 'still here', 'nothing to do?'],
@@ -2218,7 +2154,6 @@
     dinoWrap.classList.add('talk');
     setTimeout(() => dinoWrap.classList.remove('talk'), 2600);
   }
-
   // ---------- la machine à sous des membres ----------
   let spinning = false;
   async function spinRandom() {
@@ -2246,7 +2181,6 @@
       setTimeout(() => { spinning = false; label.textContent = 'SPIN'; startGame(pick); }, 750);
     })();
   }
-
   // ---------- le rituel de minuit ----------
   function midnightReveal() {
     const name = DAILY ? (DAILY.title || 'A NEW GAME') : 'A NEW GAME';
@@ -2262,7 +2196,6 @@
     document.getElementById('midnight-modal').classList.remove('open');
     go('home');
   }
-
   const STREAK_LINES = {
     1: 'Day one. It only gets worse from here.',
     2: 'Two days. That is technically a habit.',
@@ -2278,7 +2211,6 @@
     if (n >= 30) return 'Still here. Still bored. Respect.';
     return 'Come back tomorrow and this number gets bigger. That is the whole game.';
   }
-
   function buildWeekStrip(n) {
     const names = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     const today = new Date();
@@ -2294,7 +2226,6 @@
     }
     document.getElementById('week-strip').innerHTML = html;
   }
-
   function sparks(count) {
     const colors = ['#ff0055', '#ff8a00', '#ffee00', '#22e06a', '#00c8ff', '#7a5cff', '#ff2fd0'];
     for (let i = 0; i < count; i++) {
@@ -2309,7 +2240,6 @@
       setTimeout(() => s.remove(), 3800);
     }
   }
-
   function showStreakCelebration(n) {
     drawFlame(false, 'flame-svg');
     buildWeekStrip(n);
@@ -2320,7 +2250,6 @@
     const el = document.getElementById('streak-count');
     el.textContent = '0';
     document.getElementById('streak-modal').classList.add('open');
-
     // le compteur grimpe, puis la flamme se met à vaciller
     let i = 0;
     const step = Math.max(40, Math.min(160, 700 / n));
@@ -2334,12 +2263,10 @@
       }
     }, step);
   }
-
   function closeStreak() {
     document.getElementById('streak-modal').classList.remove('open');
     document.getElementById('flame-wrap').classList.remove('flicker');
   }
-
   // ---------- compte à rebours jusqu'à minuit, heure de Paris ----------
   function msUntilParisMidnight() {
     const now = new Date();
@@ -2357,14 +2284,12 @@
     document.getElementById('cd-h').textContent = p(Math.floor(diff / 3600000));
     document.getElementById('cd-m').textContent = p(Math.floor(diff / 60000) % 60);
     document.getElementById('cd-s').textContent = p(Math.floor(diff / 1000) % 60);
-
     // dernière minute : le compte à rebours devient dramatique
     document.body.classList.toggle('brink', diff < 60000);
     const lab = document.getElementById('cd-label');
     if (diff < 60000) lab.textContent = 'BRACE YOURSELF';
     else if (diff < 3600000) lab.textContent = 'NEXT GAME IN UNDER AN HOUR';
     else lab.textContent = "TOMORROW'S GAME DROPS IN";
-
     // minuit passé → nouveau jeu, et on en fait tout un événement
     const dayKey = todayKey();
     if (lastDayShown && dayKey !== lastDayShown) {
@@ -2373,12 +2298,10 @@
       refreshQuests();
     }
     lastDayShown = dayKey;
-
     if (Math.floor(diff / 1000) % 60 === 0) updateHomeStreak();
   }
   tick();
   setInterval(tick, 1000);
-
   // ---------- dino ----------
   const DINO_BODY = [
     "............XXXXXXXX..",
@@ -2436,7 +2359,6 @@
     chips:  ["............aaa.aaa...","............a.a.a.a...","............aaa.aaa..."],
     stars:  ["......................","............a.a.a.a...","............aaaaaaaa.."]
   };
-
   // Les transformations : c'est elles qui créent des silhouettes réellement différentes
   function outlineOf(rows) {
     const g = rows.map(r => r.split(''));
@@ -2482,7 +2404,6 @@
     });
     return out.map(r => r.join(''));
   }
-
   const EGG_ART = [
     "......................","......................","......................",
     "......................","......................",
@@ -2505,7 +2426,6 @@
     "......................","......................","......................",
     "......................","......................"
   ];
-
   const DINOS = [
     { key:'egg',       name:'EGG',           art:EGG_ART,   colors:{X:'#EDE3C8',a:'#FFC857',o:'#080c20'}, hint:'Comes free with the account.' },
     { key:'hatchling', name:'HATCHLING',     art:HATCH_ART, colors:{X:'#9FE6B4',a:'#EDE3C8',o:'#101425'}, hint:'Something has to break first.' },
@@ -2530,7 +2450,6 @@
     { key:'centurion', name:'CENTURION',     legs:true, acc:'plume',   colors:{X:'#C0C6D4',a:'#8B98FF',o:'#1b1f33'}, hint:'One hundred games played.' },
     { key:'collector', name:'COLLECTOR',     legs:true, acc:'mini',    colors:{X:'#C77DFF',a:'#FFC857',o:'#25003d'}, hint:'Own ten forms.' }
   ];
-
   // Le vingtième. Il n'apparaît nulle part tant qu'on ne l'a pas trouvé.
   const SECRET_DINO = {
     key:'midnight', name:'MIDNIGHT', legs:true, tf:scanlineOf,
@@ -2540,10 +2459,8 @@
   DINOS.push(SECRET_DINO);
   const DINO_BY_KEY = {};
   DINOS.forEach(d => { DINO_BY_KEY[d.key] = d; });
-
   let myDinos = ['egg'];
   let currentDino = 'egg';
-
   function dinoRows(key, legFrame) {
     const d = DINO_BY_KEY[key] || DINO_BY_KEY.egg;
     if (!d.legs) return d.art;
@@ -2551,7 +2468,6 @@
     if (d.tf) body = d.tf(body);
     return ACC[d.acc || 'none'].concat(body);
   }
-
   function paintDino(target, key, legFrame, eye) {
     const d = DINO_BY_KEY[key] || DINO_BY_KEY.egg;
     const rows = dinoRows(key, legFrame);
@@ -2571,7 +2487,6 @@
     target.setAttribute('viewBox', '0 0 22 25');
     target.innerHTML = s;
   }
-
   // Motif unique pour TOUTES les formes non découvertes : aucun indice visuel.
   const LOCKED_ART = [
     "......................","......................","......................",
@@ -2595,12 +2510,10 @@
     target.setAttribute('viewBox', '0 0 22 25');
     target.innerHTML = s;
   }
-
   const dinoSvg = document.getElementById('dino-svg');
   const dinoWrap = document.getElementById('dino-wrap');
   let eyeOpen = true;
   let legFlip = false;
-
   function drawDino() {
     paintDino(dinoSvg, currentDino, legFlip, eyeOpen);
     dinoWrap.classList.toggle('egg-mode', currentDino === 'egg');
@@ -2608,7 +2521,6 @@
   drawDino();
   setInterval(() => { legFlip = !legFlip; drawDino(); }, 160);
   setInterval(() => { eyeOpen = false; drawDino(); setTimeout(() => { eyeOpen = true; drawDino(); }, 150); }, 3400);
-
   // ---------- déblocages et vitrine ----------
   async function loadMyDinos() {
     if (!loggedUser) { myDinos = ['egg']; currentDino = 'egg'; drawDino(); return; }
@@ -2616,7 +2528,6 @@
     myDinos = ['egg'].concat((data || []).map(r => r.dino));
     drawDino();
   }
-
   async function claimDino(key, silent) {
     if (!loggedUser || myDinos.indexOf(key) !== -1) return false;
     const { data } = await sb.rpc('unlock_dino', { p_dino: key });
@@ -2625,13 +2536,11 @@
     if (!silent) revealDino(key);
     return true;
   }
-
   async function wearDino(key) {
     if (myDinos.indexOf(key) === -1) return;
     const { data } = await sb.rpc('set_dino', { p_dino: key });
     if (data) { currentDino = key; drawDino(); renderDinoLab(); }
   }
-
   function revealDino(key) {
     const d = DINO_BY_KEY[key];
     if (!d) return;
@@ -2645,7 +2554,6 @@
   function closeReveal() {
     document.getElementById('reveal-modal').classList.remove('open');
   }
-
   // Les formes secrètes ne sont listées qu'une fois trouvées, et ne comptent
   // pas dans le total affiché : personne ne doit soupçonner leur existence.
   function publicDinos() {
@@ -2653,7 +2561,6 @@
   }
   function memberDinos() { return DINOS.filter(d => d.member); }
   function publicTotal()  { return DINOS.filter(d => !d.member && !d.secret).length; }
-
   function labCell(d) {
     const owned = myDinos.indexOf(d.key) !== -1;
     const worn = currentDino === d.key;
@@ -2665,7 +2572,6 @@
       (worn ? '<div class="lab-worn">WEARING</div>' : '') +
     '</div>';
   }
-
   function renderDinoLab() {
     const grid = document.getElementById('lab-grid');
     if (!grid) return;
@@ -2674,12 +2580,9 @@
     const total = publicTotal();
     const ownedPub = pub.filter(d => myDinos.indexOf(d.key) !== -1).length;
     const foundSecret = DINOS.some(d => d.secret && myDinos.indexOf(d.key) !== -1);
-
     document.getElementById('lab-count').textContent =
       ownedPub + ' / ' + total + ' DISCOVERED' + (foundSecret ? '  ·  AND SOMETHING ELSE' : '');
-
     grid.innerHTML = pub.map(labCell).join('');
-
     // l'étagère des membres, à part, pour que la collection publique reste complétable
     const memGrid = document.getElementById('lab-member-grid');
     const ownedMem = mem.filter(d => myDinos.indexOf(d.key) !== -1).length;
@@ -2689,7 +2592,6 @@
       ? 'Three of these four still have to be earned. Being a member is not enough.'
       : 'A separate shelf, only for members. It does not count against the collection above.';
     memGrid.innerHTML = mem.map(labCell).join('');
-
     pub.concat(mem).forEach(function (d) {
       const el = document.getElementById('lab-' + d.key);
       if (!el) return;
@@ -2747,10 +2649,8 @@
     }
     dinoJump(true);
   });
-
   // ---------- l'arc-en-ciel en gros pixels ----------
   const PIXEL_PALETTE = ['#ff0055','#ff8a00','#ffee00','#22e06a','#00c8ff','#7a5cff','#ff2fd0'];
-
   function runPixelRainbow(duration) {
     const cv = document.getElementById('rainbow-veil');
     const CELL = 26;                                   // taille d'un gros pixel à l'écran
@@ -2758,20 +2658,16 @@
     const H = Math.ceil(window.innerHeight / CELL);
     cv.width = W; cv.height = H;
     const ctx = cv.getContext('2d');
-
     // seuil stable par pixel : donne une dissolution propre, pas un scintillement
     const seuil = new Float32Array(W * H);
     for (let i = 0; i < seuil.length; i++) seuil[i] = Math.random();
-
     const t0 = performance.now();
     (function frame(now) {
       const t = (now - t0) / duration;
       if (t >= 1) { ctx.clearRect(0, 0, W, H); return; }
-
       // apparition pixel par pixel, puis disparition pixel par pixel
       const fill = t < 0.16 ? t / 0.16 : (t > 0.80 ? (1 - t) / 0.20 : 1);
       const step = Math.floor((now - t0) / 65);        // défilement des bandes
-
       ctx.clearRect(0, 0, W, H);
       for (let y = 0; y < H; y++) {
         for (let x = 0; x < W; x++) {
@@ -2784,7 +2680,6 @@
       requestAnimationFrame(frame);
     })(performance.now());
   }
-
   // L'onde part du dino et traverse la page : chaque élément ondule avec
   // un décalage proportionnel à sa distance, ce qui donne une vraie vague.
   function rainbowWave() {
@@ -2794,34 +2689,29 @@
     const els = Array.prototype.slice.call(document.querySelectorAll(sel));
     const r = dinoWrap.getBoundingClientRect();
     const ox = r.left + r.width / 2, oy = r.top + r.height / 2;
-
     els.forEach(el => {
       const b = el.getBoundingClientRect();
       const d = Math.hypot(b.left + b.width / 2 - ox, b.top + b.height / 2 - oy);
       el.classList.add('wave-el');
       el.style.animationDelay = (-d / 850) + 's';   // décalage négatif = onde déjà en route
     });
-
     const rip = document.createElement('div');
     rip.className = 'rainbow-ripple';
     rip.style.left = ox + 'px';
     rip.style.top = oy + 'px';
     document.body.appendChild(rip);
     setTimeout(() => rip.remove(), 1700);
-
     document.body.classList.add('rainbow');
     runPixelRainbow(5200);
     sparks(140);
     setTimeout(() => sparks(90), 900);
     setTimeout(() => sparks(60), 1900);
-
     setTimeout(() => {
       document.body.classList.remove('rainbow');
       els.forEach(el => { el.classList.remove('wave-el'); el.style.animationDelay = ''; });
       dinoWrap.classList.remove('talk');
     }, 5200);
   }
-
   // Mot secret caché dans le code source de la page
   let typedBuffer = '';
   document.addEventListener('keydown', (e) => {
@@ -2837,7 +2727,6 @@
       claimDino('glitch');
     }
   });
-
   // Konami : ↑↑↓↓←→←→ B A
   const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
   let konamiPos = 0;
@@ -2857,7 +2746,6 @@
       }, 6000);
     }
   });
-
   // Trop longtemps sans rien faire ? Le dino s'en mêle.
   let idleTimer = null;
   function resetIdle() {
