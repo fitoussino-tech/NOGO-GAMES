@@ -538,6 +538,16 @@
   .lab-cell:not(.owned) .lab-name { color: var(--grey); }
   .lab-hint { font-size: 12px; color: var(--grey); line-height: 1.6; }
   .lab-worn { font-family: var(--px-font); font-size: 8px; color: var(--rose); margin-top: 10px; }
+  .member-shelf {
+    margin-top: 54px; padding-top: 34px; border-top: 1px dashed rgba(255,200,87,.28);
+  }
+  .member-shelf h2 {
+    font-family: var(--px-font); font-size: 12px; color: var(--amber);
+    line-height: 1.8; margin-bottom: 12px;
+  }
+  .member-shelf .lab-cell { border-color: rgba(255,200,87,.22); }
+  .member-shelf .lab-cell.owned { border-color: rgba(255,200,87,.55); }
+  .member-shelf .desc { margin-bottom: 22px; }
   .reveal-svg { width: 130px; height: auto; display: block; margin: 0 auto; animation: flame-rise 0.5s cubic-bezier(.2,1.4,.4,1); }
   #dino-wrap.egg-mode { animation: egg-wiggle 2.4s ease-in-out infinite; }
   @keyframes egg-wiggle {
@@ -769,8 +779,15 @@
   <div class="page">
     <h1>DINO LAB</h1>
     <div class="desc"><span id="w-dinos">Thirteen</span> forms exist. Most of them are none of your business yet.</div>
-    <div class="lab-count" id="lab-count">1 / 13 DISCOVERED</div>
+    <div class="lab-count" id="lab-count">1 / 18 DISCOVERED</div>
     <div class="lab-grid" id="lab-grid"></div>
+
+    <div class="member-shelf">
+      <h2>THE MEMBERS' SHELF</h2>
+      <div class="lab-count" id="lab-member-count">NOT YOURS. YET.</div>
+      <div class="desc" id="lab-member-note"></div>
+      <div class="lab-grid" id="lab-member-grid"></div>
+    </div>
   </div>
   <footer>
     NOGO GAMES © 2026 — where bored people go
@@ -2219,6 +2236,13 @@
       if (delay < 340) return setTimeout(roll, delay);
       label.textContent = (pick.emoji || '🎮') + '  ' + (pick.title || 'GAME');
       sparks(30);
+      // le serveur compte les tours : vingt-cinq débloquent GAMBLER
+      sb.rpc('bump_spins').then(function (r) {
+        if (r && r.data >= 25 && myDinos.indexOf('gambler') === -1) {
+          myDinos.push('gambler');
+          setTimeout(function () { revealDino('gambler'); }, 1400);
+        }
+      });
       setTimeout(() => { spinning = false; label.textContent = '🎰  SPIN'; startGame(pick); }, 750);
     })();
   }
@@ -2405,7 +2429,10 @@
     sun:    [".............aaa......","...........a.aaa.a....",".............aaa......"],
     parasol:["..........aaaaa.......",".........aaaaaaa......","............a........."],
     bolt:   ["...............aa.....",".............aaaa.....","..............aa......"],
-    plume:  [".............aaaaa....","............aaaaaaa...","............aaaaaaa..."]
+    plume:  [".............aaaaa....","............aaaaaaa...","............aaaaaaa..."],
+    wings:  ["........aa.....aa.....",".......aaaa...aaaa....","......aaaaa...aaaaa..."],
+    chips:  ["..........aaa.aaa.....","..........a.a.a.a.....","..........aaa.aaa....."],
+    stars:  ["..........a...a...a...","............a...a.....","..........a...a...a..."]
   };
 
   // Les transformations : c'est elles qui créent des silhouettes réellement différentes
@@ -2490,7 +2517,10 @@
     { key:'glitch',    name:'GLITCH',        legs:true, tf:glitchOf,  colors:{X:'#FF3DDA',a:'#35F0FF',o:'#35F0FF'}, hint:'An old code. A very old one.' },
     { key:'void',      name:'VOID',          legs:true, tf:starsOf,   colors:{X:'#8B98FF',b:'#0B0F26',a:'#FFFFFF',o:'#FFFFFF'}, hint:'25 000 points.' },
     { key:'champion',  name:'CHAMPION',      legs:true, acc:'laurel', colors:{X:'#FFF3C4',a:'#FFC857',o:'#3a2f00'}, hint:'Top of a daily ranking.' },
-    { key:'golden',    name:'GOLDEN',        legs:true, acc:'gold',    colors:{X:'#FFC857',a:'#FFF3C4',o:'#3a2f00'}, hint:'Members only. Obviously.' },
+    { key:'golden',    name:'GOLDEN',  member:true, legs:true, acc:'gold',  colors:{X:'#FFC857',a:'#FFF3C4',o:'#3a2f00'}, hint:'Subscribe. That is the whole condition.' },
+    { key:'phoenix',   name:'PHOENIX', member:true, legs:true, acc:'wings', colors:{X:'#FF6B2C',a:'#FFE066',o:'#3d0f00'}, hint:'Let your grace day save a streak you had given up on.' },
+    { key:'gambler',   name:'GAMBLER', member:true, legs:true, acc:'chips', colors:{X:'#2ECC71',a:'#FF4757',o:'#04331a'}, hint:'Spin the wheel twenty-five times.' },
+    { key:'veteran',   name:'VETERAN', member:true, legs:true, acc:'stars', colors:{X:'#9BA8C9',a:'#FFC857',o:'#151a2e'}, hint:'Thirty days as a member.' },
     { key:'speedrun',  name:'SPEEDRUN',      legs:true, acc:'speed',   colors:{X:'#35F0FF',a:'#FFFFFF',o:'#062a33'}, hint:'Three games. One day.' },
     { key:'earlybird', name:'EARLY BIRD',    legs:true, acc:'sun',     colors:{X:'#FF9E6D',a:'#FFE066',o:'#4a1c00'}, hint:'Awake before the rest of us.' },
     { key:'weekender', name:'WEEKENDER',     legs:true, acc:'parasol', colors:{X:'#2EC4B6',a:'#FF6B6B',o:'#04302c'}, hint:'Saturday and Sunday. Same weekend.' },
@@ -2616,33 +2646,49 @@
 
   // Les formes secrètes ne sont listées qu'une fois trouvées, et ne comptent
   // pas dans le total affiché : personne ne doit soupçonner leur existence.
-  function visibleDinos() {
-    return DINOS.filter(d => !d.secret || myDinos.indexOf(d.key) !== -1);
+  function publicDinos() {
+    return DINOS.filter(d => !d.member && (!d.secret || myDinos.indexOf(d.key) !== -1));
   }
-  function publicTotal() {
-    return DINOS.filter(d => !d.secret).length;
+  function memberDinos() { return DINOS.filter(d => d.member); }
+  function publicTotal()  { return DINOS.filter(d => !d.member && !d.secret).length; }
+
+  function labCell(d) {
+    const owned = myDinos.indexOf(d.key) !== -1;
+    const worn = currentDino === d.key;
+    return '<div class="lab-cell' + (owned ? ' owned' : '') + (worn ? ' worn' : '') + '"' +
+      (owned ? ' onclick="wearDino(\'' + d.key + '\')"' : '') + '>' +
+      '<svg class="lab-svg" id="lab-' + d.key + '" shape-rendering="crispEdges"></svg>' +
+      '<div class="lab-name">' + (owned ? d.name : '???') + '</div>' +
+      '<div class="lab-hint">' + d.hint + '</div>' +
+      (worn ? '<div class="lab-worn">WEARING</div>' : '') +
+    '</div>';
   }
 
   function renderDinoLab() {
     const grid = document.getElementById('lab-grid');
     if (!grid) return;
-    const list = visibleDinos();
+    const pub = publicDinos();
+    const mem = memberDinos();
     const total = publicTotal();
-    const owned = myDinos.length;
+    const ownedPub = pub.filter(d => myDinos.indexOf(d.key) !== -1).length;
+    const foundSecret = DINOS.some(d => d.secret && myDinos.indexOf(d.key) !== -1);
+
     document.getElementById('lab-count').textContent =
-      owned + ' / ' + total + ' DISCOVERED' + (owned > total ? '  ·  AND SOMETHING ELSE' : '');
-    grid.innerHTML = list.map(function (d) {
-      const owned = myDinos.indexOf(d.key) !== -1;
-      const worn = currentDino === d.key;
-      return '<div class="lab-cell' + (owned ? ' owned' : '') + (worn ? ' worn' : '') + '"' +
-        (owned ? ' onclick="wearDino(\'' + d.key + '\')"' : '') + '>' +
-        '<svg class="lab-svg" id="lab-' + d.key + '" shape-rendering="crispEdges"></svg>' +
-        '<div class="lab-name">' + (owned ? d.name : '???') + '</div>' +
-        '<div class="lab-hint">' + d.hint + '</div>' +
-        (worn ? '<div class="lab-worn">WEARING</div>' : '') +
-      '</div>';
-    }).join('');
-    list.forEach(function (d) {
+      ownedPub + ' / ' + total + ' DISCOVERED' + (foundSecret ? '  ·  AND SOMETHING ELSE' : '');
+
+    grid.innerHTML = pub.map(labCell).join('');
+
+    // l'étagère des membres, à part, pour que la collection publique reste complétable
+    const memGrid = document.getElementById('lab-member-grid');
+    const ownedMem = mem.filter(d => myDinos.indexOf(d.key) !== -1).length;
+    document.getElementById('lab-member-count').textContent =
+      isMember ? ownedMem + ' / ' + mem.length + ' EARNED' : 'NOT YOURS. YET.';
+    document.getElementById('lab-member-note').textContent = isMember
+      ? 'Three of these four still have to be earned. Being a member is not enough.'
+      : 'A separate shelf, only for members. It does not count against the collection above.';
+    memGrid.innerHTML = mem.map(labCell).join('');
+
+    pub.concat(mem).forEach(function (d) {
       const el = document.getElementById('lab-' + d.key);
       if (!el) return;
       if (myDinos.indexOf(d.key) !== -1) paintDino(el, d.key, false, true);
