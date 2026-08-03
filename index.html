@@ -118,6 +118,7 @@
     position: relative; overflow: hidden;
   }
   .card:hover { border-color: var(--accent); }
+  /* --- fonds : capture floutée + teinte aux couleurs du jeu --- */
   .card-bg, .card-tint, .card-veil { position: absolute; pointer-events: none; }
   .card-bg {
     inset: -16px; z-index: 0;
@@ -187,7 +188,7 @@
   .modal h2 { font-family: var(--px-font); font-size: 12px; line-height: 1.9; margin-bottom: 15px; color: var(--fg); }
   .modal p { font-size: 14px; color: var(--grey); line-height: 1.8; margin-bottom: 26px; }
   .modal .btn { width: 100%; margin-bottom: 15px; }
-  .modal .close { font-size: 14px; color: var(--grey); cursor: pointer; background: none; border: none; font-family: var(--body-font); display: block; width: 100%; margin-top: 4px; }
+  .modal .close { font-size: 14px; color: var(--grey); cursor: pointer; background: none; border: none; font-family: var(--body-font); }
   .modal .close:hover { color: var(--fg); }
   .auth-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
   .auth-tab {
@@ -223,6 +224,29 @@
   }
   .member-pill.yes { background: var(--amber); color: var(--card-deep); }
   .member-pill.no { color: var(--grey); border: 1px solid var(--line); }
+  /* ---- signes distinctifs des membres ---- */
+  .rank-name { font-family: var(--px-font); font-size: 12px; color: var(--amber); line-height: 1.8; margin-bottom: 10px; }
+  .rank-bar { height: 8px; border-radius: 4px; background: var(--card-deep); border: 1px solid var(--line); overflow: hidden; }
+  .rank-bar span { display: block; height: 100%; background: var(--amber); width: 0; }
+  .rank-next { font-size: 12px; color: var(--grey); margin-top: 8px; }
+  .stat-row { display: flex; gap: 10px; margin: 22px 0 10px; }
+  .stat { flex: 1; background: var(--card-deep); border: 1px solid var(--line); border-radius: 10px; padding: 14px 6px; }
+  .stat b { display: block; font-family: var(--px-font); font-size: 16px; color: var(--fg); }
+  .stat span { display: block; font-size: 10px; letter-spacing: 1px; color: var(--grey); margin-top: 8px; }
+  .streak-note { font-size: 12px; color: var(--grey); line-height: 1.7; margin-bottom: 20px; }
+  .board { max-width: 560px; margin: 0 auto; }
+  .board h2 { font-family: var(--px-font); font-size: 12px; color: var(--amber); margin: 34px 0 16px; }
+  .board-row {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 16px; margin-bottom: 8px;
+  }
+  .board-row.me { border-color: var(--amber); }
+  .board-pos { font-family: var(--px-font); font-size: 11px; color: var(--grey); width: 34px; }
+  .board-row.top .board-pos { color: var(--amber); }
+  .board-name { flex: 1; color: var(--fg); font-size: 15px; }
+  .board-pts { font-family: var(--px-font); font-size: 11px; color: var(--accent); }
+  .board-empty { color: var(--grey); font-size: 15px; text-align: center; padding: 30px 10px; }
   .nav-badge {
     font-family: var(--px-font); font-size: 8px;
     background: var(--amber); color: var(--card-deep);
@@ -265,6 +289,47 @@
     border: 5px solid transparent; border-top-color: var(--amber);
   }
   #dino-wrap.talk #dino-bubble { opacity: 1; }
+  /* ---------- écran de série ---------- */
+  #streak-modal { background: rgba(4, 6, 18, 0.96); }
+  #streak-modal .modal {
+    background: none; border: none; box-shadow: none; max-width: 460px;
+  }
+  #flame-wrap { width: 190px; margin: 0 auto 6px; animation: flame-rise 0.6s cubic-bezier(.2,1.4,.4,1); }
+  #flame-wrap svg { width: 100%; height: auto; display: block; }
+  #flame-wrap.flicker { animation: flame-flicker 0.42s steps(2) infinite; }
+  @keyframes flame-rise { from { transform: scale(0.2) translateY(60px); opacity: 0; } }
+  @keyframes flame-flicker {
+    0%   { transform: scale(1,1); }
+    50%  { transform: scale(1.05,0.96); }
+    100% { transform: scale(0.98,1.03); }
+  }
+  #streak-count {
+    font-family: var(--px-font); font-size: 54px; color: var(--amber);
+    line-height: 1.2; margin: 4px 0 6px; text-shadow: 0 0 26px rgba(255,140,60,0.5);
+  }
+  #streak-label { font-family: var(--px-font); font-size: 11px; color: var(--fg); letter-spacing: 2px; margin-bottom: 22px; }
+  .week-strip { display: flex; gap: 7px; justify-content: center; margin-bottom: 22px; }
+  .week-day {
+    width: 34px; text-align: center; font-size: 10px; color: var(--grey);
+  }
+  .week-dot {
+    width: 26px; height: 26px; margin: 0 auto 6px; border-radius: 7px;
+    background: var(--card-deep); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .week-day.on .week-dot { background: var(--amber); border-color: var(--amber); }
+  .week-day.today .week-dot { box-shadow: 0 0 0 2px var(--rose); }
+  #streak-msg { font-size: 15px; color: var(--grey); line-height: 1.8; margin-bottom: 8px; }
+  #streak-warn { font-size: 13px; color: var(--rose); line-height: 1.7; margin-bottom: 22px; min-height: 18px; }
+  body.party { animation: party-hue 1.4s linear infinite; }
+  @keyframes party-hue { to { filter: hue-rotate(360deg); } }
+  .spark {
+    position: fixed; width: 8px; height: 8px; z-index: 1300; pointer-events: none;
+    animation: spark-fall linear forwards;
+  }
+  @keyframes spark-fall {
+    to { transform: translateY(105vh) rotate(320deg); opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -273,6 +338,7 @@
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
@@ -311,6 +377,7 @@
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
@@ -323,12 +390,36 @@
   <footer>NOGO GAMES © 2026 — where bored people go</footer>
 </div>
 
+<div class="screen" id="screen-leaders">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+      <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
+    </div>
+  </header>
+  <div class="page">
+    <h1>RANKINGS</h1>
+    <div class="desc">Proof that other people are wasting their time too.</div>
+    <div class="board">
+      <h2 id="board-today-title">TODAY'S GAME</h2>
+      <div id="board-today"></div>
+      <h2>ALL-TIME BOREDOM</h2>
+      <div id="board-alltime"></div>
+    </div>
+  </div>
+  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+</div>
+
 <div class="screen" id="screen-game">
   <header>
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
     </div>
@@ -342,6 +433,7 @@
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
     </div>
   </header>
@@ -377,12 +469,25 @@
   </div>
 </div>
 
+<!-- Écran pub : ne s'affiche que si ADS_ENABLED = true (voir tout en bas du script) -->
 <div class="modal-overlay" id="ad-modal">
   <div class="modal">
     <h2>ONE AD,<br>THEN YOU PLAY</h2>
     <div id="ad-slot">emplacement publicitaire</div>
     <button class="btn" id="ad-continue" onclick="adFinished()" disabled>WAIT…</button>
     <button class="close" onclick="closeAd()">cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="streak-modal">
+  <div class="modal">
+    <div id="flame-wrap"><svg id="flame-svg" viewBox="0 0 14 18" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div id="streak-count">0</div>
+    <div id="streak-label">DAYS BORED IN A ROW</div>
+    <div class="week-strip" id="week-strip"></div>
+    <div id="streak-msg"></div>
+    <div id="streak-warn"></div>
+    <button class="btn" onclick="closeStreak()">FINE</button>
   </div>
 </div>
 
@@ -405,6 +510,7 @@
       </div>
       <input class="auth-input" id="auth-firstname" type="text" placeholder="first name" style="display:none;">
       <input class="auth-input" id="auth-lastname" type="text" placeholder="last name" style="display:none;">
+      <input class="auth-input" id="auth-username" type="text" placeholder="username (3-16 letters, numbers, _)" style="display:none;" maxlength="16">
       <input class="auth-input" id="auth-email" type="email" placeholder="email">
       <input class="auth-input" id="auth-password" type="password" placeholder="password (6+ characters)">
       <div id="auth-captcha-row" style="display:none;">
@@ -416,6 +522,13 @@
       <button class="close" onclick="forgotPassword()">forgot your password?</button>
       <button class="close" onclick="closeAccount()">close</button>
     </div>
+    <div id="username-view" style="display:none;">
+      <h2>PICK A NAME</h2>
+      <p>This is how you'll show up in the rankings. Choose wisely — or don't, nobody's watching.</p>
+      <input class="auth-input" id="pick-username" type="text" placeholder="3-16 letters, numbers, _" maxlength="16">
+      <div class="auth-msg" id="pick-msg"></div>
+      <button class="btn" onclick="submitUsername()">CLAIM IT</button>
+    </div>
     <div id="reset-view" style="display:none;">
       <h2>NEW PASSWORD</h2>
       <p>Choose a new password for your account.</p>
@@ -424,12 +537,22 @@
       <button class="btn" onclick="submitNewPassword()">SAVE PASSWORD</button>
     </div>
     <div id="account-view" style="display:none;">
-      <h2>YOUR ACCOUNT</h2>
+      <h2>BOREDOM RÉSUMÉ</h2>
       <div id="account-member-pill"></div>
       <p id="account-name" style="margin-bottom:2px;color:var(--fg);font-weight:500;"></p>
-      <p id="account-email" style="margin-bottom:6px;color:var(--grey);font-size:14px;"></p>
-      <div style="font-family:var(--px-font);font-size:26px;color:var(--amber);margin:18px 0 6px;" id="account-points">0</div>
-      <div style="font-size:13px;color:var(--grey);letter-spacing:2px;margin-bottom:18px;">TOTAL POINTS</div>
+      <p id="account-email" style="margin-bottom:14px;color:var(--grey);font-size:14px;"></p>
+
+      <div class="rank-name" id="account-rank">FRESHLY BORED</div>
+      <div class="rank-bar"><span id="account-rank-fill"></span></div>
+      <div class="rank-next" id="account-rank-next"></div>
+
+      <div class="stat-row">
+        <div class="stat"><b id="account-streak">0</b><span>DAY STREAK</span></div>
+        <div class="stat"><b id="account-points">0</b><span>POINTS</span></div>
+        <div class="stat"><b id="account-played">0</b><span>GAMES</span></div>
+      </div>
+      <div class="streak-note" id="account-streak-note"></div>
+
       <button class="btn" id="portal-btn" style="display:none;" onclick="openPortal()">MANAGE SUBSCRIPTION</button>
       <button class="btn" style="background:transparent;color:var(--grey);border-color:var(--line);" onclick="logout()">LOG OUT</button>
       <button class="close" onclick="closeAccount()">close</button>
@@ -450,20 +573,49 @@
   // ============================================================
   const SUPABASE_URL = 'https://lsdfvtguavbbidgpjxdx.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzZGZ2dGd1YXZiYmlkZ3BqeGR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MjAxNzQsImV4cCI6MjEwMTA5NjE3NH0.S4Aku-Lbn-N-3r8o4JsqwJAPX5OP6_Y0GeMUKm6XWjI';
+
+  // Passe à true le jour où tu as une vraie régie publicitaire.
+  // Tant que c'est false, personne ne voit d'écran de pub.
+  // Clé publiable Stripe (Développeurs → Clés API → « Clé publiable »).
+  // Elle commence par pk_live_ et peut figurer dans le code : elle est publique.
   const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TzN5NJkXpRG54Qt8FtStynHb2BLRkebc2Y0Du3ZFFaQG1AIw1vROF9Cr6KvQhqTD48s7f8Uu43kGenD89D1lPIY00rE12BwbX';
 
   const ADS_ENABLED = false;
-  const AD_SECONDS = 15;
+  const AD_SECONDS = 15; // durée avant que le bouton "PLAY" se débloque
   // ============================================================
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let ALL_GAMES = [];
-  let DAILY = null;
+  let ALL_GAMES = [];    // catalogue complet (table "games")
+  let DAILY = null;      // le jeu gratuit du jour
   let loggedUser = null;
   let isMember = false;
   let points = 0;
   let pendingGame = null;
+  let username = null;
+  let streak = 0;
+  let bestStreak = 0;
+  let gamesPlayed = 0;
+  let currentGame = null;
+
+  // L'échelle des rangs — purement décorative, totalement essentielle.
+  const RANKS = [
+    [0, 'FRESHLY BORED'],
+    [500, 'MILDLY UNOCCUPIED'],
+    [2000, 'PROFESSIONALLY IDLE'],
+    [5000, 'CERTIFIED TIME WASTER'],
+    [12000, 'VOID STARER'],
+    [25000, 'MASTER OF NOTHING'],
+    [50000, 'BOREDOM SINGULARITY']
+  ];
+  function rankFor(pts) {
+    let i = 0;
+    while (i + 1 < RANKS.length && pts >= RANKS[i + 1][0]) i++;
+    const floor = RANKS[i][0];
+    const next = RANKS[i + 1] || null;
+    const progress = next ? Math.min(100, ((pts - floor) / (next[0] - floor)) * 100) : 100;
+    return { name: RANKS[i][1], next: next, progress: progress, remaining: next ? next[0] - pts : 0 };
+  } // jeu à lancer après la pub
 
   function go(name) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -471,9 +623,11 @@
     document.getElementById('dino-wrap').style.display = name === 'game' ? 'none' : 'block';
     if (name === 'vault') renderVault();
     if (name === 'subscribe') setupExpressCheckout();
+    if (name === 'leaders') renderLeaderboards();
     window.scrollTo(0, 0);
   }
 
+  // ---------- catalogue ----------
   async function loadCatalogue() {
     const [gamesRes, dailyRes] = await Promise.all([
       sb.from('games').select('id, title, emoji, file, color_a, color_b, image_url').eq('is_active', true).order('created_at', { ascending: false }),
@@ -487,6 +641,7 @@
     if (DAILY) {
       emojiEl.textContent = DAILY.emoji || '▶';
       titleEl.textContent = DAILY.title || "TODAY'S GAME";
+      // le tirage ne renvoie pas les couleurs : on les récupère dans le catalogue
       const full = ALL_GAMES.find(g => g.id === DAILY.id) || DAILY;
       const bg = document.getElementById('daily-bg');
       const tint = document.getElementById('daily-tint');
@@ -542,6 +697,7 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  // ---------- lancement d'un jeu ----------
   function playDaily() {
     if (!DAILY) return;
     startGame(DAILY);
@@ -553,15 +709,17 @@
     startGame(g);
   }
 
+  // Décide : accès direct, pub, ou paywall
   function startGame(game) {
     const isToday = DAILY && game.id === DAILY.id;
-    if (isMember) { loadGame(game); return; }
-    if (!isToday) { openPaywall(); return; }
-    if (ADS_ENABLED) { openAd(game); return; }
+    if (isMember) { loadGame(game); return; }        // membre : jamais de pub, tout est ouvert
+    if (!isToday) { openPaywall(); return; }         // pas le jeu du jour : réservé aux membres
+    if (ADS_ENABLED) { openAd(game); return; }       // gratuit + pubs activées : une pub d'abord
     loadGame(game);
   }
 
   async function loadGame(game) {
+    currentGame = game;
     const frame = document.getElementById('game-frame');
     frame.innerHTML = '<div class="game-loading">LOADING…</div>';
     go('game');
@@ -588,6 +746,7 @@
     }
   }
 
+  // ---------- écran pub (inactif tant que ADS_ENABLED = false) ----------
   let adTimer = null;
   function openAd(game) {
     pendingGame = game;
@@ -607,6 +766,8 @@
         btn.textContent = 'WAIT… ' + left;
       }
     }, 1000);
+    // 👉 C'est ici que tu brancheras le script de ta régie publicitaire,
+    //    dans la div #ad-slot.
   }
   function closeAd() {
     clearInterval(adTimer);
@@ -619,6 +780,7 @@
     if (g) loadGame(g);
   }
 
+  // ---------- fenêtres ----------
   function openPaywall() { document.getElementById('paywall').classList.add('open'); }
   function closePaywall() { document.getElementById('paywall').classList.remove('open'); }
   function openAccount(msg) {
@@ -628,10 +790,13 @@
   }
   function closeAccount() { document.getElementById('auth-modal').classList.remove('open'); }
 
+  // ---------- authentification ----------
   let authMode = 'login';
   let captchaAnswer = null;
   let recoveryMode = false;
+  let pendingUsername = null;
 
+  // Quand l'utilisateur revient depuis le lien reçu par e-mail
   sb.auth.onAuthStateChange((event) => {
     if (event === 'PASSWORD_RECOVERY') {
       recoveryMode = true;
@@ -640,6 +805,7 @@
     }
   });
 
+  // Envoi du lien de réinitialisation
   async function forgotPassword() {
     const msg = document.getElementById('auth-msg');
     msg.classList.remove('ok');
@@ -653,6 +819,7 @@
     msg.classList.add('ok');
   }
 
+  // Enregistrement du nouveau mot de passe
   async function submitNewPassword() {
     const msg = document.getElementById('reset-msg');
     const pwd = document.getElementById('reset-password').value;
@@ -683,6 +850,7 @@
     const signup = mode === 'signup';
     document.getElementById('auth-firstname').style.display = signup ? 'block' : 'none';
     document.getElementById('auth-lastname').style.display = signup ? 'block' : 'none';
+    document.getElementById('auth-username').style.display = signup ? 'block' : 'none';
     document.getElementById('auth-captcha-row').style.display = signup ? 'block' : 'none';
     if (signup) newCaptcha();
   }
@@ -709,13 +877,18 @@
       if (authMode === 'signup') {
         const fn = document.getElementById('auth-firstname').value.trim();
         const ln = document.getElementById('auth-lastname').value.trim();
+        const un = document.getElementById('auth-username').value.trim();
         if (!fn || !ln) { msg.textContent = 'First name and last name required.'; return; }
+        if (!/^[a-zA-Z0-9_]{3,16}$/.test(un)) {
+          msg.textContent = 'Username: 3-16 characters, letters, numbers and _ only.'; return;
+        }
         if (parseInt(document.getElementById('auth-captcha').value, 10) !== captchaAnswer) {
           msg.textContent = 'Wrong anti-robot answer, try again.'; newCaptcha(); return;
         }
+        pendingUsername = un;
         const { data, error } = await sb.auth.signUp({
           email, password,
-          options: { data: { first_name: fn, last_name: ln } }
+          options: { data: { first_name: fn, last_name: ln, username: un } }
         });
         if (error) { msg.textContent = error.message; return; }
         if (data.user && !data.session) {
@@ -752,6 +925,12 @@
       name: ((meta.first_name || '') + ' ' + (meta.last_name || '')).trim() || 'Player'
     };
     await fetchProfile();
+    // pseudo choisi à l'inscription : on l'enregistre dès qu'on a une session
+    if (!username && pendingUsername) {
+      const { data } = await sb.rpc('set_username', { p_username: pendingUsername });
+      if (data === 'ok') username = pendingUsername;
+      pendingUsername = null;
+    }
     refreshAccountUI();
     renderVault();
   }
@@ -759,12 +938,16 @@
   async function fetchProfile() {
     if (!loggedUser) return;
     const { data } = await sb.from('profiles')
-      .select('points, is_member, first_name, last_name')
+      .select('points, is_member, first_name, last_name, username, streak, best_streak, games_played')
       .eq('id', loggedUser.id)
       .single();
     if (data) {
       points = data.points || 0;
       isMember = !!data.is_member;
+      username = data.username || null;
+      streak = data.streak || 0;
+      bestStreak = data.best_streak || 0;
+      gamesPlayed = data.games_played || 0;
       const n = ((data.first_name || '') + ' ' + (data.last_name || '')).trim();
       if (n) loggedUser.name = n;
     }
@@ -774,6 +957,7 @@
   async function logout() {
     await sb.auth.signOut();
     loggedUser = null; isMember = false; points = 0;
+    username = null; streak = 0; bestStreak = 0; gamesPlayed = 0;
     document.body.classList.remove('is-member');
     refreshAccountUI();
     renderVault();
@@ -784,28 +968,98 @@
     const logged = !!loggedUser;
     document.querySelectorAll('.nav-account').forEach(el => {
       if (!logged) { el.textContent = 'Log in'; return; }
-      const first = (loggedUser.name || 'Player').split(' ')[0];
+      const who = username || (loggedUser.name || 'Player').split(' ')[0];
       el.innerHTML = (isMember ? '<span class="nav-badge">★ MEMBER</span>' : '') +
-        'Hi ' + escapeHtml(first) + ' · ★ ' + points + ' pts';
+        escapeHtml(who) + (streak > 0 ? ' · 🔥 ' + streak : '') + ' · ★ ' + points;
     });
+
+    const show = (id, on) => { document.getElementById(id).style.display = on ? 'block' : 'none'; };
+
     if (recoveryMode) {
-      document.getElementById('auth-forms').style.display = 'none';
-      document.getElementById('account-view').style.display = 'none';
-      document.getElementById('reset-view').style.display = 'block';
+      show('auth-forms', false); show('account-view', false);
+      show('username-view', false); show('reset-view', true);
       return;
     }
-    document.getElementById('reset-view').style.display = 'none';
-    document.getElementById('auth-forms').style.display = logged ? 'none' : 'block';
-    document.getElementById('account-view').style.display = logged ? 'block' : 'none';
+    // connecté mais sans pseudo : on le réclame avant tout le reste
+    if (logged && !username) {
+      show('auth-forms', false); show('account-view', false);
+      show('reset-view', false); show('username-view', true);
+      return;
+    }
+    show('reset-view', false); show('username-view', false);
+    show('auth-forms', !logged); show('account-view', logged);
+
     if (logged) {
-      document.getElementById('account-name').textContent = loggedUser.name;
+      const r = rankFor(points);
+      document.getElementById('account-name').textContent = username || loggedUser.name;
       document.getElementById('account-email').textContent = loggedUser.email;
       document.getElementById('account-points').textContent = points;
+      document.getElementById('account-streak').textContent = streak;
+      document.getElementById('account-played').textContent = gamesPlayed;
+      document.getElementById('account-rank').textContent = r.name;
+      document.getElementById('account-rank-fill').style.width = r.progress + '%';
+      document.getElementById('account-rank-next').textContent = r.next
+        ? r.remaining + ' points to ' + r.next[1]
+        : 'There is nothing beyond this. Congratulations, we suppose.';
+      document.getElementById('account-streak-note').innerHTML = isMember
+        ? 'Best streak: ' + bestStreak + ' days. Members get <b style="color:var(--amber)">one grace day</b> — miss a day, keep the streak.'
+        : 'Best streak: ' + bestStreak + ' days. Miss one day and it drops to zero. Members get a grace day.';
       document.getElementById('account-member-pill').innerHTML = isMember
         ? '<span class="member-pill yes">★ MEMBER</span>'
         : '<span class="member-pill no">FREE ACCOUNT</span>';
       document.getElementById('portal-btn').style.display = isMember ? 'inline-block' : 'none';
     }
+  }
+
+  // ---------- pseudo ----------
+  async function submitUsername() {
+    const msg = document.getElementById('pick-msg');
+    const val = document.getElementById('pick-username').value.trim();
+    if (!/^[a-zA-Z0-9_]{3,16}$/.test(val)) {
+      msg.textContent = '3-16 characters. Letters, numbers and _ only.'; return;
+    }
+    const { data, error } = await sb.rpc('set_username', { p_username: val });
+    if (error) { msg.textContent = error.message; return; }
+    if (data === 'taken') { msg.textContent = 'Someone got there first. Try another one.'; return; }
+    if (data === 'invalid') { msg.textContent = '3-16 characters. Letters, numbers and _ only.'; return; }
+    username = val;
+    msg.textContent = '';
+    document.getElementById('pick-username').value = '';
+    refreshAccountUI();
+  }
+
+  // ---------- classements ----------
+  function boardRows(rows) {
+    if (!rows || !rows.length) {
+      return '<div class="board-empty">Nobody yet. Be the first — the bar is on the floor.</div>';
+    }
+    return rows.map(function (r, i) {
+      const me = username && r.username === username;
+      return '<div class="board-row' + (i < 3 ? ' top' : '') + (me ? ' me' : '') + '">' +
+        '<div class="board-pos">#' + (i + 1) + '</div>' +
+        '<div class="board-name">' + escapeHtml(r.username) +
+          (r.streak ? ' <span style="color:var(--grey);font-size:13px;">· 🔥 ' + r.streak + '</span>' : '') +
+        '</div>' +
+        '<div class="board-pts">' + r.points + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function renderLeaderboards() {
+    const todayEl = document.getElementById('board-today');
+    const allEl = document.getElementById('board-alltime');
+    document.getElementById('board-today-title').textContent =
+      DAILY ? ('TODAY · ' + (DAILY.title || 'DAILY GAME')) : 'TODAY';
+    todayEl.innerHTML = '<div class="board-empty">Loading…</div>';
+    allEl.innerHTML = '<div class="board-empty">Loading…</div>';
+
+    const [t, a] = await Promise.all([
+      DAILY ? sb.rpc('leaderboard_today', { p_game_id: DAILY.id, p_limit: 10 })
+            : Promise.resolve({ data: [] }),
+      sb.rpc('leaderboard_alltime', { p_limit: 10 })
+    ]);
+    todayEl.innerHTML = boardRows(t.data);
+    allEl.innerHTML = boardRows(a.data);
   }
 
   (async function start() {
@@ -823,6 +1077,8 @@
     }
   })();
 
+  // ---------- paiement ----------
+  // ---------- Apple Pay / Google Pay, sans quitter le site ----------
   let expressReady = false;
   let stripeJs = null;
 
@@ -830,11 +1086,14 @@
     const holder = document.getElementById('express-checkout');
     const sep = document.getElementById('pay-sep');
     if (!holder || expressReady) return;
+    // rien à afficher si on n'est pas connecté, déjà membre, ou clé absente
     if (!loggedUser || isMember) return;
     if (!window.Stripe || STRIPE_PUBLISHABLE_KEY.indexOf('pk_') !== 0) return;
 
     try {
       const { data: { session } } = await sb.auth.getSession();
+      // Attention : la fonction s'affiche « create-subscription » dans Supabase,
+      // mais son identifiant d'URL est « dynamic-responder ».
       const res = await fetch(SUPABASE_URL + '/functions/v1/dynamic-responder', {
         method: 'POST',
         headers: {
@@ -845,7 +1104,7 @@
         body: JSON.stringify({})
       });
       const out = await res.json();
-      if (!out.clientSecret) return;
+      if (!out.clientSecret) return; // on garde simplement le bouton carte
 
       stripeJs = window.Stripe(STRIPE_PUBLISHABLE_KEY);
       const elements = stripeJs.elements({
@@ -858,6 +1117,7 @@
         buttonHeight: 48
       });
 
+      // ne s'affiche que si Apple Pay ou Google Pay est réellement disponible
       express.on('ready', (ev) => {
         if (ev && ev.availablePaymentMethods) { sep.style.display = 'flex'; }
       });
@@ -880,9 +1140,12 @@
 
       express.mount('#express-checkout');
       expressReady = true;
-    } catch (e) { /* le bouton carte reste disponible */ }
+    } catch (e) {
+      // silencieux : le bouton carte reste disponible
+    }
   }
 
+  // le webhook Stripe met une seconde ou deux à activer le compte
   async function waitForMembership(tries) {
     tries = tries || 0;
     await fetchProfile();
@@ -936,24 +1199,161 @@
     } catch (e) { /* silencieux */ }
   }
 
-  let saveTimer = null;
-  function savePointsSoon() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      if (!loggedUser) return;
-      await sb.from('profiles').update({ points: points }).eq('id', loggedUser.id);
-    }, 1500);
-  }
-  window.addEventListener('message', (e) => {
+  // ---------- points ----------
+  // Les scores sont enregistrés par le serveur (record_score) : c'est lui qui
+  // calcule les points, la série et les records. Le navigateur ne décide plus rien.
+  window.addEventListener('message', async (e) => {
     if (!e.data || e.data.type !== 'nogo-score') return;
-    if (!loggedUser) return;
-    points += Math.max(0, Math.floor(Number(e.data.points) || 0));
+    if (!loggedUser || !currentGame) return;
+    const gained = Math.max(0, Math.floor(Number(e.data.points) || 0));
+    if (!gained) return;
+    const { data, error } = await sb.rpc('record_score', {
+      p_game_id: currentGame.id,
+      p_points: gained
+    });
+    if (error || !data || data.error) return;
+    const before = streak;
+    points = data.points;
+    streak = data.streak;
+    bestStreak = data.best_streak;
+    gamesPlayed += 1;
     refreshAccountUI();
-    savePointsSoon();
+    if (streak > before) showStreakCelebration(streak);
   });
 
+  // ---------- l'écran de série ----------
+  // Flamme en pixel art, même grammaire visuelle que le dino.
+  const FLAME_OUTER = [
+    "......XX......",
+    ".....XXXX.....",
+    ".....XXXX.....",
+    "....XXXXXX....",
+    "....XXXXXX....",
+    "...XXXXXXXX...",
+    "..XXXXXXXXXX..",
+    "..XXXXXXXXXX..",
+    ".XXXXXXXXXXXX.",
+    ".XXXXXXXXXXXX.",
+    "XXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXX",
+    ".XXXXXXXXXXXX.",
+    ".XXXXXXXXXXXX.",
+    "..XXXXXXXXXX..",
+    "...XXXXXXXX..."
+  ];
+  const FLAME_INNER = [
+    "", "", "", "", "", "", "", "",
+    "......XX......",
+    ".....XXXX.....",
+    "....XXXXXX....",
+    "....XXXXXX....",
+    "....XXXXXX....",
+    "....XXXXXX....",
+    ".....XXXX.....",
+    ".....XXXX.....",
+    "......XX......",
+    ""
+  ];
+
+  function drawFlame(dead) {
+    const outer = dead ? '#3a3f5e' : '#ff7a2f';
+    const inner = dead ? '#242840' : '#ffd166';
+    let s = '';
+    FLAME_OUTER.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${outer}"/>`;
+      }
+    });
+    FLAME_INNER.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${inner}"/>`;
+      }
+    });
+    document.getElementById('flame-svg').innerHTML = s;
+  }
+
+  const STREAK_LINES = {
+    2: 'Two days. That is technically a habit.',
+    3: 'Three days. A pattern is forming.',
+    5: 'Five days. Somebody should probably check on you.',
+    7: 'A full week of doing nothing, on purpose.',
+    14: 'Two weeks. This is your personality now.',
+    30: 'Thirty days. We are genuinely concerned.',
+    100: 'One hundred days. You have won. There is no prize.'
+  };
+  function streakLine(n) {
+    if (STREAK_LINES[n]) return STREAK_LINES[n];
+    if (n >= 30) return 'Still here. Still bored. Respect.';
+    return 'Come back tomorrow and this number gets bigger. That is the whole game.';
+  }
+
+  function buildWeekStrip(n) {
+    const names = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const today = new Date();
+    let html = '';
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const done = i < n;                    // les n derniers jours sont acquis
+      html += '<div class="week-day' + (done ? ' on' : '') + (i === 0 ? ' today' : '') + '">' +
+                '<div class="week-dot">' + (done ? '🔥' : '') + '</div>' +
+                names[d.getDay()] +
+              '</div>';
+    }
+    document.getElementById('week-strip').innerHTML = html;
+  }
+
+  function sparks(count) {
+    const colors = ['#ff7a2f', '#ffd166', '#ff5ea8', '#8b98ff'];
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.top = '-12px';
+      s.style.background = colors[Math.floor(Math.random() * colors.length)];
+      s.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+      s.style.animationDelay = (Math.random() * 0.6) + 's';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 3800);
+    }
+  }
+
+  function showStreakCelebration(n) {
+    drawFlame(false);
+    buildWeekStrip(n);
+    document.getElementById('streak-msg').textContent = streakLine(n);
+    document.getElementById('streak-warn').textContent = isMember
+      ? ''
+      : 'Miss one day and this returns to zero. Members get a grace day.';
+    const el = document.getElementById('streak-count');
+    el.textContent = '0';
+    document.getElementById('streak-modal').classList.add('open');
+
+    // le compteur grimpe, puis la flamme se met à vaciller
+    let i = 0;
+    const step = Math.max(40, Math.min(160, 700 / n));
+    const timer = setInterval(() => {
+      i++;
+      el.textContent = i;
+      if (i >= n) {
+        clearInterval(timer);
+        document.getElementById('flame-wrap').classList.add('flicker');
+        sparks(34);
+      }
+    }, step);
+  }
+
+  function closeStreak() {
+    document.getElementById('streak-modal').classList.remove('open');
+    document.getElementById('flame-wrap').classList.remove('flicker');
+  }
+
+  // ---------- compte à rebours jusqu'à minuit, heure de Paris ----------
   function msUntilParisMidnight() {
     const now = new Date();
+    // heure qu'il est à Paris, exprimée dans un objet Date local
     const paris = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
     const offset = now.getTime() - paris.getTime();
     const midnight = new Date(paris);
@@ -967,6 +1367,7 @@
     document.getElementById('cd-h').textContent = p(Math.floor(diff / 3600000));
     document.getElementById('cd-m').textContent = p(Math.floor(diff / 60000) % 60);
     document.getElementById('cd-s').textContent = p(Math.floor(diff / 1000) % 60);
+    // minuit passé → on recharge le jeu du jour sans que l'utilisateur ait à rafraîchir
     const dayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Paris' });
     if (lastDayShown && dayKey !== lastDayShown) loadCatalogue();
     lastDayShown = dayKey;
@@ -974,6 +1375,7 @@
   tick();
   setInterval(tick, 1000);
 
+  // ---------- dino ----------
   const DINO_BODY = [
     "............XXXXXXXX..",
     "............XoXXXXXX..",
@@ -1006,16 +1408,24 @@
     ".....X................",
     ".....XX..............."
   ];
+  const dinoSvg = document.getElementById('dino-svg');
+  const dinoWrap = document.getElementById('dino-wrap');
+  let eyeOpen = true;
+  // Couronne affichée au-dessus de la tête, uniquement pour les membres
   const DINO_CROWN = [
     "..............X.X.X...",
     "..............XXXXX..."
   ];
-  const dinoSvg = document.getElementById('dino-svg');
-  const dinoWrap = document.getElementById('dino-wrap');
-  let eyeOpen = true;
+  // Le dino reflète la série : gris quand elle est morte, doré quand elle brûle.
+  function dinoColor() {
+    if (streak >= 7) return '#ff8a3d';
+    if (streak >= 3) return '#ffc857';
+    if (streak >= 1) return '#e8eaf6';
+    return loggedUser ? '#6a7099' : '#e8eaf6';
+  }
   function drawDino(legsFrame) {
     const rows = DINO_BODY.concat(legsFrame);
-    const color = isMember ? '#ffc857' : '#e8eaf6';
+    const color = dinoColor();
     let s = '';
     if (isMember) {
       dinoSvg.setAttribute('viewBox', '0 -3 22 25');
@@ -1050,7 +1460,57 @@
       setTimeout(() => dinoWrap.classList.remove('talk'), 400);
     }, 750);
   }
-  dinoWrap.addEventListener('click', () => dinoJump(true));
+  // ---------- petites bêtises cachées ----------
+  const DINO_MOODS = [
+    'RAWR!', 'RAWR.', 'yes?', 'still here', 'stop', 'STOP',
+    'i have feelings', 'this is harassment', 'ok fine', 'RAWR!!!'
+  ];
+  let dinoClicks = 0;
+  dinoWrap.addEventListener('click', () => {
+    document.getElementById('dino-bubble').textContent =
+      DINO_MOODS[Math.min(dinoClicks, DINO_MOODS.length - 1)];
+    dinoClicks++;
+    if (dinoClicks === 20) {
+      document.getElementById('dino-bubble').textContent = 'FINE. TAKE THIS.';
+      sparks(24);
+    }
+    dinoJump(true);
+  });
+
+  // Konami : ↑↑↓↓←→←→ B A
+  const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let konamiPos = 0;
+  document.addEventListener('keydown', (e) => {
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    konamiPos = (k === KONAMI[konamiPos]) ? konamiPos + 1 : 0;
+    if (konamiPos === KONAMI.length) {
+      konamiPos = 0;
+      document.body.classList.add('party');
+      document.getElementById('dino-bubble').textContent = 'WHOA';
+      dinoWrap.classList.add('talk');
+      sparks(80);
+      setTimeout(() => {
+        document.body.classList.remove('party');
+        dinoWrap.classList.remove('talk');
+      }, 6000);
+    }
+  });
+
+  // Trop longtemps sans rien faire ? Le dino s'en mêle.
+  let idleTimer = null;
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      if (document.getElementById('screen-home').classList.contains('active')) {
+        document.getElementById('dino-bubble').textContent = 'bored yet?';
+        dinoWrap.classList.add('talk');
+        setTimeout(() => dinoWrap.classList.remove('talk'), 3000);
+      }
+    }, 45000);
+  }
+  ['mousemove', 'keydown', 'click', 'scroll'].forEach(ev =>
+    document.addEventListener(ev, resetIdle, { passive: true }));
+  resetIdle();
   (function autoJump() {
     setTimeout(() => { dinoJump(false); autoJump(); }, 6000 + Math.random() * 8000);
   })();
