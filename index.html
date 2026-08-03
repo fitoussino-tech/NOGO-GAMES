@@ -347,6 +347,61 @@
   }
   body.party { animation: party-hue 1.4s linear infinite; }
   @keyframes party-hue { to { filter: hue-rotate(360deg); } }
+
+  /* ---------- L'ONDE ARC-EN-CIEL ---------- */
+  /* Toute la palette du site est remplacée, puis défile. Rien n'y échappe. */
+  body.rainbow { animation: rr-cycle 3.2s linear infinite; }
+  @keyframes rr-cycle {
+    0%   { --bg:#1a0033; --card:#33005c; --card-deep:#0d0019; --line:#ff2fd0; --fg:#ffffff;
+           --rose:#ff2fd0; --amber:#ffee00; --accent:#00e5ff; --grey:#d6b3ff; }
+    14%  { --bg:#33001a; --card:#5c002e; --card-deep:#19000d; --line:#ff0055; --fg:#fff5f8;
+           --rose:#ff0055; --amber:#ff8a00; --accent:#ffee00; --grey:#ffb3cc; }
+    28%  { --bg:#331a00; --card:#5c3300; --card-deep:#190d00; --line:#ff8a00; --fg:#fffaf0;
+           --rose:#ff8a00; --amber:#ffee00; --accent:#22e06a; --grey:#ffd9a6; }
+    42%  { --bg:#2b3300; --card:#4d5c00; --card-deep:#141900; --line:#ffee00; --fg:#fffff0;
+           --rose:#ffee00; --amber:#22e06a; --accent:#00c8ff; --grey:#f0ffa6; }
+    57%  { --bg:#00331a; --card:#005c2e; --card-deep:#00190d; --line:#22e06a; --fg:#f0fff6;
+           --rose:#22e06a; --amber:#00c8ff; --accent:#7a5cff; --grey:#a6ffcc; }
+    71%  { --bg:#002633; --card:#00445c; --card-deep:#001219; --line:#00c8ff; --fg:#f0fdff;
+           --rose:#00c8ff; --amber:#7a5cff; --accent:#ff2fd0; --grey:#a6e9ff; }
+    85%  { --bg:#140033; --card:#2b005c; --card-deep:#0a0019; --line:#7a5cff; --fg:#f7f0ff;
+           --rose:#7a5cff; --amber:#ff2fd0; --accent:#ff0055; --grey:#c9b3ff; }
+    100% { --bg:#1a0033; --card:#33005c; --card-deep:#0d0019; --line:#ff2fd0; --fg:#ffffff;
+           --rose:#ff2fd0; --amber:#ffee00; --accent:#00e5ff; --grey:#d6b3ff; }
+  }
+
+  /* L'arc-en-ciel en gros pixels : canvas basse résolution étiré plein écran */
+  #rainbow-veil {
+    position: fixed; inset: 0; width: 100vw; height: 100vh;
+    z-index: 1150; pointer-events: none; display: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    mix-blend-mode: screen; opacity: 0.62;
+  }
+  body.rainbow #rainbow-veil { display: block; }
+  .wave-el { animation: wavey 1.15s ease-in-out infinite; will-change: transform; }
+  @keyframes wavey {
+    0%, 100% { transform: translateY(0) rotate(0deg) skewX(0deg); }
+    25%      { transform: translateY(-16px) rotate(-1.4deg) skewX(2deg); }
+    75%      { transform: translateY(16px) rotate(1.4deg) skewX(-2deg); }
+  }
+  .rainbow-ripple {
+    position: fixed; width: 12px; height: 12px; border-radius: 50%;
+    border: 7px solid #fff; transform: translate(-50%, -50%);
+    z-index: 1140; pointer-events: none; animation: ripple 1.6s ease-out forwards;
+  }
+  @keyframes ripple {
+    to { width: 340vmax; height: 340vmax; opacity: 0; border-width: 1px; }
+  }
+  body.rainbow #dino-wrap { animation: dino-party 5.2s ease-in-out; z-index: 1160; }
+  @keyframes dino-party {
+    0%   { transform: scale(1) rotate(0deg); }
+    10%  { transform: scale(3.6) rotate(-20deg); }
+    28%  { transform: scale(2.7) rotate(16deg); }
+    46%  { transform: scale(3.2) rotate(-12deg); }
+    64%  { transform: scale(2.8) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
   .spark {
     position: fixed; width: 8px; height: 8px; z-index: 1300; pointer-events: none;
     animation: spark-fall linear forwards;
@@ -617,6 +672,8 @@
     </div>
   </div>
 </div>
+
+<canvas id="rainbow-veil"></canvas>
 
 <div id="dino-wrap" title="rawr">
   <div id="dino-bubble">RAWR!</div>
@@ -1381,7 +1438,7 @@
   }
 
   function sparks(count) {
-    const colors = ['#ff7a2f', '#ffd166', '#ff5ea8', '#8b98ff'];
+    const colors = ['#ff0055', '#ff8a00', '#ffee00', '#22e06a', '#00c8ff', '#7a5cff', '#ff2fd0'];
     for (let i = 0; i < count; i++) {
       const s = document.createElement('div');
       s.className = 'spark';
@@ -1743,13 +1800,89 @@
     document.getElementById('dino-bubble').textContent =
       DINO_MOODS[Math.min(dinoClicks, DINO_MOODS.length - 1)];
     dinoClicks++;
-    if (dinoClicks === 20) {
+    if (dinoClicks === 15) {
       document.getElementById('dino-bubble').textContent = 'FINE. TAKE THIS.';
-      sparks(24);
-      claimDino('royal');
+      rainbowWave();
+      claimDino('royal', true);
+      setTimeout(() => revealDino('royal'), 5400);
+      return;
     }
     dinoJump(true);
   });
+
+  // ---------- l'arc-en-ciel en gros pixels ----------
+  const PIXEL_PALETTE = ['#ff0055','#ff8a00','#ffee00','#22e06a','#00c8ff','#7a5cff','#ff2fd0'];
+
+  function runPixelRainbow(duration) {
+    const cv = document.getElementById('rainbow-veil');
+    const CELL = 26;                                   // taille d'un gros pixel à l'écran
+    const W = Math.ceil(window.innerWidth / CELL);
+    const H = Math.ceil(window.innerHeight / CELL);
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+
+    // seuil stable par pixel : donne une dissolution propre, pas un scintillement
+    const seuil = new Float32Array(W * H);
+    for (let i = 0; i < seuil.length; i++) seuil[i] = Math.random();
+
+    const t0 = performance.now();
+    (function frame(now) {
+      const t = (now - t0) / duration;
+      if (t >= 1) { ctx.clearRect(0, 0, W, H); return; }
+
+      // apparition pixel par pixel, puis disparition pixel par pixel
+      const fill = t < 0.16 ? t / 0.16 : (t > 0.80 ? (1 - t) / 0.20 : 1);
+      const step = Math.floor((now - t0) / 65);        // défilement des bandes
+
+      ctx.clearRect(0, 0, W, H);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          if (seuil[y * W + x] > fill) continue;
+          const band = Math.floor((x + y * 2 + step) / 2) % PIXEL_PALETTE.length;
+          ctx.fillStyle = PIXEL_PALETTE[band];
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+      requestAnimationFrame(frame);
+    })(performance.now());
+  }
+
+  // L'onde part du dino et traverse la page : chaque élément ondule avec
+  // un décalage proportionnel à sa distance, ce qui donne une vraie vague.
+  function rainbowWave() {
+    const sel = '.screen.active header, .screen.active .hero > *, .screen.active .page > *,' +
+                '.screen.active .card, .screen.active .big-card, .screen.active .count-box,' +
+                '.screen.active .lab-cell, .screen.active .board-row, .screen.active footer';
+    const els = Array.prototype.slice.call(document.querySelectorAll(sel));
+    const r = dinoWrap.getBoundingClientRect();
+    const ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+
+    els.forEach(el => {
+      const b = el.getBoundingClientRect();
+      const d = Math.hypot(b.left + b.width / 2 - ox, b.top + b.height / 2 - oy);
+      el.classList.add('wave-el');
+      el.style.animationDelay = (-d / 850) + 's';   // décalage négatif = onde déjà en route
+    });
+
+    const rip = document.createElement('div');
+    rip.className = 'rainbow-ripple';
+    rip.style.left = ox + 'px';
+    rip.style.top = oy + 'px';
+    document.body.appendChild(rip);
+    setTimeout(() => rip.remove(), 1700);
+
+    document.body.classList.add('rainbow');
+    runPixelRainbow(5200);
+    sparks(140);
+    setTimeout(() => sparks(90), 900);
+    setTimeout(() => sparks(60), 1900);
+
+    setTimeout(() => {
+      document.body.classList.remove('rainbow');
+      els.forEach(el => { el.classList.remove('wave-el'); el.style.animationDelay = ''; });
+      dinoWrap.classList.remove('talk');
+    }, 5200);
+  }
 
   // Konami : ↑↑↓↓←→←→ B A
   const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
