@@ -1609,11 +1609,24 @@
     target.innerHTML = s;
   }
 
-  function paintSilhouette(target, key) {
+  // Motif unique pour TOUTES les formes non découvertes : aucun indice visuel.
+  const LOCKED_ART = [
+    "......................","......................","......................",
+    "......................",
+    ".......XXXXXX.........","......XXXXXXXX........",".....XXX....XXX.......",
+    ".....XX......XX.......",".............XX.......","............XXX.......",
+    "...........XXX........","..........XXX.........",".........XXX..........",
+    ".........XX...........",".........XX...........",
+    "......................","......................",
+    ".........XX...........",".........XX...........",
+    "......................","......................","......................",
+    "......................","......................","......................"
+  ];
+  function paintSilhouette(target) {
     let s = '';
-    dinoRows(key, false).forEach((row, y) => {
+    LOCKED_ART.forEach((row, y) => {
       for (let x = 0; x < row.length; x++) {
-        if (row[x] !== '.') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#262c55"/>`;
+        if (row[x] !== '.') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#252b52"/>`;
       }
     });
     target.setAttribute('viewBox', '0 0 22 25');
@@ -1690,7 +1703,7 @@
       const el = document.getElementById('lab-' + d.key);
       if (!el) return;
       if (myDinos.indexOf(d.key) !== -1) paintDino(el, d.key, false, true);
-      else paintSilhouette(el, d.key);
+      else paintSilhouette(el);
     });
   }
   function dinoJump(shout) {
