@@ -200,8 +200,14 @@
   .modal h2 { font-family: var(--px-font); font-size: 12px; line-height: 1.9; margin-bottom: 15px; color: var(--fg); }
   .modal p { font-size: 14px; color: var(--grey); line-height: 1.8; margin-bottom: 26px; }
   .modal .btn { width: 100%; margin-bottom: 15px; }
-  .modal .close { font-size: 14px; color: var(--grey); cursor: pointer; background: none; border: none; font-family: var(--body-font); }
-  .modal .close:hover { color: var(--fg); }
+  /* valable partout, pas seulement dans les fenêtres modales */
+  .close {
+    font-size: 14px; color: var(--grey); cursor: pointer;
+    background: none; border: none; font-family: var(--body-font);
+    display: block; width: 100%; margin-top: 12px; padding: 6px 0;
+  }
+  .close:hover { color: var(--fg); }
+  .modal .close { margin-top: 4px; }
   .auth-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
   .auth-tab {
     font-family: var(--px-font); font-size: 9px; padding: 10px 13px;
@@ -623,7 +629,7 @@
       <h1 class="thanks-title" id="thanks-title"></h1>
       <div class="stamp" id="thanks-stamp">★ MEMBER</div>
       <p class="thanks-sub reveal" data-step="2">
-        Eleven games you could have been playing this whole time.<br>
+        <span id="w-games">Eleven</span> games you could have been playing this whole time.<br>
         We won't ask what you were doing instead.
       </p>
       <div class="thanks-counts reveal" data-step="3">
@@ -663,7 +669,7 @@
   </header>
   <div class="page">
     <h1>DINO LAB</h1>
-    <div class="desc">Thirteen forms exist. Most of them are none of your business yet.</div>
+    <div class="desc"><span id="w-dinos">Thirteen</span> forms exist. Most of them are none of your business yet.</div>
     <div class="lab-count" id="lab-count">1 / 13 DISCOVERED</div>
     <div class="lab-grid" id="lab-grid"></div>
   </div>
@@ -995,9 +1001,29 @@
       emojiEl.textContent = '…';
       titleEl.textContent = 'NO GAME YET';
     }
-    document.getElementById('vault-count').textContent =
-      ALL_GAMES.length ? ALL_GAMES.length + ' games in the catalogue' : 'catalogue coming soon';
+    refreshCounts();
     renderVault();
+  }
+
+  // Tous les nombres affichés en toutes lettres se mettent à jour tout seuls :
+  // ajoute un jeu en base, et le site se corrige partout.
+  const NUM_WORDS = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+    'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty',
+    'twenty-one','twenty-two','twenty-three','twenty-four','twenty-five','twenty-six','twenty-seven',
+    'twenty-eight','twenty-nine','thirty'];
+  function numWord(n, capital) {
+    const w = NUM_WORDS[n] || String(n);
+    return capital ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+  }
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+  function refreshCounts() {
+    const n = ALL_GAMES.length;
+    setText('vault-count', n ? n + ' games in the catalogue' : 'catalogue coming soon');
+    setText('w-games', numWord(n, true));
+    setText('w-dinos', numWord(DINOS.length, true));
   }
 
   function renderVault() {
