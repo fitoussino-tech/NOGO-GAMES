@@ -155,7 +155,7 @@
     50%     { box-shadow: 0 0 22px rgba(255,94,168,.45); }
   }
   .countdown-label { font-size: 14px; letter-spacing: 5px; color: var(--grey); margin-bottom: 20px; }
-  .countdown-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .countdown-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
   .count-box {
     background: var(--card-deep); border: 1px solid var(--line); border-radius: 12px;
     padding: 18px 20px; min-width: 88px;
@@ -634,6 +634,14 @@
   <div class="hero">
     <div class="badge"><span class="star">★</span> A NEW GAME EVERY DAY <span class="star">★</span></div>
     <div class="slogan">BORED?<br><span class="dim">GOOD.</span></div>
+
+    <div class="countdown-label" id="cd-label">TOMORROW'S GAME DROPS IN</div>
+    <div class="countdown-row" id="cd-row">
+      <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
+      <div class="count-box"><div class="num" id="cd-m">--</div><div class="unit">MIN</div></div>
+      <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
+    </div>
+
     <div class="cta-row">
       <div class="big-card primary" onclick="playDaily()">
         <div class="card-bg" id="daily-bg"></div>
@@ -665,12 +673,6 @@
       <div class="quest" id="q-look"><i></i><span>Look at the rankings and feel something</span></div>
     </div>
 
-    <div class="countdown-label" id="cd-label">TOMORROW'S GAME DROPS IN</div>
-    <div class="countdown-row" id="cd-row">
-      <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
-      <div class="count-box"><div class="num" id="cd-m">--</div><div class="unit">MIN</div></div>
-      <div class="count-box"><div class="num" id="cd-s">--</div><div class="unit">SEC</div></div>
-    </div>
     <div id="players-today"></div>
   </div>
   <footer>
