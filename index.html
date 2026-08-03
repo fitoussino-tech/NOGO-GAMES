@@ -291,15 +291,71 @@
     color: var(--grey); font-size: 13px;
   }
   /* ---------- page de remerciement ---------- */
-  .thanks-box { max-width: 470px; text-align: center; }
-  .thanks-dino { width: 120px; height: auto; display: block; margin: 0 auto 22px;
-                 animation: flame-rise .6s cubic-bezier(.2,1.4,.4,1); }
+  .thanks-box { max-width: 480px; text-align: center; position: relative; z-index: 2; }
+
+  /* rayons dorés qui tournent derrière le dino */
+  .rays {
+    position: absolute; width: 900px; height: 900px; left: 50%; top: -180px;
+    transform: translateX(-50%); pointer-events: none; z-index: 0; opacity: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+      rgba(255,200,87,.20) 0 5deg, transparent 5deg 20deg,
+      rgba(255,200,87,.14) 20deg 24deg, transparent 24deg 45deg);
+    -webkit-mask-image: radial-gradient(circle, #000 8%, transparent 62%);
+    mask-image: radial-gradient(circle, #000 8%, transparent 62%);
+  }
+  .rays.on { animation: rays-in .9s ease-out forwards, rays-spin 22s linear infinite; }
+  @keyframes rays-in { to { opacity: 1; } }
+  @keyframes rays-spin { to { transform: translateX(-50%) rotate(360deg); } }
+
+  .dino-stage { height: 150px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 20px; }
+  .thanks-dino { width: 126px; height: auto; display: block; opacity: 0; }
+  .thanks-dino.slam { animation: dino-slam .75s cubic-bezier(.2,.9,.3,1.3) forwards, dino-glow 2.4s ease-in-out 1s infinite; }
+  @keyframes dino-slam {
+    0%   { transform: translateY(-420px) scale(2.3); opacity: 0; }
+    55%  { transform: translateY(16px) scale(.9); opacity: 1; }
+    72%  { transform: translateY(-10px) scale(1.05); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes dino-glow {
+    0%,100% { filter: drop-shadow(0 0 6px rgba(255,200,87,.35)); }
+    50%     { filter: drop-shadow(0 0 26px rgba(255,200,87,.85)); }
+  }
+  #thanks-page.shake { animation: t-shake .45s cubic-bezier(.36,.07,.19,.97); }
+  @keyframes t-shake {
+    10%,90% { transform: translate(-3px,1px); }
+    20%,80% { transform: translate(5px,-2px); }
+    30%,50%,70% { transform: translate(-9px,4px); }
+    40%,60% { transform: translate(9px,-4px); }
+  }
+
   .thanks-kicker { font-family: var(--px-font); font-size: 9px; color: var(--amber);
-                   letter-spacing: 4px; margin-bottom: 18px; }
-  .thanks-title { font-family: var(--px-font); font-size: 28px; color: var(--fg);
-                  line-height: 1.4; margin-bottom: 18px; }
-  .thanks-sub { color: var(--grey); font-size: 15px; line-height: 1.9; margin-bottom: 30px; }
-  .thanks-list { text-align: left; margin-bottom: 32px; }
+                   letter-spacing: 4px; margin-bottom: 16px; }
+  .thanks-title { font-family: var(--px-font); font-size: 30px; color: var(--fg);
+                  line-height: 1.4; margin-bottom: 14px; min-height: 42px; }
+  .thanks-title .car { color: var(--amber); }
+
+  .stamp {
+    display: inline-block; font-family: var(--px-font); font-size: 10px;
+    background: var(--amber); color: var(--card-deep);
+    padding: 10px 16px; border-radius: 8px; margin-bottom: 22px;
+    opacity: 0; transform: scale(3) rotate(-14deg);
+  }
+  .stamp.on { animation: stamp-in .32s cubic-bezier(.2,.8,.2,1.4) forwards; }
+  @keyframes stamp-in {
+    to { opacity: 1; transform: scale(1) rotate(-4deg); }
+  }
+
+  .thanks-sub { color: var(--grey); font-size: 15px; line-height: 1.9; margin-bottom: 26px; }
+  .thanks-counts { display: flex; gap: 10px; margin-bottom: 28px; }
+  .thanks-counts div {
+    flex: 1; background: var(--card-deep); border: 1px solid var(--line);
+    border-radius: 12px; padding: 15px 6px;
+  }
+  .thanks-counts b { display: block; font-family: var(--px-font); font-size: 19px; color: var(--amber); }
+  .thanks-counts span { display: block; font-size: 9px; letter-spacing: 1px; color: var(--grey); margin-top: 9px; }
+
+  .thanks-list { text-align: left; margin-bottom: 30px; }
   .thanks-list div {
     color: var(--grey); font-size: 14.5px; line-height: 1.7;
     padding: 13px 0 13px 22px; border-bottom: 1px solid var(--line); position: relative;
@@ -308,6 +364,19 @@
     content: '★'; position: absolute; left: 0; top: 13px; color: var(--amber); font-size: 12px;
   }
   .thanks-list div:last-child { border-bottom: none; }
+
+  .reveal { opacity: 0; transform: translateY(18px); }
+  .reveal.on { animation: reveal-in .5s cubic-bezier(.2,.9,.3,1.2) forwards; }
+  @keyframes reveal-in { to { opacity: 1; transform: translateY(0); } }
+
+  .burst-px {
+    position: fixed; width: 11px; height: 11px; z-index: 1300; pointer-events: none;
+    animation: burst-out 1.15s cubic-bezier(.12,.75,.3,1) forwards;
+  }
+  @keyframes burst-out {
+    from { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+    to   { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.3); opacity: 0; }
+  }
   .legal-links { margin-top: 8px; font-size: 11px; }
   .legal-links a {
     color: rgba(124, 134, 176, 0.5); text-decoration: none; margin: 0 6px;
@@ -544,23 +613,34 @@
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
     </div>
   </header>
-  <div class="page" style="display:flex;align-items:center;justify-content:center;">
+  <div class="page" id="thanks-page" style="display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+    <div class="rays" id="thanks-rays"></div>
     <div class="thanks-box">
-      <svg id="thanks-dino" class="thanks-dino" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
-      <div class="thanks-kicker">PAYMENT RECEIVED</div>
-      <h1 class="thanks-title">YOU'RE IN.</h1>
-      <p class="thanks-sub">
+      <div class="dino-stage">
+        <svg id="thanks-dino" class="thanks-dino" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="thanks-kicker reveal" data-step="1">PAYMENT RECEIVED</div>
+      <h1 class="thanks-title" id="thanks-title"></h1>
+      <div class="stamp" id="thanks-stamp">★ MEMBER</div>
+      <p class="thanks-sub reveal" data-step="2">
         Eleven games you could have been playing this whole time.<br>
         We won't ask what you were doing instead.
       </p>
-      <div class="thanks-list">
-        <div><b>Everything, always.</b> No more waiting for the daily roll.</div>
-        <div><b>A grace day.</b> Miss a day, keep your streak. We know you'll forget.</div>
-        <div><b>No ads.</b> There never were any, but now it's a promise.</div>
-        <div><b>A gold dinosaur.</b> Insufferable. Yours.</div>
+      <div class="thanks-counts reveal" data-step="3">
+        <div><b id="c-games">0</b><span>GAMES UNLOCKED</span></div>
+        <div><b id="c-days">0</b><span>DAYS OF GRACE</span></div>
+        <div><b id="c-ads">0</b><span>ADS, FOREVER</span></div>
       </div>
-      <button class="btn" onclick="go('vault')">GO WASTE SOME TIME</button>
-      <button class="close" onclick="openAccount()">see my account</button>
+      <div class="thanks-list">
+        <div class="reveal" data-step="4"><b>Everything, always.</b> No more waiting for the daily roll.</div>
+        <div class="reveal" data-step="5"><b>A grace day.</b> Miss a day, keep your streak. We know you'll forget.</div>
+        <div class="reveal" data-step="6"><b>No ads.</b> There never were any, but now it's a promise.</div>
+        <div class="reveal" data-step="7"><b>A gold dinosaur.</b> Insufferable. Yours.</div>
+      </div>
+      <div class="reveal" data-step="8">
+        <button class="btn" onclick="go('vault')">GO WASTE SOME TIME</button>
+        <button class="close" onclick="openAccount()">see my account</button>
+      </div>
     </div>
   </div>
   <footer>
@@ -1506,11 +1586,109 @@
       'Payment received. Your account will unlock in a moment — refresh if needed.';
   }
 
+  // ---------- la cérémonie ----------
+  function pixelBurst(x, y, count, power) {
+    for (let i = 0; i < count; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = (0.35 + Math.random() * 0.65) * power;
+      const p = document.createElement('div');
+      p.className = 'burst-px';
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      p.style.background = PIXEL_PALETTE[Math.floor(Math.random() * PIXEL_PALETTE.length)];
+      p.style.setProperty('--dx', Math.cos(a) * d + 'px');
+      p.style.setProperty('--dy', Math.sin(a) * d + 'px');
+      p.style.animationDelay = (Math.random() * 0.12) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1500);
+    }
+  }
+
+  function typeInto(el, text, speed, done) {
+    el.innerHTML = '';
+    let i = 0;
+    (function tick() {
+      if (i >= text.length) { if (done) done(); return; }
+      el.innerHTML = text.slice(0, i + 1) + '<span class="car">_</span>';
+      i++;
+      setTimeout(tick, speed);
+    })();
+  }
+
+  function countTo(el, target, ms, suffix) {
+    const t0 = performance.now();
+    (function step(now) {
+      const k = Math.min(1, (now - t0) / ms);
+      const eased = 1 - Math.pow(1 - k, 3);
+      el.textContent = Math.round(target * eased) + (suffix || '');
+      if (k < 1) requestAnimationFrame(step);
+    })(performance.now());
+  }
+
   function showThanks() {
     go('thanks');
-    paintDino(document.getElementById('thanks-dino'), 'golden', false, true);
-    sparks(90);
-    setTimeout(() => sparks(50), 700);
+    const page = document.getElementById('thanks-page');
+    const dino = document.getElementById('thanks-dino');
+    const rays = document.getElementById('thanks-rays');
+    const stamp = document.getElementById('thanks-stamp');
+    const title = document.getElementById('thanks-title');
+
+    // remise à zéro pour pouvoir rejouer la séquence
+    [page, dino, rays, stamp].forEach(el => el.classList.remove('shake', 'slam', 'on'));
+    document.querySelectorAll('#screen-thanks .reveal').forEach(el => el.classList.remove('on'));
+    title.innerHTML = '';
+    paintDino(dino, 'golden', false, true);
+    void page.offsetWidth;  // force le navigateur à repartir de zéro
+
+    const cx = window.innerWidth / 2, cy = window.innerHeight * 0.42;
+
+    // 0,1 s — explosion de pixels au centre
+    setTimeout(() => pixelBurst(cx, cy, 90, Math.max(window.innerWidth, 700) * 0.55), 100);
+
+    // 0,15 s — le dino s'écrase à l'écran
+    setTimeout(() => dino.classList.add('slam'), 150);
+
+    // 0,55 s — impact : secousse + seconde explosion
+    setTimeout(() => {
+      page.classList.add('shake');
+      pixelBurst(cx, cy + 40, 60, 420);
+    }, 560);
+
+    // 0,8 s — les rayons dorés apparaissent et se mettent à tourner
+    setTimeout(() => rays.classList.add('on'), 800);
+
+    // 1,0 s — le titre s'écrit
+    setTimeout(() => typeInto(title, "YOU'RE IN.", 85, () => {
+      setTimeout(() => { title.innerHTML = "YOU'RE IN."; }, 700);
+    }), 1000);
+
+    // 1,5 s — le tampon MEMBER s'abat
+    setTimeout(() => {
+      stamp.classList.add('on');
+      pixelBurst(cx, cy + 120, 30, 260);
+    }, 1500);
+
+    // canons de confettis depuis les deux coins bas
+    setTimeout(() => {
+      pixelBurst(30, window.innerHeight - 20, 55, 900);
+      pixelBurst(window.innerWidth - 30, window.innerHeight - 20, 55, 900);
+    }, 1700);
+
+    // 1,7 s et suivantes — le contenu se dévoile par paliers
+    document.querySelectorAll('#screen-thanks .reveal').forEach(el => {
+      const step = parseInt(el.dataset.step, 10) || 1;
+      setTimeout(() => el.classList.add('on'), 1700 + step * 170);
+    });
+
+    // 2,6 s — les compteurs grimpent
+    setTimeout(() => {
+      countTo(document.getElementById('c-games'), ALL_GAMES.length || 11, 900);
+      countTo(document.getElementById('c-days'), 1, 700);
+      document.getElementById('c-ads').textContent = '0';
+    }, 2600);
+
+    // 3,2 s — dernière pluie, pour la route
+    setTimeout(() => sparks(70), 3200);
   }
 
   // Le paiement reste verrouillé tant que la renonciation n'est pas cochée.
