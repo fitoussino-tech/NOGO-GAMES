@@ -321,6 +321,30 @@
   .week-day.today .week-dot { box-shadow: 0 0 0 2px var(--rose); }
   #streak-msg { font-size: 15px; color: var(--grey); line-height: 1.8; margin-bottom: 8px; }
   #streak-warn { font-size: 13px; color: var(--rose); line-height: 1.7; margin-bottom: 22px; min-height: 18px; }
+  /* ---------- dino lab ---------- */
+  .lab-count { font-family: var(--px-font); font-size: 10px; color: var(--amber); letter-spacing: 2px; margin-bottom: 26px; }
+  .lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+  .lab-cell {
+    background: var(--card); border: 2px solid var(--line); border-radius: 14px;
+    padding: 18px 12px 16px; text-align: center;
+  }
+  .lab-cell.owned { border-color: rgba(255,200,87,0.45); cursor: pointer; }
+  .lab-cell.owned:hover { border-color: var(--amber); }
+  .lab-cell.worn { border-color: var(--rose); box-shadow: 0 0 14px rgba(255,94,168,0.2); }
+  .lab-svg { width: 62px; height: auto; display: block; margin: 0 auto 12px; }
+  .lab-name { font-family: var(--px-font); font-size: 9px; line-height: 1.7; color: var(--fg); margin-bottom: 8px; }
+  .lab-cell:not(.owned) .lab-name { color: var(--grey); }
+  .lab-hint { font-size: 12px; color: var(--grey); line-height: 1.6; }
+  .lab-worn { font-family: var(--px-font); font-size: 8px; color: var(--rose); margin-top: 10px; }
+  .reveal-svg { width: 130px; height: auto; display: block; margin: 0 auto; animation: flame-rise 0.5s cubic-bezier(.2,1.4,.4,1); }
+  #dino-wrap.egg-mode { animation: egg-wiggle 2.4s ease-in-out infinite; }
+  @keyframes egg-wiggle {
+    0%, 70%, 100% { transform: rotate(0deg); }
+    76% { transform: rotate(-7deg); }
+    82% { transform: rotate(6deg); }
+    88% { transform: rotate(-4deg); }
+    94% { transform: rotate(2deg); }
+  }
   body.party { animation: party-hue 1.4s linear infinite; }
   @keyframes party-hue { to { filter: hue-rotate(360deg); } }
   .spark {
@@ -338,6 +362,7 @@
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link" onclick="go('lab')">Dino lab</a>
       <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
@@ -377,6 +402,7 @@
     <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link" onclick="go('lab')">Dino lab</a>
       <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
@@ -386,6 +412,25 @@
     <h1>ALL GAMES</h1>
     <div class="desc">One game is free every day — the roll of the dice decides which. Members play whatever they want, whenever they want.</div>
     <div class="grid" id="vault-grid"></div>
+  </div>
+  <footer>NOGO GAMES © 2026 — where bored people go</footer>
+</div>
+
+<div class="screen" id="screen-lab">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('home')">Home</a>
+      <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+      <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
+    </div>
+  </header>
+  <div class="page">
+    <h1>DINO LAB</h1>
+    <div class="desc">Thirteen forms exist. Most of them are none of your business yet.</div>
+    <div class="lab-count" id="lab-count">1 / 13 DISCOVERED</div>
+    <div class="lab-grid" id="lab-grid"></div>
   </div>
   <footer>NOGO GAMES © 2026 — where bored people go</footer>
 </div>
@@ -419,6 +464,7 @@
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link" onclick="go('lab')">Dino lab</a>
       <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
       <button class="nav-btn sub-cta" onclick="go('subscribe')">SUBSCRIBE</button>
@@ -433,6 +479,7 @@
     <div class="nav-right">
       <a class="nav-link" onclick="go('home')">Home</a>
       <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link" onclick="go('lab')">Dino lab</a>
       <a class="nav-link" onclick="go('leaders')">Rankings</a>
       <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
     </div>
@@ -476,6 +523,17 @@
     <div id="ad-slot">emplacement publicitaire</div>
     <button class="btn" id="ad-continue" onclick="adFinished()" disabled>WAIT…</button>
     <button class="close" onclick="closeAd()">cancel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reveal-modal">
+  <div class="modal">
+    <div style="font-family:var(--px-font);font-size:10px;color:var(--grey);letter-spacing:3px;margin-bottom:18px;">NEW FORM</div>
+    <svg id="reveal-svg" class="reveal-svg" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="reveal-name" style="font-family:var(--px-font);font-size:14px;color:var(--amber);margin:16px 0 8px;"></div>
+    <div id="reveal-count" style="font-size:13px;color:var(--grey);margin-bottom:24px;"></div>
+    <button class="btn" onclick="closeReveal(); go('lab');">SEE THE LAB</button>
+    <button class="close" onclick="closeReveal()">later</button>
   </div>
 </div>
 
@@ -624,6 +682,7 @@
     if (name === 'vault') renderVault();
     if (name === 'subscribe') setupExpressCheckout();
     if (name === 'leaders') renderLeaderboards();
+    if (name === 'lab') renderDinoLab();
     window.scrollTo(0, 0);
   }
 
@@ -938,7 +997,7 @@
   async function fetchProfile() {
     if (!loggedUser) return;
     const { data } = await sb.from('profiles')
-      .select('points, is_member, first_name, last_name, username, streak, best_streak, games_played')
+      .select('points, is_member, first_name, last_name, username, streak, best_streak, games_played, dino')
       .eq('id', loggedUser.id)
       .single();
     if (data) {
@@ -948,16 +1007,22 @@
       streak = data.streak || 0;
       bestStreak = data.best_streak || 0;
       gamesPlayed = data.games_played || 0;
+      currentDino = data.dino || 'egg';
       const n = ((data.first_name || '') + ' ' + (data.last_name || '')).trim();
       if (n) loggedUser.name = n;
     }
     document.body.classList.toggle('is-member', isMember);
+    await loadMyDinos();
+    if (isMember) await claimDino('golden', true);
+    const h = new Date().getHours();
+    if (h >= 3 && h < 5) await claimDino('night', true);
   }
 
   async function logout() {
     await sb.auth.signOut();
     loggedUser = null; isMember = false; points = 0;
     username = null; streak = 0; bestStreak = 0; gamesPlayed = 0;
+    myDinos = ['egg']; currentDino = 'egg'; drawDino();
     document.body.classList.remove('is-member');
     refreshAccountUI();
     renderVault();
@@ -1218,7 +1283,17 @@
     bestStreak = data.best_streak;
     gamesPlayed += 1;
     refreshAccountUI();
-    if (streak > before) showStreakCelebration(streak);
+
+    // dinos débloqués par le serveur pendant cette partie
+    const fresh = (data.unlocked || []).filter(k => myDinos.indexOf(k) === -1);
+    fresh.forEach(k => myDinos.push(k));
+
+    if (streak > before) {
+      showStreakCelebration(streak);
+      if (fresh.length) setTimeout(() => revealDino(fresh[0]), 400);
+    } else if (fresh.length) {
+      revealDino(fresh[0]);
+    }
   });
 
   // ---------- l'écran de série ----------
@@ -1408,49 +1483,216 @@
     ".....X................",
     ".....XX..............."
   ];
+  // ============================================================
+  //  LES 13 FORMES DU DINO
+  // ============================================================
+  const ACC = {
+    none:   ["......................","......................","......................"],
+    horns:  ["......................","...........a.....a....","...........aa...aa...."],
+    crown:  ["......................","............a.a.a.....","...........aaaaaa....."],
+    flames: ["............a..a......","..........aa.aa.a.....",".........aaaaaaaaa...."],
+    moon:   ["..aaa.................",".aa...................","..aaa................."],
+    laurel: ["......................","..........a.......a...","...........aa...aa...."],
+    gold:   ["........a...a...a.....","............a.a.a.....","...........aaaaaa....."],
+    spark:  ["........a.........a...","......................","........a.........a..."]
+  };
+
+  // Les transformations : c'est elles qui créent des silhouettes réellement différentes
+  function outlineOf(rows) {
+    const g = rows.map(r => r.split(''));
+    const H = g.length, W = g[0].length;
+    const solid = (y, x) => (y < 0 || x < 0 || y >= H || x >= W) ? false : g[y][x] !== '.';
+    return g.map((row, y) => row.map((c, x) => {
+      if (c === '.') return '.';
+      return (!solid(y-1,x) || !solid(y+1,x) || !solid(y,x-1) || !solid(y,x+1)) ? 'X' : '.';
+    }).join(''));
+  }
+  function ribsOf(rows) {
+    const out = outlineOf(rows).map(r => r.split(''));
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] !== '.' && x % 4 === 1 && out[y][x] === '.') out[y][x] = 'b';
+      }
+    });
+    return out.map(r => r.join(''));
+  }
+  function glitchOf(rows) {
+    return rows.map((row, y) => {
+      const shift = (y % 5 === 0) ? 2 : (y % 7 === 0 ? -2 : 0);
+      let r = row;
+      if (shift > 0) r = '.'.repeat(shift) + row.slice(0, row.length - shift);
+      if (shift < 0) r = row.slice(-shift) + '.'.repeat(-shift);
+      return r.split('').map((c, x) => (c === 'X' && (x + y) % 6 === 0) ? 'a' : c).join('');
+    });
+  }
+  function starsOf(rows) {
+    const out = outlineOf(rows).map(r => r.split(''));
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] !== '.' && out[y][x] === '.') {
+          out[y][x] = ((x * 7 + y * 13) % 23 === 0) ? 'a' : 'b';
+        }
+      }
+    });
+    return out.map(r => r.join(''));
+  }
+
+  const EGG_ART = [
+    "......................","......................","......................",
+    "......................","......................",
+    ".......XXXX...........","......XXXXXX..........","......XXXXXX..........",
+    ".....XXXXXXXX.........",".....XXXXXXXX.........","....XXXXXXXXXX........",
+    "....XaXaXaXaXX........","....XXaXaXaXXX........","....XXXXXXXXXX........",
+    "...XXXXXXXXXXXX.......","...XXXXXXXXXXXX.......","...XXXXXXXXXXXX.......",
+    "...XXXXXXXXXXXX.......","....XXXXXXXXXX........","....XXXXXXXXXX........",
+    ".....XXXXXXXX.........","......XXXXXX..........",
+    "......................","......................","......................"
+  ];
+  const HATCH_ART = [
+    "......................","......................","......................",
+    "......................","......................","......................",
+    "......a.a.a.a.........","......aaaaaaa.........",".......XXXXX..........",
+    "......XXoXXXX.........","......XXXXXXX.........",".....XXXXXXXXX........",
+    ".....XXXXXXXXX........","....XXXXXXXXXXX.......","....XXXXXXXXXXX.......",
+    "....XXXXXXXXXXX.......",".....XXXXXXXXX........","......XXXXXXX.........",
+    "......XX...XX.........","......XX...XX.........",
+    "......................","......................","......................",
+    "......................","......................"
+  ];
+
+  const DINOS = [
+    { key:'egg',       name:'EGG',           art:EGG_ART,   colors:{X:'#EDE3C8',a:'#FFC857',o:'#080c20'}, hint:'Comes free with the account.' },
+    { key:'hatchling', name:'HATCHLING',     art:HATCH_ART, colors:{X:'#9FE6B4',a:'#EDE3C8',o:'#101425'}, hint:'Something has to break first.' },
+    { key:'gremlin',   name:'GREMLIN',       legs:true, acc:'horns',  colors:{X:'#6ECF6E',a:'#2E7D32',o:'#0d1020'}, hint:'Five games. Any five.' },
+    { key:'ember',     name:'EMBER',         legs:true, acc:'spark',  colors:{X:'#FFB347',a:'#FF7A2F',o:'#3a1b00'}, hint:'Three days in a row.' },
+    { key:'inferno',   name:'INFERNO',       legs:true, acc:'flames', colors:{X:'#FF5A2F',a:'#FFD166',o:'#3a0d00'}, hint:'Seven days in a row.' },
+    { key:'night',     name:'NIGHT CRAWLER', legs:true, acc:'moon',   colors:{X:'#3B4BA8',a:'#C9D4FF',o:'#C9D4FF'}, hint:'Be awake when you should not be.' },
+    { key:'ghost',     name:'GHOST',         legs:true, tf:outlineOf, colors:{X:'#BFC8FF',a:'#BFC8FF',o:'#BFC8FF'}, hint:'Vanish for a week. Then come back.' },
+    { key:'museum',    name:'MUSEUM PIECE',  legs:true, tf:ribsOf,    colors:{X:'#E8ECF7',b:'#7C86B0',a:'#E8ECF7',o:'#E8ECF7'}, hint:'Play every single game.' },
+    { key:'royal',     name:'ROYAL PAIN',    legs:true, acc:'crown',  colors:{X:'#B57BFF',a:'#FFC857',o:'#1b0d33'}, hint:'Bother the dinosaur. A lot.' },
+    { key:'glitch',    name:'GLITCH',        legs:true, tf:glitchOf,  colors:{X:'#FF3DDA',a:'#35F0FF',o:'#35F0FF'}, hint:'An old code. A very old one.' },
+    { key:'void',      name:'VOID',          legs:true, tf:starsOf,   colors:{X:'#8B98FF',b:'#0B0F26',a:'#FFFFFF',o:'#FFFFFF'}, hint:'25 000 points.' },
+    { key:'champion',  name:'CHAMPION',      legs:true, acc:'laurel', colors:{X:'#FFF3C4',a:'#FFC857',o:'#3a2f00'}, hint:'Top of a daily ranking.' },
+    { key:'golden',    name:'GOLDEN',        legs:true, acc:'gold',   colors:{X:'#FFC857',a:'#FFF3C4',o:'#3a2f00'}, hint:'Members only. Obviously.' }
+  ];
+  const DINO_BY_KEY = {};
+  DINOS.forEach(d => { DINO_BY_KEY[d.key] = d; });
+
+  let myDinos = ['egg'];
+  let currentDino = 'egg';
+
+  function dinoRows(key, legFrame) {
+    const d = DINO_BY_KEY[key] || DINO_BY_KEY.egg;
+    if (!d.legs) return d.art;
+    let body = DINO_BODY.concat(legFrame ? DINO_LEGS_B : DINO_LEGS_A);
+    if (d.tf) body = d.tf(body);
+    return ACC[d.acc || 'none'].concat(body);
+  }
+
+  function paintDino(target, key, legFrame, eye) {
+    const d = DINO_BY_KEY[key] || DINO_BY_KEY.egg;
+    const rows = dinoRows(key, legFrame);
+    const c = d.colors;
+    let s = '';
+    rows.forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        const ch = row[x];
+        let fill = null;
+        if (ch === 'X') fill = c.X;
+        else if (ch === 'a') fill = c.a || c.X;
+        else if (ch === 'b') fill = c.b || c.X;
+        else if (ch === 'o') fill = eye ? (c.o || '#080c20') : c.X;
+        if (fill) s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>`;
+      }
+    });
+    target.setAttribute('viewBox', '0 0 22 25');
+    target.innerHTML = s;
+  }
+
+  function paintSilhouette(target, key) {
+    let s = '';
+    dinoRows(key, false).forEach((row, y) => {
+      for (let x = 0; x < row.length; x++) {
+        if (row[x] !== '.') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#262c55"/>`;
+      }
+    });
+    target.setAttribute('viewBox', '0 0 22 25');
+    target.innerHTML = s;
+  }
+
   const dinoSvg = document.getElementById('dino-svg');
   const dinoWrap = document.getElementById('dino-wrap');
   let eyeOpen = true;
-  // Couronne affichée au-dessus de la tête, uniquement pour les membres
-  const DINO_CROWN = [
-    "..............X.X.X...",
-    "..............XXXXX..."
-  ];
-  // Le dino reflète la série : gris quand elle est morte, doré quand elle brûle.
-  function dinoColor() {
-    if (streak >= 7) return '#ff8a3d';
-    if (streak >= 3) return '#ffc857';
-    if (streak >= 1) return '#e8eaf6';
-    return loggedUser ? '#6a7099' : '#e8eaf6';
-  }
-  function drawDino(legsFrame) {
-    const rows = DINO_BODY.concat(legsFrame);
-    const color = dinoColor();
-    let s = '';
-    if (isMember) {
-      dinoSvg.setAttribute('viewBox', '0 -3 22 25');
-      DINO_CROWN.forEach((row, i) => {
-        const y = i - 3;
-        for (let x = 0; x < row.length; x++) {
-          if (row[x] === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#ffc857"/>`;
-        }
-      });
-    } else {
-      dinoSvg.setAttribute('viewBox', '0 0 22 22');
-    }
-    rows.forEach((row, y) => {
-      for (let x = 0; x < row.length; x++) {
-        const c = row[x];
-        if (c === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${color}"/>`;
-        if (c === 'o') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${eyeOpen ? '#080c20' : color}"/>`;
-      }
-    });
-    dinoSvg.innerHTML = s;
-  }
   let legFlip = false;
-  drawDino(DINO_LEGS_A);
-  setInterval(() => { legFlip = !legFlip; drawDino(legFlip ? DINO_LEGS_B : DINO_LEGS_A); }, 160);
-  setInterval(() => { eyeOpen = false; setTimeout(() => { eyeOpen = true; }, 150); }, 3400);
+
+  function drawDino() {
+    paintDino(dinoSvg, currentDino, legFlip, eyeOpen);
+    dinoWrap.classList.toggle('egg-mode', currentDino === 'egg');
+  }
+  drawDino();
+  setInterval(() => { legFlip = !legFlip; drawDino(); }, 160);
+  setInterval(() => { eyeOpen = false; drawDino(); setTimeout(() => { eyeOpen = true; drawDino(); }, 150); }, 3400);
+
+  // ---------- déblocages et vitrine ----------
+  async function loadMyDinos() {
+    if (!loggedUser) { myDinos = ['egg']; currentDino = 'egg'; drawDino(); return; }
+    const { data } = await sb.rpc('my_dinos');
+    myDinos = ['egg'].concat((data || []).map(r => r.dino));
+    drawDino();
+  }
+
+  async function claimDino(key, silent) {
+    if (!loggedUser || myDinos.indexOf(key) !== -1) return false;
+    const { data } = await sb.rpc('unlock_dino', { p_dino: key });
+    if (!data) return false;
+    myDinos.push(key);
+    if (!silent) revealDino(key);
+    return true;
+  }
+
+  async function wearDino(key) {
+    if (myDinos.indexOf(key) === -1) return;
+    const { data } = await sb.rpc('set_dino', { p_dino: key });
+    if (data) { currentDino = key; drawDino(); renderDinoLab(); }
+  }
+
+  function revealDino(key) {
+    const d = DINO_BY_KEY[key];
+    if (!d) return;
+    paintDino(document.getElementById('reveal-svg'), key, false, true);
+    document.getElementById('reveal-name').textContent = d.name;
+    document.getElementById('reveal-count').textContent =
+      myDinos.length + ' / ' + DINOS.length + ' discovered';
+    document.getElementById('reveal-modal').classList.add('open');
+    sparks(30);
+  }
+  function closeReveal() {
+    document.getElementById('reveal-modal').classList.remove('open');
+  }
+
+  function renderDinoLab() {
+    const grid = document.getElementById('lab-grid');
+    if (!grid) return;
+    document.getElementById('lab-count').textContent =
+      myDinos.length + ' / ' + DINOS.length + ' DISCOVERED';
+    grid.innerHTML = DINOS.map(function (d) {
+      const owned = myDinos.indexOf(d.key) !== -1;
+      const worn = currentDino === d.key;
+      return '<div class="lab-cell' + (owned ? ' owned' : '') + (worn ? ' worn' : '') + '"' +
+        (owned ? ' onclick="wearDino(\'' + d.key + '\')"' : '') + '>' +
+        '<svg class="lab-svg" id="lab-' + d.key + '" shape-rendering="crispEdges"></svg>' +
+        '<div class="lab-name">' + (owned ? d.name : '???') + '</div>' +
+        '<div class="lab-hint">' + d.hint + '</div>' +
+        (worn ? '<div class="lab-worn">WEARING</div>' : '') +
+      '</div>';
+    }).join('');
+    DINOS.forEach(function (d) {
+      const el = document.getElementById('lab-' + d.key);
+      if (!el) return;
+      if (myDinos.indexOf(d.key) !== -1) paintDino(el, d.key, false, true);
+      else paintSilhouette(el, d.key);
+    });
+  }
   function dinoJump(shout) {
     if (dinoWrap.classList.contains('jump')) return;
     dinoWrap.classList.add('jump');
@@ -1466,13 +1708,32 @@
     'i have feelings', 'this is harassment', 'ok fine', 'RAWR!!!'
   ];
   let dinoClicks = 0;
-  dinoWrap.addEventListener('click', () => {
+  dinoWrap.addEventListener('click', async () => {
+    // l'œuf éclôt au premier clic
+    if (currentDino === 'egg' && loggedUser) {
+      document.getElementById('dino-bubble').textContent = 'CRACK';
+      dinoWrap.classList.add('talk');
+      sparks(18);
+      const ok = await claimDino('hatchling', true);
+      if (ok || myDinos.indexOf('hatchling') !== -1) {
+        await wearDino('hatchling');
+        setTimeout(() => { dinoWrap.classList.remove('talk'); revealDino('hatchling'); }, 500);
+      }
+      return;
+    }
+    if (currentDino === 'egg' && !loggedUser) {
+      document.getElementById('dino-bubble').textContent = 'need an account';
+      dinoWrap.classList.add('talk');
+      setTimeout(() => dinoWrap.classList.remove('talk'), 2200);
+      return;
+    }
     document.getElementById('dino-bubble').textContent =
       DINO_MOODS[Math.min(dinoClicks, DINO_MOODS.length - 1)];
     dinoClicks++;
     if (dinoClicks === 20) {
       document.getElementById('dino-bubble').textContent = 'FINE. TAKE THIS.';
       sparks(24);
+      claimDino('royal');
     }
     dinoJump(true);
   });
@@ -1489,6 +1750,7 @@
       document.getElementById('dino-bubble').textContent = 'WHOA';
       dinoWrap.classList.add('talk');
       sparks(80);
+      claimDino('glitch');
       setTimeout(() => {
         document.body.classList.remove('party');
         dinoWrap.classList.remove('talk');
