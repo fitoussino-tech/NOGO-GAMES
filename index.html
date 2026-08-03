@@ -1980,10 +1980,12 @@
     if (!e.data || e.data.type !== 'nogo-score') return;
     if (!loggedUser || !currentGame) return;
     const gained = Math.max(0, Math.floor(Number(e.data.points) || 0));
-    // score brut pour le classement du jour ; à défaut, les points
-    let raw = Number(e.data.score);
-    if (!isFinite(raw) || raw < 0) raw = gained > 0 ? gained : null;
+    // score brut pour le classement du jour ; pour un jeu aux points,
+    // à défaut, les points. Pour un jeu au temps ou au nombre, seul un
+    // score explicite compte : des points pris pour un temps fausseraient tout.
     const hasKind = currentGame.score_kind && currentGame.score_kind !== 'points';
+    let raw = Number(e.data.score);
+    if (!isFinite(raw) || raw < 0) raw = (!hasKind && gained > 0) ? gained : null;
     if (raw != null) {
       sb.rpc('submit_daily_score', { p_game_id: currentGame.id, p_score: raw })
         .then(function () {}, function () {});
