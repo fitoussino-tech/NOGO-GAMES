@@ -221,8 +221,9 @@
   }
   .check-row input { margin-top: 3px; flex: 0 0 auto; accent-color: var(--amber); width: 16px; height: 16px; }
   .check-row a { color: var(--accent); }
-  #pay-gate { opacity: 0.35; pointer-events: none; transition: opacity 0.2s; }
-  #pay-gate.on { opacity: 1; pointer-events: auto; }
+  #pay-gate { opacity: 0.4; transition: opacity 0.25s; }
+  #pay-gate.on { opacity: 1; }
+  #pay-gate:not(.on) #subscribe-btn { cursor: not-allowed; }
   .auth-msg { font-size: 13px; color: var(--rose); min-height: 20px; margin-bottom: 8px; }
   .auth-msg.ok { color: var(--amber); }
   .oauth-btn {
@@ -289,6 +290,24 @@
     padding: 20px 30px; text-align: center;
     color: var(--grey); font-size: 13px;
   }
+  /* ---------- page de remerciement ---------- */
+  .thanks-box { max-width: 470px; text-align: center; }
+  .thanks-dino { width: 120px; height: auto; display: block; margin: 0 auto 22px;
+                 animation: flame-rise .6s cubic-bezier(.2,1.4,.4,1); }
+  .thanks-kicker { font-family: var(--px-font); font-size: 9px; color: var(--amber);
+                   letter-spacing: 4px; margin-bottom: 18px; }
+  .thanks-title { font-family: var(--px-font); font-size: 28px; color: var(--fg);
+                  line-height: 1.4; margin-bottom: 18px; }
+  .thanks-sub { color: var(--grey); font-size: 15px; line-height: 1.9; margin-bottom: 30px; }
+  .thanks-list { text-align: left; margin-bottom: 32px; }
+  .thanks-list div {
+    color: var(--grey); font-size: 14.5px; line-height: 1.7;
+    padding: 13px 0 13px 22px; border-bottom: 1px solid var(--line); position: relative;
+  }
+  .thanks-list div::before {
+    content: '★'; position: absolute; left: 0; top: 13px; color: var(--amber); font-size: 12px;
+  }
+  .thanks-list div:last-child { border-bottom: none; }
   .legal-links { margin-top: 8px; font-size: 11px; }
   .legal-links a {
     color: rgba(124, 134, 176, 0.5); text-decoration: none; margin: 0 6px;
@@ -508,6 +527,41 @@
     <h1>ALL GAMES</h1>
     <div class="desc">One game is free every day — the roll of the dice decides which. Members play whatever they want, whenever they want.</div>
     <div class="grid" id="vault-grid"></div>
+  </div>
+  <footer>
+    NOGO GAMES © 2026 — where bored people go
+    <div class="legal-links">
+      <a href="/legal.html#legal">Legal</a>·<a href="/legal.html#terms">Terms</a>·<a href="/legal.html#privacy">Privacy</a>
+    </div>
+  </footer>
+</div>
+
+<div class="screen" id="screen-thanks">
+  <header>
+    <div class="logo" onclick="go('home')">NOGO<span>GAMES</span></div>
+    <div class="nav-right">
+      <a class="nav-link" onclick="go('vault')">All games</a>
+      <a class="nav-link nav-account" onclick="openAccount()">Log in</a>
+    </div>
+  </header>
+  <div class="page" style="display:flex;align-items:center;justify-content:center;">
+    <div class="thanks-box">
+      <svg id="thanks-dino" class="thanks-dino" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="thanks-kicker">PAYMENT RECEIVED</div>
+      <h1 class="thanks-title">YOU'RE IN.</h1>
+      <p class="thanks-sub">
+        Eleven games you could have been playing this whole time.<br>
+        We won't ask what you were doing instead.
+      </p>
+      <div class="thanks-list">
+        <div><b>Everything, always.</b> No more waiting for the daily roll.</div>
+        <div><b>A grace day.</b> Miss a day, keep your streak. We know you'll forget.</div>
+        <div><b>No ads.</b> There never were any, but now it's a promise.</div>
+        <div><b>A gold dinosaur.</b> Insufferable. Yours.</div>
+      </div>
+      <button class="btn" onclick="go('vault')">GO WASTE SOME TIME</button>
+      <button class="close" onclick="openAccount()">see my account</button>
+    </div>
   </div>
   <footer>
     NOGO GAMES © 2026 — where bored people go
@@ -1330,10 +1384,7 @@
     const params = new URLSearchParams(location.search);
     if (params.get('checkout') === 'success') {
       history.replaceState({}, '', location.pathname);
-      setTimeout(async () => {
-        await fetchProfile(); refreshAccountUI(); renderVault();
-        if (isMember) openAccount();
-      }, 2000);
+      if (loggedUser) unlockNow();
     }
   })();
 
@@ -1386,6 +1437,17 @@
         if (ev && ev.availablePaymentMethods) { sep.style.display = 'flex'; }
       });
 
+      // Blocage propre : sans acceptation des CGV, la feuille de paiement ne s'ouvre pas.
+      express.on('click', (ev) => {
+        if (!document.getElementById('accept-waiver').checked) {
+          const msg = document.getElementById('subscribe-msg');
+          msg.classList.remove('ok');
+          msg.textContent = 'Accept the terms of sale first.';
+          return;              // pas de resolve() → Apple Pay ne s'ouvre pas
+        }
+        ev.resolve();
+      });
+
       express.on('confirm', async () => {
         const msg = document.getElementById('subscribe-msg');
         msg.classList.remove('ok');
@@ -1399,7 +1461,7 @@
         if (error) { msg.textContent = error.message || 'Payment failed, try again.'; return; }
         msg.classList.add('ok');
         msg.textContent = 'Payment received — unlocking your account…';
-        waitForMembership();
+        unlockNow();
       });
 
       express.mount('#express-checkout');
@@ -1410,20 +1472,54 @@
   }
 
   // le webhook Stripe met une seconde ou deux à activer le compte
-  async function waitForMembership(tries) {
+  // On n'attend plus le webhook : on demande nous-mêmes à Stripe et on débloque.
+  async function unlockNow(tries) {
     tries = tries || 0;
-    await fetchProfile();
-    refreshAccountUI();
-    renderVault();
-    if (isMember) { go('home'); openAccount(); return; }
-    if (tries < 10) setTimeout(() => waitForMembership(tries + 1), 1500);
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(SUPABASE_URL + '/functions/v1/dynamic-responder', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: 'confirm' })
+      });
+      const out = await res.json();
+      if (out && out.is_member) {
+        await fetchProfile();
+        refreshAccountUI();
+        renderVault();
+        showThanks();
+        return;
+      }
+    } catch (e) { /* on retente */ }
+
+    // Stripe met parfois une seconde à basculer l'abonnement en "active"
+    if (tries < 8) return setTimeout(() => unlockNow(tries + 1), 900);
+
+    // dernier recours : on relit simplement le profil
+    await fetchProfile(); refreshAccountUI(); renderVault();
+    if (isMember) showThanks();
+    else document.getElementById('subscribe-msg').textContent =
+      'Payment received. Your account will unlock in a moment — refresh if needed.';
+  }
+
+  function showThanks() {
+    go('thanks');
+    paintDino(document.getElementById('thanks-dino'), 'golden', false, true);
+    sparks(90);
+    setTimeout(() => sparks(50), 700);
   }
 
   // Le paiement reste verrouillé tant que la renonciation n'est pas cochée.
   function updatePayGate() {
     const ok = document.getElementById('accept-waiver').checked;
     document.getElementById('pay-gate').classList.toggle('on', ok);
-    if (ok && loggedUser && !isMember) setupExpressCheckout();
+    // le bouton est préparé dès l'ouverture de la page, pas à la coche :
+    // la fonction serveur démarre à froid et met plusieurs secondes.
+    if (loggedUser && !isMember) setupExpressCheckout();
   }
 
   async function subscribeClick() {
