@@ -100,6 +100,18 @@
     border-radius: 6px; padding: 7px 11px;
   }
   .big-card .meta { color: var(--grey); font-size: 14px; }
+  /* la flamme sur l'accueil */
+  #home-streak {
+    display: none; align-items: center; justify-content: center; gap: 16px;
+    background: var(--card-deep); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 26px; margin: 0 auto 44px; width: fit-content;
+  }
+  #home-streak.on { display: flex; }
+  #home-flame { width: 42px; height: auto; display: block; }
+  #home-streak.alive #home-flame { animation: flame-flicker 0.42s steps(2) infinite; }
+  .hs-num { font-family: var(--px-font); font-size: 26px; color: var(--amber); line-height: 1.2; text-align: left; }
+  #home-streak:not(.alive) .hs-num { color: var(--grey); }
+  .hs-label { font-size: 11px; letter-spacing: 2px; color: var(--grey); margin-top: 8px; text-align: left; }
   .countdown-label { font-size: 14px; letter-spacing: 5px; color: var(--grey); margin-bottom: 20px; }
   .countdown-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .count-box {
@@ -445,6 +457,14 @@
         <div class="meta" id="vault-count">the whole catalogue</div>
       </div>
     </div>
+    <div id="home-streak">
+      <svg id="home-flame" viewBox="0 0 14 18" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div>
+        <div class="hs-num" id="hs-num">0</div>
+        <div class="hs-label" id="hs-label">DAYS BORED IN A ROW</div>
+      </div>
+    </div>
+
     <div class="countdown-label">TOMORROW'S GAME DROPS IN</div>
     <div class="countdown-row">
       <div class="count-box"><div class="num" id="cd-h">--</div><div class="unit">HOURS</div></div>
@@ -1110,6 +1130,7 @@
 
   function refreshAccountUI() {
     const logged = !!loggedUser;
+    updateHomeStreak();
     document.querySelectorAll('.nav-account').forEach(el => {
       if (!logged) { el.textContent = 'Log in'; return; }
       const who = username || (loggedUser.name || 'Player').split(' ')[0];
@@ -1446,7 +1467,7 @@
     ""
   ];
 
-  function drawFlame(dead) {
+  function drawFlame(dead, targetId) {
     const outer = dead ? '#3a3f5e' : '#ff7a2f';
     const inner = dead ? '#242840' : '#ffd166';
     let s = '';
@@ -1460,7 +1481,21 @@
         if (row[x] === 'X') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${inner}"/>`;
       }
     });
-    document.getElementById('flame-svg').innerHTML = s;
+    document.getElementById(targetId || 'flame-svg').innerHTML = s;
+  }
+
+  // La flamme visible en permanence sur l'accueil
+  function updateHomeStreak() {
+    const box = document.getElementById('home-streak');
+    if (!box) return;
+    if (!loggedUser) { box.classList.remove('on', 'alive'); return; }
+    box.classList.add('on');
+    box.classList.toggle('alive', streak > 0);
+    drawFlame(streak === 0, 'home-flame');
+    document.getElementById('hs-num').textContent = streak;
+    document.getElementById('hs-label').textContent = streak === 0
+      ? 'PLAY TODAY TO START A STREAK'
+      : (streak === 1 ? 'DAY BORED IN A ROW' : 'DAYS BORED IN A ROW');
   }
 
   const STREAK_LINES = {
@@ -1510,7 +1545,7 @@
   }
 
   function showStreakCelebration(n) {
-    drawFlame(false);
+    drawFlame(false, 'flame-svg');
     buildWeekStrip(n);
     document.getElementById('streak-msg').textContent = streakLine(n);
     document.getElementById('streak-warn').textContent = isMember
