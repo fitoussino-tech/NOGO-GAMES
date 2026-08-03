@@ -252,15 +252,47 @@
   .member-pill.yes { background: var(--amber); color: var(--card-deep); }
   .member-pill.no { color: var(--grey); border: 1px solid var(--line); }
   /* ---- signes distinctifs des membres ---- */
-  .rank-name { font-family: var(--px-font); font-size: 12px; color: var(--amber); line-height: 1.8; margin-bottom: 10px; }
-  .rank-bar { height: 8px; border-radius: 4px; background: var(--card-deep); border: 1px solid var(--line); overflow: hidden; }
-  .rank-bar span { display: block; height: 100%; background: var(--amber); width: 0; }
-  .rank-next { font-size: 12px; color: var(--grey); margin-top: 8px; }
-  .stat-row { display: flex; gap: 10px; margin: 22px 0 10px; }
-  .stat { flex: 1; background: var(--card-deep); border: 1px solid var(--line); border-radius: 10px; padding: 14px 6px; }
+  /* photo de profil : le dino du joueur */
+  .avatar {
+    width: 104px; height: 104px; margin: 4px auto 16px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #171d3f 0%, var(--card-deep) 70%);
+    border: 2px solid var(--line); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .avatar:hover { border-color: var(--accent); }
+  .avatar svg { width: 60px; height: auto; display: block; }
+  body.is-member .avatar {
+    border-color: rgba(255, 200, 87, 0.55);
+    box-shadow: 0 0 22px rgba(255, 200, 87, 0.14);
+  }
+  .acc-name { font-family: var(--px-font); font-size: 12px; color: var(--fg); margin-bottom: 8px; }
+  .acc-mail { color: rgba(124, 134, 176, .7); font-size: 12.5px; margin-bottom: 22px; }
+
+  .rank-name { font-family: var(--px-font); font-size: 12px; color: var(--amber); line-height: 1.8; margin-bottom: 12px; }
+  .rank-bar {
+    height: 10px; border-radius: 5px; background: var(--card-deep);
+    border: 1px solid var(--line); overflow: hidden;
+  }
+  .rank-bar span {
+    display: block; height: 100%; width: 0; border-radius: 5px;
+    background: linear-gradient(90deg, #ff8a3d, var(--amber));
+    box-shadow: 0 0 12px rgba(255, 200, 87, .45);
+    transition: width .6s cubic-bezier(.2,.9,.3,1);
+  }
+  .rank-next { font-size: 12px; color: rgba(124,134,176,.8); margin-top: 10px; }
+  .stat-row { display: flex; gap: 10px; margin: 24px 0 12px; }
+  .stat { flex: 1; background: var(--card-deep); border: 1px solid var(--line); border-radius: 12px; padding: 15px 6px; }
   .stat b { display: block; font-family: var(--px-font); font-size: 16px; color: var(--fg); }
-  .stat span { display: block; font-size: 10px; letter-spacing: 1px; color: var(--grey); margin-top: 8px; }
-  .streak-note { font-size: 12px; color: var(--grey); line-height: 1.7; margin-bottom: 20px; }
+  .stat span { display: block; font-size: 9.5px; letter-spacing: 1px; color: var(--grey); margin-top: 9px; }
+  .streak-note { font-size: 12px; color: rgba(124,134,176,.8); line-height: 1.7; margin-bottom: 22px; }
+
+  /* actions secondaires : volontairement effacées */
+  .acc-minor { display: flex; gap: 20px; justify-content: center; margin-top: 16px; }
+  .acc-minor a {
+    color: rgba(124, 134, 176, .55); font-size: 12.5px; cursor: pointer; text-decoration: none;
+  }
+  .acc-minor a:hover { color: var(--grey); text-decoration: underline; }
   .board { max-width: 560px; margin: 0 auto; }
   .board h2 { font-family: var(--px-font); font-size: 12px; color: var(--amber); margin: 34px 0 16px; }
   .board-row {
@@ -901,9 +933,13 @@
     </div>
     <div id="account-view" style="display:none;">
       <h2>BOREDOM RÉSUMÉ</h2>
+
+      <div class="avatar" onclick="closeAccount(); go('lab');" title="Change your dino">
+        <svg id="account-dino" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
       <div id="account-member-pill"></div>
-      <p id="account-name" style="margin-bottom:2px;color:var(--fg);font-weight:500;"></p>
-      <p id="account-email" style="margin-bottom:14px;color:var(--grey);font-size:14px;"></p>
+      <p id="account-name" class="acc-name"></p>
+      <p id="account-email" class="acc-mail"></p>
 
       <div class="rank-name" id="account-rank">FRESHLY BORED</div>
       <div class="rank-bar"><span id="account-rank-fill"></span></div>
@@ -917,8 +953,11 @@
       <div class="streak-note" id="account-streak-note"></div>
 
       <button class="btn" onclick="closeAccount(); lastResult = null; openShare();">SHARE MY RÉSUMÉ</button>
-      <button class="btn" id="portal-btn" style="display:none;" onclick="openPortal()">MANAGE SUBSCRIPTION</button>
-      <button class="btn" style="background:transparent;color:var(--grey);border-color:var(--line);" onclick="logout()">LOG OUT</button>
+
+      <div class="acc-minor">
+        <a id="portal-link" style="display:none;" onclick="openPortal()">manage subscription</a>
+        <a onclick="logout()">log out</a>
+      </div>
       <button class="close" onclick="closeAccount()">close</button>
     </div>
   </div>
@@ -1412,7 +1451,8 @@
       document.getElementById('account-member-pill').innerHTML = isMember
         ? '<span class="member-pill yes">★ MEMBER</span>'
         : '<span class="member-pill no">FREE ACCOUNT</span>';
-      document.getElementById('portal-btn').style.display = isMember ? 'inline-block' : 'none';
+      document.getElementById('portal-link').style.display = isMember ? 'inline' : 'none';
+      paintDino(document.getElementById('account-dino'), currentDino, false, true);
     }
   }
 
