@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+edit yourself <!DOCTYPE html>
 <!--
         .-.
        (o o)   NOGO GAMES
@@ -2061,7 +2061,7 @@
       p_game_id: currentGame.id,
       p_points: gained
     });
-    if (error || !data || data.error)
+    if (error || !data || data.error) return;
     const before = streak;
     points = data.points;
     streak = data.streak;
