@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>MARGIN CALL — hold your nerve</title>
+<style>
+  :root{
+    --bg:#0a0e1a; --panel:#121831; --line:#232b52; --ink:#eef1ff; --mute:#8790b8;
+    --up:#2ee59d; --down:#ff4d6d; --gold:#ffd166; --violet:#9b8cff;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Roboto Mono", monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  #app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:760px;margin:0 auto;
+    padding:max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+  #app.shake{animation:shake .45s}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+
+  /* ---------- HUD ---------- */
+  .hud{display:grid;grid-template-columns:1fr auto;align-items:end;gap:8px;padding:2px 4px 8px}
+  .eq-label{font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+  .eq{font-family:var(--mono);font-weight:800;font-size:clamp(28px,8vw,40px);line-height:1.05;font-variant-numeric:tabular-nums}
+  .eq small{font-size:.45em;font-weight:700;margin-left:6px}
+  .up{color:var(--up)} .down{color:var(--down)}
+  .hud-right{text-align:right}
+  .clock{font-family:var(--mono);font-weight:800;font-size:22px;font-variant-numeric:tabular-nums}
+  .pips{display:flex;gap:5px;justify-content:flex-end;margin-top:4px;align-items:center}
+  .pips span.t{font-size:10px;letter-spacing:.12em;color:var(--mute);margin-right:3px}
+  .pip{width:11px;height:11px;border-radius:50%;border:2px solid var(--down);opacity:.9}
+  .pip.used{background:var(--down)}
+  .timebar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:0 4px 8px}
+  .timebar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--violet),var(--gold));transform-origin:left}
+
+  /* ---------- chart ---------- */
+  .chartwrap{position:relative;flex:1;min-height:180px;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  #cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .news{position:absolute;left:10px;right:10px;top:10px;display:flex;align-items:center;gap:10px;
+    background:rgba(10,14,26,.88);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:10px;padding:8px 10px;transform:translateY(-140%);transition:transform .25s ease;pointer-events:none}
+  .news.on{transform:none}
+  .news .tag{font-size:10px;font-weight:800;letter-spacing:.14em;padding:3px 6px;border-radius:5px;background:var(--gold);color:#1a1400;white-space:nowrap}
+  .news .txt{font-weight:700;font-size:14px;line-height:1.2}
+  .news .bar{position:absolute;left:0;bottom:0;height:2px;background:var(--gold);width:100%;transform-origin:left}
+  .stamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg) scale(.6);opacity:0;
+    font-weight:900;font-size:clamp(30px,9vw,52px);letter-spacing:.04em;color:var(--down);
+    border:5px solid var(--down);border-radius:10px;padding:4px 14px;pointer-events:none;white-space:nowrap;
+    text-shadow:0 0 18px rgba(255,77,109,.5)}
+  .stamp.go{animation:stamp 1.3s ease forwards}
+  @keyframes stamp{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1.8)}15%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}}
+  .flash{position:absolute;inset:0;background:var(--down);opacity:0;pointer-events:none}
+  .flash.go{animation:flash .5s ease}
+  @keyframes flash{0%{opacity:.45}100%{opacity:0}}
+  .floater{position:absolute;right:16px;font-family:var(--mono);font-weight:800;font-size:18px;pointer-events:none;animation:float 1.2s ease forwards}
+  @keyframes float{0%{opacity:0;transform:translateY(8px)}15%{opacity:1}100%{opacity:0;transform:translateY(-38px)}}
+  .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:90px;color:var(--ink);pointer-events:none;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+
+  /* ---------- hold button ---------- */
+  .hold{position:relative;margin-top:10px;height:clamp(92px,19vh,130px);border-radius:18px;border:2px solid var(--line);
+    background:linear-gradient(180deg,#151c3a,#0f1530);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;touch-action:none;overflow:hidden;transition:border-color .15s, transform .08s}
+  .hold .big{font-weight:900;font-size:clamp(18px,5.2vw,24px);letter-spacing:.06em}
+  .hold .small{font-size:12px;color:var(--mute);margin-top:4px;letter-spacing:.04em}
+  .hold.on{border-color:var(--up);background:linear-gradient(180deg,#0f3b2c,#0b2a20);transform:scale(.985)}
+  .hold.on .small{color:#bff5dd}
+  .hold.hot{border-color:var(--gold);background:linear-gradient(180deg,#3d3010,#271e08)}
+  .hold.danger{border-color:var(--down);background:linear-gradient(180deg,#45121f,#2a0b14)}
+  .levrow{display:flex;gap:4px;margin-top:8px}
+  .levrow b{font-family:var(--mono);font-size:11px;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.06);color:var(--mute)}
+  .levrow b.lit{background:var(--up);color:#04231a}
+  .hold.hot .levrow b.lit{background:var(--gold);color:#2a1f00}
+  .hold.danger .levrow b.lit{background:var(--down);color:#2a0008}
+
+  /* ---------- overlays ---------- */
+  .ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,8,16,.86);z-index:20}
+  .ov.show{display:flex}
+  .card{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px 20px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:100%;overflow:auto}
+  .kicker{font-size:11px;letter-spacing:.2em;color:var(--mute);text-transform:uppercase}
+  .title{font-weight:900;font-size:clamp(38px,11vw,54px);letter-spacing:.02em;line-height:.95;margin:10px 0 6px}
+  .title .a{color:var(--down)} .title .b{color:var(--ink)}
+  .tag{color:var(--mute);font-size:15px;line-height:1.4}
+  .btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;font-weight:900;font-size:17px;letter-spacing:.08em;cursor:pointer;margin-top:12px;color:#04231a;background:var(--up);font-family:inherit}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:700;font-size:14px;letter-spacing:.04em}
+  .rules{text-align:left;margin:16px 0 4px;display:grid;gap:10px}
+  .rule{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:14px;line-height:1.35;color:#d6dbf5}
+  .rule i{font-style:normal;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-family:var(--mono);font-size:13px}
+  .r1 i{background:rgba(46,229,157,.15);color:var(--up)} .r2 i{background:rgba(255,209,102,.15);color:var(--gold)} .r3 i{background:rgba(255,77,109,.15);color:var(--down)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 4px}
+  .stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:9px 4px}
+  .stat b{display:block;font-family:var(--mono);font-size:16px;font-variant-numeric:tabular-nums}
+  .stat span{font-size:10px;letter-spacing:.12em;color:var(--mute);text-transform:uppercase}
+  .result{font-family:var(--mono);font-weight:900;font-size:clamp(40px,12vw,58px);margin:6px 0 0;font-variant-numeric:tabular-nums}
+  .pct{font-family:var(--mono);font-weight:800;font-size:18px}
+  .rank{margin-top:10px;font-weight:800;font-size:15px;color:var(--gold);letter-spacing:.04em}
+  .recap{width:100%;height:90px;margin-top:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;display:block}
+  .legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--mute);margin-top:6px}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--up);opacity:.5}
+  .legend span.l2::before{background:var(--down);opacity:1;border-radius:50%}
+  .next{font-size:12px;color:var(--mute);margin-top:12px}
+  .sharebox{display:none;margin-top:10px;text-align:left;font-family:var(--mono);font-size:12px;white-space:pre-wrap;background:#0b1024;border:1px solid var(--line);border-radius:10px;padding:10px;-webkit-user-select:text;user-select:text}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row2 .btn{font-size:15px;padding:14px 8px}
+  .mute{position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:rgba(10,14,26,.7);color:var(--mute);font-size:14px;cursor:pointer;z-index:3}
+  @media (min-height:760px){ .chartwrap{min-height:300px} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hud">
+    <div>
+      <div class="eq-label" id="eqLabel">Account value</div>
+      <div class="eq" id="eq">$1,000<small id="eqPct">+0.0%</small></div>
+    </div>
+    <div class="hud-right">
+      <div class="clock" id="clock">1:00</div>
+      <div class="pips"><span class="t">MARGIN CALLS</span><i class="pip" id="p0"></i><i class="pip" id="p1"></i><i class="pip" id="p2"></i></div>
+    </div>
+  </div>
+  <div class="timebar"><i id="timebar"></i></div>
+
+  <div class="chartwrap" id="chartwrap">
+    <canvas id="cv"></canvas>
+    <div class="news" id="news"><span class="tag" id="newsTag">BREAKING</span><span class="txt" id="newsTxt"></span><i class="bar" id="newsBar"></i></div>
+    <div class="flash" id="flash"></div>
+    <div class="stamp" id="stamp">MARGIN CALL</div>
+    <div class="count" id="count"></div>
+    <button class="mute" id="muteBtn" aria-label="Toggle sound">♪</button>
+  </div>
+
+  <div class="hold" id="hold" role="button" aria-label="Hold to go long">
+    <div class="big" id="holdBig">HOLD TO GO LONG</div>
+    <div class="small" id="holdSmall">Release to cash out · Space works too</div>
+    <div class="levrow" id="levrow"></div>
+  </div>
+</div>
+
+<!-- title -->
+<div class="ov show" id="ovTitle">
+  <div class="card">
+    <div class="kicker" id="marketNo">Today's market</div>
+    <div class="title"><span class="a">MARGIN</span><br><span class="b">CALL</span></div>
+    <div class="tag">60 seconds. One button. Don't get liquidated.</div>
+    <div class="rules">
+      <div class="rule r1"><i>1</i><div><b>Hold</b> to buy. <b>Let go</b> to sell and bank your profit.</div></div>
+      <div class="rule r2"><i>×</i><div>The longer you hold, the higher your <b>leverage</b> climbs: ×1 up to ×20. Bigger gains, thinner ice.</div></div>
+      <div class="rule r3"><i>!</i><div>If a trade falls to half its best value, that's a <b>margin call</b>. Three and you're out. Watch the red line.</div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sBest">—</b><span>Best today</span></div>
+      <div class="stat"><b id="sPlays">0</b><span>Runs today</span></div>
+      <div class="stat"><b id="sEver">—</b><span>All-time</span></div>
+    </div>
+    <button class="btn" id="playBtn">OPEN THE MARKET</button>
+    <div class="next">Same market for everyone today. Read the headlines.</div>
+  </div>
+</div>
+
+<!-- end -->
+<div class="ov" id="ovEnd">
+  <div class="card">
+    <div class="kicker" id="endKicker">Closing bell</div>
+    <div class="result" id="endEq">$0</div>
+    <div class="pct" id="endPct">+0%</div>
+    <div class="rank" id="endRank"></div>
+    <canvas class="recap" id="recap"></canvas>
+    <div class="legend"><span>you were long</span><span class="l2">margin call</span></div>
+    <div class="stats">
+      <div class="stat"><b id="eBest">—</b><span>Best today</span></div>
+      <div class="stat"><b id="eTrades">0</b><span>Trades</span></div>
+      <div class="stat"><b id="eCalls">0</b><span>Margin calls</span></div>
+    </div>
+    <div class="row2">
+      <button class="btn" id="againBtn">TRADE AGAIN</button>
+      <button class="btn ghost" id="shareBtn">SHARE</button>
+    </div>
+    <div class="sharebox" id="sharebox"></div>
+    <div class="next" id="nextMkt"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+/* =====================================================================
+   MARGIN CALL — NOGO GAMES
+   A daily, seeded 60-second market. Everyone trades the same chart.
+   Site protocol: nogo-ready / nogo-save-data / nogo-save / nogo-score
+   ===================================================================== */
+
+const TICK_MS = 100;            // one market tick
+const TICKS = 600;              // 60 seconds
+const START_CASH = 1000;
+const LEV = [1, 2, 3, 5, 8, 12, 20];
+const LEV_STEP_TICKS = 10;      // leverage climbs every second held
+const LIQ_FRACTION = 0.5;       // lose half the trade's stake -> margin call
+const MAX_CALLS = 3;
+const FEE = 0.0004;             // per unit of leverage, on entry
+const WINDOW = 140;             // ticks visible on the chart
+const LAUNCH = Date.UTC(2026, 10, 21);
+
+/* ---------- date + seeded randomness ---------- */
+function parisDate(d) {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(d || new Date());
+  const get = t => parts.find(p => p.type === t).value;
+  return get('year') + '-' + get('month') + '-' + get('day');
+}
+function hashStr(s) { let h = 1779033703 ^ s.length; for (let i = 0; i < s.length; i++) { h = Math.imul(h ^ s.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; } return h >>> 0; }
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- the market of the day ---------- */
+const EVENT_TYPES = [
+  { key: 'beat',    w: 3, tag: 'EARNINGS', color: '#2ee59d', lines: ['Earnings smash estimates', 'Record quarter, raised guidance', 'Revenue beat across every segment'] },
+  { key: 'cut',     w: 3, tag: 'WARNING',  color: '#ff4d6d', lines: ['Guidance cut for next year', 'CFO resigns "to spend time with family"', 'Regulator opens an investigation'] },
+  { key: 'fed',     w: 3, tag: 'MACRO',    color: '#ffd166', lines: ['Central bank chair at the podium', 'Inflation print in 3… 2… 1…', 'Jobs report drops now'] },
+  { key: 'squeeze', w: 2, tag: 'FLOWS',    color: '#9b8cff', lines: ['Short sellers are trapped', 'Retail army piles in', 'Massive call buying spotted'] },
+  { key: 'crash',   w: 2, tag: 'ALERT',    color: '#ff4d6d', lines: ['Liquidity is vanishing', 'Fat-finger sell order hits the tape', 'Exchange reports "technical issues"'] },
+  { key: 'tweet',   w: 2, tag: 'SOCIAL',   color: '#ffd166', lines: ['The CEO is posting again', 'Celebrity just mentioned the stock', 'Anonymous account claims "big news soon"'] },
+  { key: 'buyback', w: 2, tag: 'CORPORATE', color: '#2ee59d', lines: ['$10B buyback announced', 'Activist investor takes a stake', 'Takeover rumours swirl'] },
+];
+
+function buildMarket(dateStr) {
+  const rnd = mulberry32(hashStr('margin-call:' + dateStr));
+  const gauss = () => { let u = 0, v = 0; while (!u) u = rnd(); while (!v) v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const pick = arr => arr[Math.floor(rnd() * arr.length)];
+  const weighted = () => { const tot = EVENT_TYPES.reduce((a, e) => a + e.w, 0); let r = rnd() * tot; for (const e of EVENT_TYPES) { if ((r -= e.w) < 0) return e; } return EVENT_TYPES[0]; };
+
+  // events: 6-7 headlines between 5s and 55s, at least ~6s apart
+  const events = [];
+  const n = 6 + (rnd() < 0.5 ? 1 : 0);
+  let t = 45 + Math.floor(rnd() * 25);
+  for (let i = 0; i < n && t < 540; i++) {
+    let type = weighted();
+    if (events.length && events[events.length - 1].type.key === type.key) type = weighted();
+    const ev = { at: t, type, text: pick(type.lines), lag: 12 + Math.floor(rnd() * 6) };
+    // some headlines lie: "sell the news" / "buy the dip"
+    ev.twist = (type.key === 'beat' || type.key === 'cut') && rnd() < 0.25;
+    ev.dir = rnd() < 0.5 ? -1 : 1;    // used by ambiguous events
+    events.push(ev);
+    t += 62 + Math.floor(rnd() * 30);
+  }
+
+  // per-tick drift and volatility
+  const drift = new Float64Array(TICKS).fill(0.00001);
+  const vol = new Float64Array(TICKS).fill(0.0016);
+  const jump = new Float64Array(TICKS);
+  const add = (from, len, d, vm) => { for (let i = from; i < Math.min(TICKS, from + len); i++) { drift[i] += d; vol[i] *= vm; } };
+  for (const ev of events) {
+    const s = ev.at + ev.lag, k = ev.type.key, sgn = ev.twist ? -1 : 1;
+    if (k === 'beat')    { add(s, 34, 0.0034 * sgn, 1.3); }
+    if (k === 'cut')     { add(s, 34, -0.0034 * sgn, 1.4); }
+    if (k === 'fed')     { add(s, 40, 0.0018 * ev.dir, 3.2); }
+    if (k === 'squeeze') { add(s, 22, 0.0055, 1.6); add(s + 22, 22, -0.0032, 1.8); }
+    if (k === 'crash')   { for (let i = 0; i < 7; i++) if (s + i < TICKS) jump[s + i] = -0.011; add(s + 7, 18, 0.0055, 1.6); }
+    if (k === 'tweet')   { add(s, 28, 0.0006 * ev.dir, 4.0); }
+    if (k === 'buyback') { add(s, 50, 0.0022, 1.1); }
+  }
+  add(540, 60, 0, 1.6); // closing auction gets jumpy
+
+  const ret = new Float64Array(TICKS);
+  const price = new Float64Array(TICKS + 1);
+  price[0] = 100;
+  for (let i = 0; i < TICKS; i++) {
+    ret[i] = drift[i] + vol[i] * gauss() + jump[i];
+    price[i + 1] = price[i] * (1 + ret[i]);
+  }
+  return { date: dateStr, events, ret, price };
+}
+
+/* ---------- save data (site or browser) ---------- */
+const EMBEDDED = window.parent && window.parent !== window;
+const LS_KEY = 'margin-call-v1';
+let save = { v: 1, days: {}, bestEver: 0, runs: 0 };
+function cleanSave(d) {
+  if (!d || typeof d !== 'object' || d.v !== 1) return { v: 1, days: {}, bestEver: 0, runs: 0 };
+  d.days = d.days && typeof d.days === 'object' ? d.days : {};
+  d.bestEver = Number(d.bestEver) || 0; d.runs = Number(d.runs) || 0;
+  return d;
+}
+function persist() {
+  const keys = Object.keys(save.days).sort();
+  while (keys.length > 21) delete save.days[keys.shift()];
+  if (EMBEDDED) { try { window.parent.postMessage({ type: 'nogo-save', data: save }, '*'); } catch (e) {} }
+  else { try { localStorage.setItem(LS_KEY, JSON.stringify(save)); } catch (e) {} }
+}
+if (!EMBEDDED) { try { save = cleanSave(JSON.parse(localStorage.getItem(LS_KEY))); } catch (e) {} }
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'nogo-save-data') { save = cleanSave(e.data.data); renderTitleStats(); }
+});
+if (EMBEDDED) { try { window.parent.postMessage({ type: 'nogo-ready' }, '*'); } catch (e) {} }
+
+/* ---------- audio ---------- */
+let actx = null, muted = false;
+function ac() { if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (actx && actx.state === 'suspended') actx.resume(); return actx; }
+function tone(f, dur, type, vol, slide) {
+  if (muted) return; const a = ac(); if (!a) return;
+  const o = a.createOscillator(), g = a.createGain(), t = a.currentTime;
+  o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+  if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+  g.gain.setValueAtTime(vol || 0.08, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+const sfx = {
+  enter: () => tone(520, 0.08, 'square', 0.05),
+  lev: i => tone(380 + i * 90, 0.07, 'triangle', 0.06),
+  bankUp: () => { tone(880, 0.09, 'sine', 0.08); setTimeout(() => tone(1320, 0.14, 'sine', 0.07), 70); },
+  bankDown: () => tone(300, 0.18, 'sawtooth', 0.04, 180),
+  call: () => { tone(220, 0.35, 'sawtooth', 0.09, 90); setTimeout(() => tone(200, 0.35, 'square', 0.06, 80), 120); },
+  news: () => { tone(990, 0.06, 'square', 0.04); setTimeout(() => tone(990, 0.06, 'square', 0.04), 110); },
+  count: () => tone(660, 0.1, 'triangle', 0.07),
+  bell: () => { [0, 160, 320].forEach(d => setTimeout(() => tone(1046, 0.6, 'sine', 0.07), d)); },
+};
+
+/* ---------- elements ---------- */
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const holdEl = $('hold');
+LEV.forEach(l => { const b = document.createElement('b'); b.textContent = '×' + l; $('levrow').appendChild(b); });
+const levPips = [...$('levrow').children];
+
+/* ---------- game state ---------- */
+const TODAY = parisDate();
+const MARKET_NO = Math.max(1, Math.floor((Date.parse(TODAY + 'T00:00:00Z') - LAUNCH) / 86400000) + 1);
+let M = buildMarket(TODAY);
+let S = null;          // run state
+let phase = 'title';   // title | count | live | end
+let pressed = false;
+
+function newRun() {
+  return {
+    tick: 0, acc: 0, cash: START_CASH, equity: START_CASH,
+    pos: null,                      // { entryEq, entryTick, held, lev }
+    calls: 0, trades: 0, blown: false,
+    longMask: new Uint8Array(TICKS), callTicks: [],
+    newsIdx: 0, newsUntil: -1, curNews: null,
+    yMin: 98, yMax: 102,
+    segPnl: new Float64Array(10), segLong: new Uint8Array(10),
+  };
+}
+
+function fmtMoney(v) {
+  const a = Math.abs(v);
+  const s = a >= 1e9 ? (a / 1e9).toFixed(2) + 'B' : a >= 1e6 ? (a / 1e6).toFixed(2) + 'M' : Math.round(a).toLocaleString('en-US');
+  return (v < 0 ? '-$' : '$') + s;
+}
+function fmtPct(v) { const p = (v / START_CASH - 1) * 100; return (p >= 0 ? '+' : '') + (Math.abs(p) >= 1000 ? Math.round(p).toLocaleString('en-US') : p.toFixed(1)) + '%'; }
+
+/* ---------- trading ---------- */
+function openPos() {
+  if (phase !== 'live' || S.pos || S.blown) return;
+  const lev = LEV[0];
+  S.equity *= (1 - FEE * lev);
+  S.pos = { entryEq: S.equity, peakEq: S.equity, entryTick: S.tick, held: 0, lev };
+  S.trades++;
+  sfx.enter();
+}
+function closePos(reason) {
+  if (!S || !S.pos) return;
+  const pnl = S.equity - S.pos.entryEq;
+  S.pos = null;
+  if (reason === 'call') return;
+  if (Math.abs(pnl) >= 0.5) floater((pnl >= 0 ? '+' : '') + fmtMoney(pnl), pnl >= 0 ? 'var(--up)' : 'var(--down)');
+  if (pnl >= 0) sfx.bankUp(); else sfx.bankDown();
+}
+function marginCall() {
+  S.callTicks.push(S.tick);
+  S.calls++;
+  closePos('call');
+  $('flash').classList.remove('go'); void $('flash').offsetWidth; $('flash').classList.add('go');
+  const st = $('stamp'); st.textContent = S.calls >= MAX_CALLS ? 'BLOWN UP' : 'MARGIN CALL';
+  st.classList.remove('go'); void st.offsetWidth; st.classList.add('go');
+  $('app').classList.remove('shake'); void $('app').offsetWidth; $('app').classList.add('shake');
+  if (navigator.vibrate) try { navigator.vibrate([80, 40, 120]); } catch (e) {}
+  sfx.call();
+  if (S.calls >= MAX_CALLS) { S.blown = true; setTimeout(endRun, 1100); }
+}
+
+function step() {
+  const i = S.tick;
+  // headlines
+  const ev = M.events[S.newsIdx];
+  if (ev && i >= ev.at) { showNews(ev); S.newsIdx++; }
+  if (S.curNews && i >= S.newsUntil) hideNews();
+  // position
+  const r = M.ret[i];
+  if (S.pos) {
+    S.pos.held++;
+    const li = Math.min(LEV.length - 1, Math.floor(S.pos.held / LEV_STEP_TICKS));
+    if (LEV[li] !== S.pos.lev) { S.pos.lev = LEV[li]; sfx.lev(li); }
+    const before = S.equity;
+    S.equity = Math.max(0.01, S.equity * (1 + S.pos.lev * r));
+    S.longMask[i] = 1;
+    const seg = Math.min(9, Math.floor(i / 60));
+    S.segPnl[seg] += S.equity - before; S.segLong[seg] = 1;
+    S.pos.peakEq = Math.max(S.pos.peakEq, S.equity);
+    if (S.equity <= S.pos.peakEq * LIQ_FRACTION) { S.equity = S.pos.entryEq * LIQ_FRACTION; marginCall(); }
+  }
+  S.tick++;
+  if (S.tick >= TICKS && !S.blown) { closePos('bell'); sfx.bell(); endRun(); }
+}
+
+/* ---------- news ---------- */
+function showNews(ev) {
+  S.curNews = ev; S.newsUntil = ev.at + 50;
+  $('newsTag').textContent = ev.type.tag; $('newsTag').style.background = ev.type.color;
+  $('news').style.borderLeftColor = ev.type.color; $('newsBar').style.background = ev.type.color;
+  $('newsTxt').textContent = ev.text;
+  $('news').classList.add('on');
+  sfx.news();
+}
+function hideNews() { S.curNews = null; $('news').classList.remove('on'); }
+
+function floater(text, color) {
+  const f = document.createElement('div');
+  f.className = 'floater'; f.textContent = text; f.style.color = color;
+  f.style.top = (cv.clientHeight * 0.42) + 'px';
+  $('chartwrap').appendChild(f); setTimeout(() => f.remove(), 1300);
+}
+
+/* ---------- input ---------- */
+function press() { if (pressed) return; pressed = true; ac(); openPos(); }
+function release() { if (!pressed) return; pressed = false; closePos('release'); }
+holdEl.addEventListener('pointerdown', e => { e.preventDefault(); try { holdEl.setPointerCapture(e.pointerId); } catch (_) {} press(); });
+holdEl.addEventListener('pointerup', e => { e.preventDefault(); release(); });
+holdEl.addEventListener('pointercancel', release);
+holdEl.addEventListener('lostpointercapture', release);
+holdEl.addEventListener('contextmenu', e => e.preventDefault());
+// the chart is also a hold zone on phones (big thumb target)
+$('chartwrap').addEventListener('pointerdown', e => { if (e.target.closest('.mute')) return; e.preventDefault(); try { $('chartwrap').setPointerCapture(e.pointerId); } catch (_) {} press(); });
+$('chartwrap').addEventListener('pointerup', release);
+$('chartwrap').addEventListener('pointercancel', release);
+$('chartwrap').addEventListener('lostpointercapture', release);
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (!e.repeat) press(); }
+  if (e.code === 'Enter' && phase !== 'live' && phase !== 'count') { e.preventDefault(); startCountdown(); }
+});
+document.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); release(); } });
+window.addEventListener('blur', release);
+document.addEventListener('visibilitychange', () => { if (document.hidden) release(); });
+$('muteBtn').addEventListener('click', e => { e.stopPropagation(); muted = !muted; $('muteBtn').style.opacity = muted ? 0.4 : 1; $('muteBtn').textContent = muted ? '×' : '♪'; });
+$('muteBtn').addEventListener('pointerdown', e => e.stopPropagation());
+
+/* ---------- flow ---------- */
+function renderTitleStats() {
+  const d = save.days[TODAY];
+  $('sBest').textContent = d && d.best ? fmtMoney(d.best) : '—';
+  $('sPlays').textContent = d ? d.plays : 0;
+  $('sEver').textContent = save.bestEver ? fmtMoney(save.bestEver) : '—';
+  const dt = new Date(TODAY + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  $('marketNo').textContent = 'Market #' + MARKET_NO + ' · ' + dt;
+}
+function startCountdown() {
+  if (parisDate() !== M.date) { M = buildMarket(parisDate()); }
+  $('ovTitle').classList.remove('show'); $('ovEnd').classList.remove('show');
+  $('sharebox').style.display = 'none';
+  S = newRun(); phase = 'count'; pressed = false; hideNews();
+  let n = 3; const c = $('count');
+  const tickDown = () => {
+    if (n === 0) { c.textContent = ''; phase = 'live'; last = performance.now(); if (pressed) openPos(); return; }
+    c.textContent = n; sfx.count(); n--; setTimeout(tickDown, 600);
+  };
+  ac(); tickDown();
+}
+function endRun() {
+  if (phase === 'end') return;
+  phase = 'end'; release(); hideNews();
+  const score = Math.min(1e11, Math.max(0, Math.round(S.equity)));
+  // save
+  const d = save.days[TODAY] || { best: 0, plays: 0 };
+  d.plays++; d.best = Math.max(d.best, score); save.days[TODAY] = d;
+  save.runs++; save.bestEver = Math.max(save.bestEver, score);
+  persist();
+  if (EMBEDDED) { try { window.parent.postMessage({ type: 'nogo-score', points: score, score: score }, '*'); } catch (e) {} }
+  // screen
+  $('endKicker').textContent = S.blown ? 'Liquidated · Market #' + MARKET_NO : 'Closing bell · Market #' + MARKET_NO;
+  $('endEq').textContent = fmtMoney(score);
+  $('endEq').className = 'result ' + (score >= START_CASH ? 'up' : 'down');
+  $('endPct').textContent = fmtPct(score) + (S.blown ? ' · blown up' : '');
+  $('endPct').className = 'pct ' + (score >= START_CASH ? 'up' : 'down');
+  $('endRank').textContent = rankFor(score, S.blown);
+  $('eBest').textContent = fmtMoney(d.best);
+  $('eTrades').textContent = S.trades;
+  $('eCalls').textContent = S.calls;
+  $('nextMkt').textContent = nextMarketText();
+  $('ovEnd').classList.add('show');
+  drawRecap();
+}
+function rankFor(v, blown) {
+  if (blown) return 'Escorted out by security';
+  const p = v / START_CASH - 1;
+  if (p < -0.5) return 'Bagholder';
+  if (p < 0) return 'Summer intern';
+  if (p < 0.25) return 'Analyst';
+  if (p < 1) return 'Associate';
+  if (p < 3) return 'Vice President';
+  if (p < 10) return 'Managing Director';
+  return 'Market wizard';
+}
+function nextMarketText() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now);
+  const h = +parts.find(p => p.type === 'hour').value, m = +parts.find(p => p.type === 'minute').value;
+  const left = 24 * 60 - (h * 60 + m);
+  return 'New market in ' + Math.floor(left / 60) + 'h ' + String(left % 60).padStart(2, '0') + 'm · replay today\'s as often as you like, your best counts';
+}
+function shareText() {
+  const score = Math.round(S.equity);
+  const squares = Array.from(S.segPnl).map((p, i) => !S.segLong[i] ? '⬛' : p >= 0 ? '🟩' : '🟥').join('');
+  return 'MARGIN CALL #' + MARKET_NO + '\n' + fmtMoney(score) + ' (' + fmtPct(score) + ')' +
+    (S.calls ? ' · ' + S.calls + ' margin call' + (S.calls > 1 ? 's' : '') : ' · no margin calls') +
+    '\n' + squares + '\nnogo-games.com';
+}
+$('playBtn').addEventListener('click', startCountdown);
+$('againBtn').addEventListener('click', startCountdown);
+$('shareBtn').addEventListener('click', async () => {
+  const txt = shareText(); const box = $('sharebox');
+  try {
+    if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) { await navigator.share({ text: txt }); return; }
+  } catch (e) {}
+  try { await navigator.clipboard.writeText(txt); $('shareBtn').textContent = 'COPIED'; setTimeout(() => $('shareBtn').textContent = 'SHARE', 1500); }
+  catch (e) { box.textContent = txt; box.style.display = 'block'; }
+});
+
+/* ---------- drawing ---------- */
+let W = 0, H = 0, DPR = 1;
+function resize() {
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+function liqPrice(pNow, run) {
+  run = run || S;
+  if (!run || !run.pos) return null;
+  const d = (1 - LIQ_FRACTION * run.pos.peakEq / run.equity) / run.pos.lev;
+  return pNow * (1 - d);
+}
+
+function draw(frac) {
+  ctx.clearRect(0, 0, W, H);
+  const run = S || newRun();
+  const t = run.tick;
+  const pNow = t >= TICKS ? M.price[TICKS] : M.price[t] + (M.price[Math.min(TICKS, t + 1)] - M.price[t]) * (phase === 'live' ? frac : 0);
+  const x0 = Math.max(0, t - WINDOW + 20);
+  const padR = 64, padT = 56, padB = 22;
+  const plotW = W - padR, plotH = H - padT - padB;
+  // y range: smooth follow
+  let lo = Infinity, hi = -Infinity;
+  for (let i = x0; i <= t; i++) { lo = Math.min(lo, M.price[i]); hi = Math.max(hi, M.price[i]); }
+  lo = Math.min(lo, pNow); hi = Math.max(hi, pNow);
+  const lp = liqPrice(pNow, run);
+  if (lp) lo = Math.min(lo, lp);
+  if (run.pos) hi = Math.max(hi, M.price[run.pos.entryTick]);
+  const span = Math.max(hi - lo, pNow * 0.02);
+  const tLo = lo - span * 0.12, tHi = hi + span * 0.12;
+  run.yMin += (tLo - run.yMin) * 0.12; run.yMax += (tHi - run.yMax) * 0.12;
+  if (!isFinite(run.yMin)) { run.yMin = tLo; run.yMax = tHi; }
+  const Y = p => padT + (1 - (p - run.yMin) / (run.yMax - run.yMin)) * plotH;
+  const X = i => (i - x0) / WINDOW * plotW;
+
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+  ctx.font = '11px ' + getComputedStyle(document.body).getPropertyValue('--mono');
+  ctx.fillStyle = 'rgba(135,144,184,.7)'; ctx.textAlign = 'left';
+  const stepP = niceStep((run.yMax - run.yMin) / 4);
+  for (let p = Math.ceil(run.yMin / stepP) * stepP; p < run.yMax; p += stepP) {
+    const y = Y(p); if (y < padT - 4 || y > H - padB) continue;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(plotW, y); ctx.stroke();
+    ctx.fillText(p.toFixed(stepP < 1 ? 2 : 1), plotW + 8, y + 4);
+  }
+
+  // long shading
+  ctx.fillStyle = 'rgba(46,229,157,.09)';
+  for (let i = x0; i < t; i++) if (run.longMask[i]) ctx.fillRect(X(i), padT - 10, X(i + 1) - X(i) + 0.5, plotH + 20);
+
+  // price path
+  const up = pNow >= M.price[x0];
+  const grad = ctx.createLinearGradient(0, padT, 0, H);
+  grad.addColorStop(0, up ? 'rgba(46,229,157,.22)' : 'rgba(255,77,109,.22)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.moveTo(X(x0), Y(M.price[x0]));
+  for (let i = x0 + 1; i <= t; i++) ctx.lineTo(X(i), Y(M.price[i]));
+  const xNow = X(t) + (phase === 'live' ? frac : 0) * (X(1) - X(0));
+  ctx.lineTo(xNow, Y(pNow));
+  ctx.strokeStyle = '#eef1ff'; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.lineTo(xNow, H); ctx.lineTo(X(x0), H); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+
+  // margin call markers
+  for (const ct of run.callTicks) if (ct >= x0) { ctx.fillStyle = '#ff4d6d'; ctx.beginPath(); ctx.arc(X(ct), Y(M.price[ct]), 5, 0, 7); ctx.fill(); }
+
+  // entry + liquidation lines
+  if (run.pos) {
+    const ep = M.price[run.pos.entryTick];
+    hline(Y(ep), 'rgba(238,241,255,.55)', 'ENTRY', plotW);
+    const danger = lp ? (pNow - lp) / pNow : 1;
+    hline(Y(lp), danger < 0.006 ? '#ff4d6d' : 'rgba(255,77,109,.75)', 'LIQ', plotW, true);
+    ctx.fillStyle = 'rgba(255,77,109,.07)'; ctx.fillRect(0, Y(lp), plotW, H - Y(lp));
+  }
+
+  // live dot + price tag
+  ctx.fillStyle = run.pos ? '#2ee59d' : '#eef1ff';
+  ctx.beginPath(); ctx.arc(xNow, Y(pNow), 4.5, 0, 7); ctx.fill();
+  ctx.fillStyle = run.pos ? '#2ee59d' : '#eef1ff';
+  roundRect(plotW + 2, Y(pNow) - 10, padR - 6, 20, 5); ctx.fill();
+  ctx.fillStyle = '#0a0e1a'; ctx.font = 'bold 11px ' + getComputedStyle(document.body).getPropertyValue('--mono');
+  ctx.fillText(pNow.toFixed(2), plotW + 8, Y(pNow) + 4);
+
+  // news countdown bar
+  if (run.curNews) $('newsBar').style.transform = 'scaleX(' + Math.max(0, (run.newsUntil - t) / 50) + ')';
+}
+function hline(y, color, label, w, bold) {
+  ctx.save(); ctx.setLineDash([6, 5]); ctx.strokeStyle = color; ctx.lineWidth = bold ? 1.8 : 1.2;
+  ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); ctx.restore();
+  ctx.fillStyle = color; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'left';
+  ctx.fillText(label, 8, y - 5);
+}
+function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function niceStep(raw) { const p = Math.pow(10, Math.floor(Math.log10(raw))); const n = raw / p; return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * p; }
+
+function drawRecap() {
+  const c = $('recap'), g = c.getContext('2d');
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = c.clientWidth, h = c.clientHeight;
+  c.width = w * dpr; c.height = h * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const end = Math.min(TICKS, S.tick);
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= TICKS; i++) { lo = Math.min(lo, M.price[i]); hi = Math.max(hi, M.price[i]); }
+  const pad = 8, X = i => pad + i / TICKS * (w - pad * 2), Y = p => pad + (1 - (p - lo) / (hi - lo || 1)) * (h - pad * 2);
+  g.fillStyle = 'rgba(46,229,157,.28)';
+  for (let i = 0; i < end; i++) if (S.longMask[i]) g.fillRect(X(i), 0, X(i + 1) - X(i) + 0.4, h);
+  g.beginPath(); g.moveTo(X(0), Y(M.price[0]));
+  for (let i = 1; i <= TICKS; i++) g.lineTo(X(i), Y(M.price[i]));
+  g.strokeStyle = 'rgba(238,241,255,.85)'; g.lineWidth = 1.5; g.stroke();
+  g.fillStyle = '#ff4d6d';
+  for (const ct of S.callTicks) { g.beginPath(); g.arc(X(ct), Y(M.price[ct]), 3.5, 0, 7); g.fill(); }
+}
+
+/* ---------- HUD ---------- */
+function hud() {
+  const run = S || newRun();
+  const eq = run.equity;
+  $('eq').firstChild.nodeValue = fmtMoney(eq);
+  $('eqPct').textContent = fmtPct(eq);
+  $('eqPct').className = eq >= START_CASH ? 'up' : 'down';
+  $('eqLabel').textContent = run.pos ? 'Account value · LONG ×' + run.pos.lev : 'Account value · in cash';
+  const left = Math.max(0, TICKS - run.tick) * TICK_MS / 1000;
+  const secs = Math.ceil(left - 1e-9);
+  $('clock').textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+  $('timebar').style.transform = 'scaleX(' + (left / 60) + ')';
+  for (let i = 0; i < MAX_CALLS; i++) $('p' + i).classList.toggle('used', i < run.calls);
+  // hold button
+  const pos = run.pos;
+  holdEl.classList.toggle('on', !!pos);
+  let li = pos ? LEV.indexOf(pos.lev) : -1;
+  levPips.forEach((b, i) => b.classList.toggle('lit', i <= li));
+  const pNow = M.price[Math.min(TICKS, run.tick)];
+  const lp = pos ? liqPrice(pNow, run) : null;
+  const cushion = lp ? (pNow - lp) / pNow : 1;
+  holdEl.classList.toggle('hot', !!pos && li >= 4 && cushion >= 0.006);
+  holdEl.classList.toggle('danger', !!pos && cushion < 0.006);
+  if (phase !== 'live') { $('holdBig').textContent = phase === 'count' ? 'GET READY' : 'HOLD TO GO LONG'; $('holdSmall').textContent = 'Release to cash out · Space works too'; }
+  else if (pos) {
+    const pnl = run.equity - pos.entryEq;
+    $('holdBig').textContent = 'LONG ×' + pos.lev + '  ' + (pnl >= 0 ? '+' : '') + fmtMoney(pnl);
+    $('holdSmall').textContent = cushion < 0.006 ? 'LET GO — liquidation is right there' : li < LEV.length - 1 ? 'Leverage climbs every second · let go to bank' : 'Max leverage · let go to bank';
+  } else { $('holdBig').textContent = run.blown ? 'BLOWN UP' : 'HOLD TO GO LONG'; $('holdSmall').textContent = 'You are in cash · hold to buy'; }
+}
+
+/* ---------- loop ---------- */
+let last = performance.now();
+function frame(now) {
+  let frac = 0;
+  if (phase === 'live' && S) {
+    if (!document.hidden) {
+      S.acc += Math.min(250, now - last);
+      while (S.acc >= TICK_MS && phase === 'live' && S.tick < TICKS && !S.blown) { S.acc -= TICK_MS; step(); }
+      frac = Math.min(1, S.acc / TICK_MS);
+    }
+  }
+  last = now;
+  draw(frac); hud();
+  requestAnimationFrame(frame);
+}
+resize(); renderTitleStats(); hud(); requestAnimationFrame(frame);
+window.__mc = { buildMarket, get state() { return S; }, get phase() { return phase; }, TICKS, LEV, LEV_STEP_TICKS, LIQ_FRACTION, FEE };
+})();
+</script>
+</body>
+</html>
