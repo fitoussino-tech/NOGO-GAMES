@@ -58,20 +58,28 @@
   .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:90px;color:var(--ink);pointer-events:none;text-shadow:0 6px 30px rgba(0,0,0,.6)}
 
   /* ---------- hold button ---------- */
-  .hold{position:relative;margin-top:10px;height:clamp(92px,19vh,130px);border-radius:18px;border:2px solid var(--line);
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .hold{position:relative;height:clamp(92px,19vh,130px);border-radius:18px;border:2px solid var(--line);
     background:linear-gradient(180deg,#151c3a,#0f1530);display:flex;flex-direction:column;align-items:center;justify-content:center;
     cursor:pointer;touch-action:none;overflow:hidden;transition:border-color .15s, transform .08s}
-  .hold .big{font-weight:900;font-size:clamp(18px,5.2vw,24px);letter-spacing:.06em}
+  .hold .big{font-weight:900;font-size:clamp(17px,5vw,24px);letter-spacing:.06em;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .hold.long .big{color:var(--up)} .hold.short .big{color:var(--violet)}
   .hold .small{font-size:12px;color:var(--mute);margin-top:4px;letter-spacing:.04em}
   .hold.on{border-color:var(--up);background:linear-gradient(180deg,#0f3b2c,#0b2a20);transform:scale(.985)}
   .hold.on .small{color:#bff5dd}
+  .hold.short.on{border-color:var(--violet);background:linear-gradient(180deg,#2a2260,#1b1645)}
+  .hold.short.on .small{color:#d9d3ff}
+  .hold.on .big{color:var(--ink)}
   .hold.hot{border-color:var(--gold);background:linear-gradient(180deg,#3d3010,#271e08)}
   .hold.danger{border-color:var(--down);background:linear-gradient(180deg,#45121f,#2a0b14)}
-  .levrow{display:flex;gap:4px;margin-top:8px}
-  .levrow b{font-family:var(--mono);font-size:11px;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.06);color:var(--mute)}
-  .levrow b.lit{background:var(--up);color:#04231a}
-  .hold.hot .levrow b.lit{background:var(--gold);color:#2a1f00}
-  .hold.danger .levrow b.lit{background:var(--down);color:#2a0008}
+  .levrow{display:flex;gap:3px;margin-top:9px;width:70%;max-width:180px}
+  .levrow b{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08)}
+  .hold.long .levrow b.lit{background:var(--up)}
+  .hold.short .levrow b.lit{background:var(--violet)}
+  .hold.hot .levrow b.lit{background:var(--gold)}
+  .hold.danger .levrow b.lit{background:var(--down)}
+  .keys{text-align:center;font-size:11px;color:var(--mute);margin-top:6px;letter-spacing:.04em}
+  @media (pointer:coarse){ .keys{display:none} }
 
   /* ---------- overlays ---------- */
   .ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(6,8,16,.86);z-index:20}
@@ -100,6 +108,7 @@
   .legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--mute);margin-top:6px}
   .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--up);opacity:.5}
   .legend span.l2::before{background:var(--down);opacity:1;border-radius:50%}
+  .legend span.l3::before{background:var(--violet);opacity:.6}
   .next{font-size:12px;color:var(--mute);margin-top:12px}
   .sharebox{display:none;margin-top:10px;text-align:left;font-family:var(--mono);font-size:12px;white-space:pre-wrap;background:#0b1024;border:1px solid var(--line);border-radius:10px;padding:10px;-webkit-user-select:text;user-select:text}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -131,11 +140,19 @@
     <button class="mute" id="muteBtn" aria-label="Toggle sound">♪</button>
   </div>
 
-  <div class="hold" id="hold" role="button" aria-label="Hold to go long">
-    <div class="big" id="holdBig">HOLD TO GO LONG</div>
-    <div class="small" id="holdSmall">Release to cash out · Space works too</div>
-    <div class="levrow" id="levrow"></div>
+  <div class="controls">
+    <div class="hold short" id="holdS" role="button" aria-label="Hold to short">
+      <div class="big" id="bigS">▼ SHORT</div>
+      <div class="small" id="smallS">hold · bet it falls</div>
+      <div class="levrow" id="levS"></div>
+    </div>
+    <div class="hold long" id="holdL" role="button" aria-label="Hold to go long">
+      <div class="big" id="bigL">▲ LONG</div>
+      <div class="small" id="smallL">hold · bet it rises</div>
+      <div class="levrow" id="levL"></div>
+    </div>
   </div>
+  <div class="keys">Keyboard: hold ↑ or W to go long · ↓ or S to short</div>
 </div>
 
 <!-- title -->
@@ -143,9 +160,9 @@
   <div class="card">
     <div class="kicker" id="marketNo">Today's market</div>
     <div class="title"><span class="a">MARGIN</span><br><span class="b">CALL</span></div>
-    <div class="tag">60 seconds. One button. Don't get liquidated.</div>
+    <div class="tag">60 seconds. Long or short. Don't get liquidated.</div>
     <div class="rules">
-      <div class="rule r1"><i>1</i><div><b>Hold</b> to buy. <b>Let go</b> to sell and bank your profit.</div></div>
+      <div class="rule r1"><i>⇅</i><div>Hold <b>▲ LONG</b> if you think the price will rise, <b>▼ SHORT</b> if it will fall. <b>Let go</b> to bank. On the chart, the top half is long and the bottom half is short.</div></div>
       <div class="rule r2"><i>×</i><div>The longer you hold, the higher your <b>leverage</b> climbs: ×1 up to ×20. Bigger gains, thinner ice.</div></div>
       <div class="rule r3"><i>!</i><div>If a trade falls to half its best value, that's a <b>margin call</b>. Three and you're out. Watch the red line.</div></div>
     </div>
@@ -167,7 +184,7 @@
     <div class="pct" id="endPct">+0%</div>
     <div class="rank" id="endRank"></div>
     <canvas class="recap" id="recap"></canvas>
-    <div class="legend"><span>you were long</span><span class="l2">margin call</span></div>
+    <div class="legend"><span>long</span><span class="l3">short</span><span class="l2">margin call</span></div>
     <div class="stats">
       <div class="stat"><b id="eBest">—</b><span>Best today</span></div>
       <div class="stat"><b id="eTrades">0</b><span>Trades</span></div>
@@ -201,6 +218,7 @@ const MAX_CALLS = 3;
 const FEE = 0.0004;             // per unit of leverage, on entry
 const WINDOW = 140;             // ticks visible on the chart
 const LAUNCH = Date.UTC(2026, 10, 21);
+const PRE = 120;                // pre-market ticks drawn before the open
 
 /* ---------- date + seeded randomness ---------- */
 function parisDate(d) {
@@ -267,7 +285,11 @@ function buildMarket(dateStr) {
     ret[i] = drift[i] + vol[i] * gauss() + jump[i];
     price[i + 1] = price[i] * (1 + ret[i]);
   }
-  return { date: dateStr, events, ret, price };
+  // pre-market history so the chart is never empty at the open
+  const pre = new Float64Array(PRE);
+  let q = 100;
+  for (let i = PRE - 1; i >= 0; i--) { pre[i] = q; q = q / (1 + 0.00001 + 0.0012 * gauss()); }
+  return { date: dateStr, events, ret, price, pre };
 }
 
 /* ---------- save data (site or browser) ---------- */
@@ -317,9 +339,9 @@ const sfx = {
 /* ---------- elements ---------- */
 const $ = id => document.getElementById(id);
 const cv = $('cv'), ctx = cv.getContext('2d');
-const holdEl = $('hold');
-LEV.forEach(l => { const b = document.createElement('b'); b.textContent = '×' + l; $('levrow').appendChild(b); });
-const levPips = [...$('levrow').children];
+const holdL = $('holdL'), holdS = $('holdS');
+for (const id of ['levL', 'levS']) LEV.forEach(() => $(id).appendChild(document.createElement('b')));
+const pipsL = [...$('levL').children], pipsS = [...$('levS').children];
 
 /* ---------- game state ---------- */
 const TODAY = parisDate();
@@ -327,16 +349,16 @@ const MARKET_NO = Math.max(1, Math.floor((Date.parse(TODAY + 'T00:00:00Z') - LAU
 let M = buildMarket(TODAY);
 let S = null;          // run state
 let phase = 'title';   // title | count | live | end
-let pressed = false;
+let pressedDir = 0;   // 1 long, -1 short, 0 none
 
 function newRun() {
   return {
     tick: 0, acc: 0, cash: START_CASH, equity: START_CASH,
-    pos: null,                      // { entryEq, entryTick, held, lev }
+    pos: null,                      // { dir, entryEq, peakEq, entryTick, held, lev }
     calls: 0, trades: 0, blown: false,
-    longMask: new Uint8Array(TICKS), callTicks: [],
+    posMask: new Int8Array(TICKS), callTicks: [],
     newsIdx: 0, newsUntil: -1, curNews: null,
-    yMin: 98, yMax: 102,
+    yMin: NaN, yMax: NaN,
     segPnl: new Float64Array(10), segLong: new Uint8Array(10),
   };
 }
@@ -349,11 +371,11 @@ function fmtMoney(v) {
 function fmtPct(v) { const p = (v / START_CASH - 1) * 100; return (p >= 0 ? '+' : '') + (Math.abs(p) >= 1000 ? Math.round(p).toLocaleString('en-US') : p.toFixed(1)) + '%'; }
 
 /* ---------- trading ---------- */
-function openPos() {
-  if (phase !== 'live' || S.pos || S.blown) return;
+function openPos(dir) {
+  if (phase !== 'live' || S.pos || S.blown || !dir) return;
   const lev = LEV[0];
   S.equity *= (1 - FEE * lev);
-  S.pos = { entryEq: S.equity, peakEq: S.equity, entryTick: S.tick, held: 0, lev };
+  S.pos = { dir, entryEq: S.equity, peakEq: S.equity, entryTick: S.tick, held: 0, lev };
   S.trades++;
   sfx.enter();
 }
@@ -391,8 +413,8 @@ function step() {
     const li = Math.min(LEV.length - 1, Math.floor(S.pos.held / LEV_STEP_TICKS));
     if (LEV[li] !== S.pos.lev) { S.pos.lev = LEV[li]; sfx.lev(li); }
     const before = S.equity;
-    S.equity = Math.max(0.01, S.equity * (1 + S.pos.lev * r));
-    S.longMask[i] = 1;
+    S.equity = Math.max(0.01, S.equity * (1 + S.pos.dir * S.pos.lev * r));
+    S.posMask[i] = S.pos.dir;
     const seg = Math.min(9, Math.floor(i / 60));
     S.segPnl[seg] += S.equity - before; S.segLong[seg] = 1;
     S.pos.peakEq = Math.max(S.pos.peakEq, S.equity);
@@ -421,25 +443,43 @@ function floater(text, color) {
 }
 
 /* ---------- input ---------- */
-function press() { if (pressed) return; pressed = true; ac(); openPos(); }
-function release() { if (!pressed) return; pressed = false; closePos('release'); }
-holdEl.addEventListener('pointerdown', e => { e.preventDefault(); try { holdEl.setPointerCapture(e.pointerId); } catch (_) {} press(); });
-holdEl.addEventListener('pointerup', e => { e.preventDefault(); release(); });
-holdEl.addEventListener('pointercancel', release);
-holdEl.addEventListener('lostpointercapture', release);
-holdEl.addEventListener('contextmenu', e => e.preventDefault());
-// the chart is also a hold zone on phones (big thumb target)
-$('chartwrap').addEventListener('pointerdown', e => { if (e.target.closest('.mute')) return; e.preventDefault(); try { $('chartwrap').setPointerCapture(e.pointerId); } catch (_) {} press(); });
-$('chartwrap').addEventListener('pointerup', release);
-$('chartwrap').addEventListener('pointercancel', release);
-$('chartwrap').addEventListener('lostpointercapture', release);
+function press(dir) {
+  if (pressedDir === dir) return;
+  pressedDir = dir; ac();
+  if (S && S.pos && S.pos.dir !== dir) closePos('switch');
+  if (S) openPos(dir);
+}
+function release(dir) {
+  if (!pressedDir || (dir && dir !== pressedDir)) return;
+  pressedDir = 0; closePos('release');
+}
+const releaseAll = () => release();
+function bindHold(el, dirOf) {
+  let d = 0;
+  el.addEventListener('pointerdown', e => {
+    if (e.target.closest('.mute')) return;
+    e.preventDefault(); try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    d = dirOf(e); press(d);
+  });
+  const up = () => { if (d) { release(d); d = 0; } };
+  el.addEventListener('pointerup', e => { e.preventDefault(); up(); });
+  el.addEventListener('pointercancel', up);
+  el.addEventListener('lostpointercapture', up);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+bindHold(holdL, () => 1);
+bindHold(holdS, () => -1);
+// the chart is a hold zone too: top half long, bottom half short
+bindHold($('chartwrap'), e => { const r = $('chartwrap').getBoundingClientRect(); return e.clientY < r.top + r.height / 2 ? 1 : -1; });
+const KEY_DIR = { ArrowUp: 1, KeyW: 1, Space: 1, ArrowDown: -1, KeyS: -1 };
 document.addEventListener('keydown', e => {
-  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (!e.repeat) press(); }
+  const d = KEY_DIR[e.code];
+  if (d) { e.preventDefault(); if (!e.repeat) press(d); }
   if (e.code === 'Enter' && phase !== 'live' && phase !== 'count') { e.preventDefault(); startCountdown(); }
 });
-document.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); release(); } });
-window.addEventListener('blur', release);
-document.addEventListener('visibilitychange', () => { if (document.hidden) release(); });
+document.addEventListener('keyup', e => { const d = KEY_DIR[e.code]; if (d) { e.preventDefault(); release(d); } });
+window.addEventListener('blur', releaseAll);
+document.addEventListener('visibilitychange', () => { if (document.hidden) releaseAll(); });
 $('muteBtn').addEventListener('click', e => { e.stopPropagation(); muted = !muted; $('muteBtn').style.opacity = muted ? 0.4 : 1; $('muteBtn').textContent = muted ? '×' : '♪'; });
 $('muteBtn').addEventListener('pointerdown', e => e.stopPropagation());
 
@@ -456,17 +496,17 @@ function startCountdown() {
   if (parisDate() !== M.date) { M = buildMarket(parisDate()); }
   $('ovTitle').classList.remove('show'); $('ovEnd').classList.remove('show');
   $('sharebox').style.display = 'none';
-  S = newRun(); phase = 'count'; pressed = false; hideNews();
+  S = newRun(); phase = 'count'; pressedDir = 0; hideNews();
   let n = 3; const c = $('count');
   const tickDown = () => {
-    if (n === 0) { c.textContent = ''; phase = 'live'; last = performance.now(); if (pressed) openPos(); return; }
+    if (n === 0) { c.textContent = ''; phase = 'live'; last = performance.now(); if (pressedDir) openPos(pressedDir); return; }
     c.textContent = n; sfx.count(); n--; setTimeout(tickDown, 600);
   };
   ac(); tickDown();
 }
 function endRun() {
   if (phase === 'end') return;
-  phase = 'end'; release(); hideNews();
+  phase = 'end'; releaseAll(); hideNews();
   const score = Math.min(1e11, Math.max(0, Math.round(S.equity)));
   // save
   const d = save.days[TODAY] || { best: 0, plays: 0 };
@@ -538,24 +578,26 @@ function liqPrice(pNow, run) {
   run = run || S;
   if (!run || !run.pos) return null;
   const d = (1 - LIQ_FRACTION * run.pos.peakEq / run.equity) / run.pos.lev;
-  return pNow * (1 - d);
+  return pNow * (1 - run.pos.dir * d);
 }
+function cushionOf(run, pNow, lp) { return lp ? run.pos.dir * (pNow - lp) / pNow : 1; }
 
 function draw(frac) {
   ctx.clearRect(0, 0, W, H);
   const run = S || newRun();
   const t = run.tick;
   const pNow = t >= TICKS ? M.price[TICKS] : M.price[t] + (M.price[Math.min(TICKS, t + 1)] - M.price[t]) * (phase === 'live' ? frac : 0);
-  const x0 = Math.max(0, t - WINDOW + 20);
+  const x0 = Math.max(-PRE + 1, t - WINDOW + 20);
+  const P = i => i < 0 ? M.pre[PRE + i] : M.price[i];
   const padR = 64, padT = 56, padB = 22;
   const plotW = W - padR, plotH = H - padT - padB;
   // y range: smooth follow
   let lo = Infinity, hi = -Infinity;
-  for (let i = x0; i <= t; i++) { lo = Math.min(lo, M.price[i]); hi = Math.max(hi, M.price[i]); }
+  for (let i = x0; i <= t; i++) { lo = Math.min(lo, P(i)); hi = Math.max(hi, P(i)); }
   lo = Math.min(lo, pNow); hi = Math.max(hi, pNow);
   const lp = liqPrice(pNow, run);
-  if (lp) lo = Math.min(lo, lp);
-  if (run.pos) hi = Math.max(hi, M.price[run.pos.entryTick]);
+  if (lp) { lo = Math.min(lo, lp); hi = Math.max(hi, lp); }
+  if (run.pos) { const ep = M.price[run.pos.entryTick]; lo = Math.min(lo, ep); hi = Math.max(hi, ep); }
   const span = Math.max(hi - lo, pNow * 0.02);
   const tLo = lo - span * 0.12, tHi = hi + span * 0.12;
   run.yMin += (tLo - run.yMin) * 0.12; run.yMax += (tHi - run.yMax) * 0.12;
@@ -574,21 +616,32 @@ function draw(frac) {
     ctx.fillText(p.toFixed(stepP < 1 ? 2 : 1), plotW + 8, y + 4);
   }
 
-  // long shading
-  ctx.fillStyle = 'rgba(46,229,157,.09)';
-  for (let i = x0; i < t; i++) if (run.longMask[i]) ctx.fillRect(X(i), padT - 10, X(i + 1) - X(i) + 0.5, plotH + 20);
+  // position shading: long green, short violet
+  for (let i = x0; i < t; i++) if (run.posMask[i]) {
+    ctx.fillStyle = run.posMask[i] > 0 ? 'rgba(46,229,157,.09)' : 'rgba(155,140,255,.12)';
+    ctx.fillRect(X(i), padT - 10, X(i + 1) - X(i) + 0.5, plotH + 20);
+  }
+  // half-screen hint while flat
+  if (phase === 'live' && !run.pos) {
+    ctx.fillStyle = 'rgba(135,144,184,.35)'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'left';
+    ctx.fillText('▲ HOLD ABOVE TO GO LONG', 10, padT + 16);
+    ctx.fillText('▼ HOLD BELOW TO SHORT', 10, H - 10);
+  }
 
   // price path
-  const up = pNow >= M.price[x0];
+  const up = pNow >= P(x0);
   const grad = ctx.createLinearGradient(0, padT, 0, H);
   grad.addColorStop(0, up ? 'rgba(46,229,157,.22)' : 'rgba(255,77,109,.22)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.beginPath(); ctx.moveTo(X(x0), Y(M.price[x0]));
-  for (let i = x0 + 1; i <= t; i++) ctx.lineTo(X(i), Y(M.price[i]));
+  ctx.beginPath(); ctx.moveTo(X(x0), Y(P(x0)));
+  for (let i = x0 + 1; i <= t; i++) ctx.lineTo(X(i), Y(P(i)));
   const xNow = X(t) + (phase === 'live' ? frac : 0) * (X(1) - X(0));
   ctx.lineTo(xNow, Y(pNow));
   ctx.strokeStyle = '#eef1ff'; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.stroke();
   ctx.lineTo(xNow, H); ctx.lineTo(X(x0), H); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
 
+  // opening bell marker
+  if (x0 < 0) { ctx.save(); ctx.strokeStyle = 'rgba(255,209,102,.35)'; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(X(0), padT - 10); ctx.lineTo(X(0), H); ctx.stroke(); ctx.restore();
+    ctx.fillStyle = 'rgba(255,209,102,.6)'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'right'; ctx.fillText('OPEN', X(0) - 4, H - 26); ctx.textAlign = 'left'; }
   // margin call markers
   for (const ct of run.callTicks) if (ct >= x0) { ctx.fillStyle = '#ff4d6d'; ctx.beginPath(); ctx.arc(X(ct), Y(M.price[ct]), 5, 0, 7); ctx.fill(); }
 
@@ -596,15 +649,17 @@ function draw(frac) {
   if (run.pos) {
     const ep = M.price[run.pos.entryTick];
     hline(Y(ep), 'rgba(238,241,255,.55)', 'ENTRY', plotW);
-    const danger = lp ? (pNow - lp) / pNow : 1;
+    const danger = cushionOf(run, pNow, lp);
     hline(Y(lp), danger < 0.006 ? '#ff4d6d' : 'rgba(255,77,109,.75)', 'LIQ', plotW, true);
-    ctx.fillStyle = 'rgba(255,77,109,.07)'; ctx.fillRect(0, Y(lp), plotW, H - Y(lp));
+    ctx.fillStyle = 'rgba(255,77,109,.07)';
+    if (run.pos.dir > 0) ctx.fillRect(0, Y(lp), plotW, H - Y(lp)); else ctx.fillRect(0, 0, plotW, Y(lp));
   }
 
   // live dot + price tag
-  ctx.fillStyle = run.pos ? '#2ee59d' : '#eef1ff';
+  const dotC = !run.pos ? '#eef1ff' : run.pos.dir > 0 ? '#2ee59d' : '#9b8cff';
+  ctx.fillStyle = dotC;
   ctx.beginPath(); ctx.arc(xNow, Y(pNow), 4.5, 0, 7); ctx.fill();
-  ctx.fillStyle = run.pos ? '#2ee59d' : '#eef1ff';
+  ctx.fillStyle = dotC;
   roundRect(plotW + 2, Y(pNow) - 10, padR - 6, 20, 5); ctx.fill();
   ctx.fillStyle = '#0a0e1a'; ctx.font = 'bold 11px ' + getComputedStyle(document.body).getPropertyValue('--mono');
   ctx.fillText(pNow.toFixed(2), plotW + 8, Y(pNow) + 4);
@@ -629,8 +684,10 @@ function drawRecap() {
   let lo = Infinity, hi = -Infinity;
   for (let i = 0; i <= TICKS; i++) { lo = Math.min(lo, M.price[i]); hi = Math.max(hi, M.price[i]); }
   const pad = 8, X = i => pad + i / TICKS * (w - pad * 2), Y = p => pad + (1 - (p - lo) / (hi - lo || 1)) * (h - pad * 2);
-  g.fillStyle = 'rgba(46,229,157,.28)';
-  for (let i = 0; i < end; i++) if (S.longMask[i]) g.fillRect(X(i), 0, X(i + 1) - X(i) + 0.4, h);
+  for (let i = 0; i < end; i++) if (S.posMask[i]) {
+    g.fillStyle = S.posMask[i] > 0 ? 'rgba(46,229,157,.28)' : 'rgba(155,140,255,.34)';
+    g.fillRect(X(i), 0, X(i + 1) - X(i) + 0.4, h);
+  }
   g.beginPath(); g.moveTo(X(0), Y(M.price[0]));
   for (let i = 1; i <= TICKS; i++) g.lineTo(X(i), Y(M.price[i]));
   g.strokeStyle = 'rgba(238,241,255,.85)'; g.lineWidth = 1.5; g.stroke();
@@ -645,28 +702,33 @@ function hud() {
   $('eq').firstChild.nodeValue = fmtMoney(eq);
   $('eqPct').textContent = fmtPct(eq);
   $('eqPct').className = eq >= START_CASH ? 'up' : 'down';
-  $('eqLabel').textContent = run.pos ? 'Account value · LONG ×' + run.pos.lev : 'Account value · in cash';
+  $('eqLabel').textContent = run.pos ? 'Account value · ' + (run.pos.dir > 0 ? 'LONG' : 'SHORT') + ' ×' + run.pos.lev : 'Account value · in cash';
   const left = Math.max(0, TICKS - run.tick) * TICK_MS / 1000;
   const secs = Math.ceil(left - 1e-9);
   $('clock').textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
   $('timebar').style.transform = 'scaleX(' + (left / 60) + ')';
   for (let i = 0; i < MAX_CALLS; i++) $('p' + i).classList.toggle('used', i < run.calls);
-  // hold button
+  // hold buttons
   const pos = run.pos;
-  holdEl.classList.toggle('on', !!pos);
-  let li = pos ? LEV.indexOf(pos.lev) : -1;
-  levPips.forEach((b, i) => b.classList.toggle('lit', i <= li));
   const pNow = M.price[Math.min(TICKS, run.tick)];
   const lp = pos ? liqPrice(pNow, run) : null;
-  const cushion = lp ? (pNow - lp) / pNow : 1;
-  holdEl.classList.toggle('hot', !!pos && li >= 4 && cushion >= 0.006);
-  holdEl.classList.toggle('danger', !!pos && cushion < 0.006);
-  if (phase !== 'live') { $('holdBig').textContent = phase === 'count' ? 'GET READY' : 'HOLD TO GO LONG'; $('holdSmall').textContent = 'Release to cash out · Space works too'; }
-  else if (pos) {
-    const pnl = run.equity - pos.entryEq;
-    $('holdBig').textContent = 'LONG ×' + pos.lev + '  ' + (pnl >= 0 ? '+' : '') + fmtMoney(pnl);
-    $('holdSmall').textContent = cushion < 0.006 ? 'LET GO — liquidation is right there' : li < LEV.length - 1 ? 'Leverage climbs every second · let go to bank' : 'Max leverage · let go to bank';
-  } else { $('holdBig').textContent = run.blown ? 'BLOWN UP' : 'HOLD TO GO LONG'; $('holdSmall').textContent = 'You are in cash · hold to buy'; }
+  const cushion = pos ? cushionOf(run, pNow, lp) : 1;
+  const li = pos ? LEV.indexOf(pos.lev) : -1;
+  for (const [el, pips, dir, big, small, name, idle] of [[holdL, pipsL, 1, 'bigL', 'smallL', 'LONG', '▲ LONG'], [holdS, pipsS, -1, 'bigS', 'smallS', 'SHORT', '▼ SHORT']]) {
+    const mine = !!pos && pos.dir === dir;
+    el.classList.toggle('on', mine);
+    el.classList.toggle('hot', mine && li >= 4 && cushion >= 0.006);
+    el.classList.toggle('danger', mine && cushion < 0.006);
+    pips.forEach((b, i) => b.classList.toggle('lit', mine && i <= li));
+    if (mine && phase === 'live') {
+      const pnl = run.equity - pos.entryEq;
+      $(big).textContent = name + ' ×' + pos.lev;
+      $(small).textContent = cushion < 0.006 ? 'LET GO — liquidation!' : (pnl >= 0 ? '+' : '') + fmtMoney(pnl) + ' · let go to bank';
+    } else {
+      $(big).textContent = phase === 'count' ? 'GET READY' : run.blown ? 'BLOWN UP' : idle;
+      $(small).textContent = dir > 0 ? 'hold · bet it rises' : 'hold · bet it falls';
+    }
+  }
 }
 
 /* ---------- loop ---------- */
